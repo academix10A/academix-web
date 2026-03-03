@@ -1,68 +1,51 @@
 import { useState } from 'react';
 import { 
-  LayoutDashboard, 
-  Users, 
-  Package, 
-  FileText, 
-  Settings,
+  Home, 
+  BookOpen, 
+  User,
   ChevronLeft,
   ChevronRight,
   LogOut
 } from 'lucide-react';
 
-const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
+const UserSidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const menuItems = [
     { 
       id: 'dashboard', 
-      name: 'Dashboard', 
-      icon: LayoutDashboard 
+      name: 'Inicio', 
+      icon: Home 
     },
     { 
-      id: 'users', 
-      name: 'Usuarios', 
-      icon: Users 
+      id: 'courses', 
+      name: 'Mis Cursos', 
+      icon: BookOpen 
     },
     { 
-      id: 'products', 
-      name: 'Productos', 
-      icon: Package 
-    },
-    { 
-      id: 'questions', 
-      name: 'Preguntas', 
-      icon: FileText 
-    },
-    { 
-      id: 'reports', 
-      name: 'Reportes', 
-      icon: FileText 
-    },
-    { 
-      id: 'settings', 
-      name: 'Configuración', 
-      icon: Settings 
+      id: 'profile', 
+      name: 'Mi Perfil', 
+      icon: User 
     }
   ];
 
   return (
-    <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+    <aside className={`user-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       {/* Header */}
-      <div className="sidebar-header">
+      <div className="user-sidebar-header">
         {!isCollapsed && (
-          <div className="sidebar-logo">
-            <div className="logo-icon">
-              <LayoutDashboard size={24} />
+          <div className="user-sidebar-logo">
+            <div className="user-logo-icon">
+              <BookOpen size={24} />
             </div>
-            <div className="logo-text">
+            <div className="user-logo-text">
               <h2>Academix</h2>
-              <span>Admin Panel</span>
+              <span>Estudiante</span>
             </div>
           </div>
         )}
         <button 
-          className="sidebar-toggle"
+          className="user-sidebar-toggle"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
@@ -70,7 +53,7 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
       </div>
 
       {/* Menu Items */}
-      <nav className="sidebar-nav">
+      <nav className="user-sidebar-nav">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeMenu === item.id;
@@ -79,7 +62,7 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
             <button
               key={item.id}
               onClick={() => setActiveMenu(item.id)}
-              className={`menu-item ${isActive ? 'active' : ''}`}
+              className={`user-menu-item ${isActive ? 'active' : ''}`}
               title={isCollapsed ? item.name : ''}
             >
               <Icon size={20} />
@@ -90,19 +73,19 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
       </nav>
 
       {/* User Profile */}
-      <div className="sidebar-footer">
-        <div className="user-profile">
-          <div className="user-avatar">AD</div>
+      <div className="user-sidebar-footer">
+        <div className="user-profile-card">
+          <div className="user-avatar">US</div>
           {!isCollapsed && (
             <div className="user-info">
-              <p className="user-name">Admin</p>
-              <p className="user-role">Administrador</p>
+              <p className="user-name">Usuario</p>
+              <p className="user-role">Estudiante</p>
             </div>
           )}
         </div>
         {!isCollapsed && (
           <button 
-            className="logout-btn"
+            className="user-logout-btn"
             onClick={onLogout}
             title="Cerrar sesión"
           >
@@ -115,4 +98,4 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
   );
 };
 
-export default Sidebar;
+export default UserSidebar;
