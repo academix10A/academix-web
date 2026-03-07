@@ -52,6 +52,9 @@ const Login = ({ onLoginSuccess }) => {
           
           // Llamar callback de éxito
           onLoginSuccess(token, userData.id_rol);
+          
+          // Forzar recarga para que App.jsx detecte el cambio
+          window.location.reload();
         } else {
           setError('Error al obtener información del usuario');
         }
@@ -124,4 +127,4 @@ const Login = ({ onLoginSuccess }) => {
   );
 };
 
-export default Login;
+export default Login;  
