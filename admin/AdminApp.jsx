@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './styles/admin.css';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import UsersPage from './pages/UsersPage';
 import ProductsPage from './pages/ProductsPage';
 import QuestionsPage from './pages/QuestionsPage';
+import RecursosPage from './pages/RecursosPage';
+import ExamenesPage from './pages/ExamenesPage';
+import ExamenCreator from './pages/ExamenCreator';
 import Login from './pages/Login';
 import { getAuthToken, setAuthToken as saveAuthToken, removeAuthToken } from './utils/api';
 
 const AdminApp = () => {
   const [activeMenu, setActiveMenu] = useState('dashboard');
+  const [currentHash, setCurrentHash] = useState(window.location.hash);
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     // Verificar token y rol al inicializar
     const token = getAuthToken();
@@ -29,6 +33,27 @@ const AdminApp = () => {
     return false;
   });
 
+  // Escuchar cambios en el hash
+  useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentHash(window.location.hash);
+      
+      // Si estamos en #examenes, activar el menú de examenes
+      if (window.location.hash === '#examenes' || 
+          window.location.hash === '#crear-examen' ||
+          window.location.hash.startsWith('#editar-examen/')) {
+        setActiveMenu('examenes');
+      }
+    };
+    
+    window.addEventListener('hashchange', handleHashChange);
+    
+    // Ejecutar al cargar
+    handleHashChange();
+    
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   // Manejar login exitoso
   const handleLoginSuccess = (token, userRole) => {
     saveAuthToken(token);
@@ -47,8 +72,18 @@ const AdminApp = () => {
     setActiveMenu('dashboard');
   };
 
-  // Renderizar página según el menú activo
+  // Renderizar página según el menú activo o hash
   const renderPage = () => {
+    // Verificar si estamos en rutas de exámenes
+    if (currentHash === '#crear-examen' || currentHash.startsWith('#editar-examen/')) {
+      return <ExamenCreator />;
+    }
+    
+    if (currentHash === '#examenes') {
+      return <ExamenesPage />;
+    }
+
+    // Rutas normales del menú
     switch (activeMenu) {
       case 'dashboard':
         return <Dashboard />;
@@ -58,6 +93,10 @@ const AdminApp = () => {
         return <ProductsPage />;
       case 'questions':
         return <QuestionsPage />;
+      case 'recursos':
+        return <RecursosPage />;
+      case 'examenes':
+        return <ExamenesPage />;
       case 'reports':
         return (
           <div className="page-container">

@@ -23,9 +23,21 @@ export const API_ENDPOINTS = {
   // Auth
   LOGIN: '/token',
   
+  // Exámenes
+  EXAMENES: '/examen/',
+  EXAMEN_BY_ID: (id) => `/examen/${id}/`,
+  
   // Preguntas (con barra final)
   PREGUNTAS: '/pregunta/',
   PREGUNTA_BY_ID: (id) => `/pregunta/${id}/`,
+  
+  // Opciones
+  OPCIONES: '/opcion/',
+  OPCION_BY_ID: (id) => `/opcion/${id}/`,
+  
+  // Recursos (con barra final)
+  RECURSOS: '/recurso/',
+  RECURSO_BY_ID: (id) => `/recurso/${id}/`,
   
   // Usuarios (ejemplo para futuro)
   USUARIOS: '/usuario/',
@@ -74,6 +86,23 @@ export const apiRequest = async (endpoint, options = {}) => {
   }
 };
 
+// Funciones específicas para Exámenes
+export const examenesAPI = {
+  getAll: () => apiRequest(API_ENDPOINTS.EXAMENES),
+  getById: (id) => apiRequest(API_ENDPOINTS.EXAMEN_BY_ID(id)),
+  create: (data) => apiRequest(API_ENDPOINTS.EXAMENES, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  update: (id, data) => apiRequest(API_ENDPOINTS.EXAMEN_BY_ID(id), {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
+  delete: (id) => apiRequest(API_ENDPOINTS.EXAMEN_BY_ID(id), {
+    method: 'DELETE',
+  }),
+};
+
 // Funciones específicas para Preguntas
 export const preguntasAPI = {
   // Obtener todas las preguntas
@@ -100,11 +129,57 @@ export const preguntasAPI = {
   }),
 };
 
+// Funciones específicas para Opciones
+export const opcionesAPI = {
+  getAll: () => apiRequest(API_ENDPOINTS.OPCIONES),
+  getById: (id) => apiRequest(API_ENDPOINTS.OPCION_BY_ID(id)),
+  create: (data) => apiRequest(API_ENDPOINTS.OPCIONES, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  update: (id, data) => apiRequest(API_ENDPOINTS.OPCION_BY_ID(id), {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
+  delete: (id) => apiRequest(API_ENDPOINTS.OPCION_BY_ID(id), {
+    method: 'DELETE',
+  }),
+};
+
+// Funciones específicas para Recursos
+export const recursosAPI = {
+  // Obtener todos los recursos
+  getAll: () => apiRequest(API_ENDPOINTS.RECURSOS),
+  
+  // Obtener un recurso por ID
+  getById: (id) => apiRequest(API_ENDPOINTS.RECURSO_BY_ID(id)),
+  
+  // Crear un nuevo recurso
+  create: (data) => apiRequest(API_ENDPOINTS.RECURSOS, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  
+  // Actualizar un recurso
+  update: (id, data) => apiRequest(API_ENDPOINTS.RECURSO_BY_ID(id), {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
+  
+  // Eliminar un recurso
+  delete: (id) => apiRequest(API_ENDPOINTS.RECURSO_BY_ID(id), {
+    method: 'DELETE',
+  }),
+};
+
 export default {
   API_BASE_URL,
   API_ENDPOINTS,
   apiRequest,
+  examenesAPI,
   preguntasAPI,
+  opcionesAPI,
+  recursosAPI,
   getAuthToken,
   setAuthToken,
   removeAuthToken,

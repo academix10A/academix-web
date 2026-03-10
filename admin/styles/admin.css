@@ -1087,6 +1087,421 @@ textarea.form-input {
   white-space: nowrap;
 }
 
+/* ===== EXAMENES GRID ===== */
+.examenes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.examen-card {
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.examen-card:hover {
+  border-color: var(--admin-primary);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 206, 209, 0.2);
+}
+
+.examen-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.examen-card-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--admin-text);
+  margin-bottom: 0.5rem;
+}
+
+.examen-description {
+  font-size: 1rem;
+  color: var(--admin-gray);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.examen-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--admin-border);
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  color: var(--admin-gray);
+}
+
+.examen-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.examen-actions .btn-secondary {
+  flex: 1;
+}
+
+.no-data-card {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  color: var(--admin-gray);
+}
+
+.no-data-card svg {
+  margin-bottom: 1rem;
+  color: var(--admin-primary);
+}
+
+.no-data-card p {
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ===== CREADOR DE EXAMENES ===== */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  color: var(--admin-text);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.btn-back:hover {
+  background-color: var(--admin-surface);
+  border-color: var(--admin-primary);
+  color: var(--admin-primary);
+}
+
+.progress-bar-container {
+  margin-bottom: 3rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--admin-surface);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--admin-primary), var(--admin-secondary));
+  transition: width 0.3s ease;
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progress-step span {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--admin-surface);
+  border: 2px solid var(--admin-border);
+  border-radius: 50%;
+  color: var(--admin-gray);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.progress-step.active span {
+  background-color: var(--admin-primary);
+  border-color: var(--admin-primary);
+  color: var(--admin-background);
+}
+
+.progress-step p {
+  font-size: 0.875rem;
+  color: var(--admin-gray);
+}
+
+.progress-step.active p {
+  color: var(--admin-text);
+  font-weight: 600;
+}
+
+.creator-step {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.form-card {
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 2.5rem;
+}
+
+.form-card h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--admin-text);
+  margin-bottom: 2rem;
+}
+
+.step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.step-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== PREGUNTAS ===== */
+.preguntas-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.pregunta-card {
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 2rem;
+}
+
+.pregunta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.pregunta-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.btn-icon-delete {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--admin-error);
+  border-radius: 8px;
+  color: var(--admin-error);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-icon-delete:hover {
+  background-color: var(--admin-error);
+  color: white;
+}
+
+.opciones-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.opcion-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--admin-background);
+  border: 2px solid var(--admin-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.opcion-item:hover {
+  border-color: var(--admin-primary);
+}
+
+.opcion-item.correcta {
+  border-color: var(--admin-success);
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.opcion-checkbox {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--admin-border);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.opcion-item.correcta .opcion-checkbox {
+  background-color: var(--admin-success);
+  border-color: var(--admin-success);
+  color: white;
+}
+
+.opcion-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--admin-text);
+  font-size: 1rem;
+}
+
+.hint-text {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--admin-gray);
+  text-align: center;
+}
+
+.btn-add-question {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background-color: transparent;
+  border: 2px dashed var(--admin-border);
+  border-radius: 10px;
+  color: var(--admin-gray);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-add-question:hover {
+  border-color: var(--admin-primary);
+  color: var(--admin-primary);
+  background-color: rgba(0, 206, 209, 0.05);
+}
+
+/* ===== REVIEW ===== */
+.review-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.review-section {
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 2rem;
+}
+
+.review-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--admin-text);
+  margin-bottom: 1.5rem;
+}
+
+.review-info p {
+  font-size: 1rem;
+  color: var(--admin-text);
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.review-info strong {
+  color: var(--admin-primary);
+}
+
+.review-pregunta {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.review-pregunta:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.review-pregunta h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--admin-text);
+  margin-bottom: 1rem;
+}
+
+.review-opciones {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.review-opcion {
+  padding: 0.875rem 1.25rem;
+  background-color: var(--admin-background);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  color: var(--admin-text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.review-opcion.correcta {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: var(--admin-success);
+  color: var(--admin-success);
+  font-weight: 600;
+}
+
+.review-opcion.correcta svg {
+  color: var(--admin-success);
+}
+
 /* ===== ANIMATIONS ===== */
 @keyframes fadeIn {
   from {

@@ -7,7 +7,9 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  LogOut
+  LogOut,
+  BookOpen,
+  ClipboardList
 } from 'lucide-react';
 
 const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
@@ -30,9 +32,20 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
       icon: Package 
     },
     { 
+      id: 'examenes', 
+      name: 'Exámenes', 
+      icon: ClipboardList,
+      onClick: () => window.location.hash = '#examenes'
+    },
+    { 
       id: 'questions', 
       name: 'Preguntas', 
       icon: FileText 
+    },
+    { 
+      id: 'recursos', 
+      name: 'Recursos', 
+      icon: BookOpen 
     },
     { 
       id: 'reports', 
@@ -78,7 +91,17 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
           return (
             <button
               key={item.id}
-              onClick={() => setActiveMenu(item.id)}
+              onClick={() => {
+                if (item.onClick) {
+                  item.onClick();
+                } else {
+                  // Limpiar hash si no es examenes
+                  if (item.id !== 'examenes') {
+                    window.location.hash = '';
+                  }
+                  setActiveMenu(item.id);
+                }
+              }}
               className={`menu-item ${isActive ? 'active' : ''}`}
               title={isCollapsed ? item.name : ''}
             >
