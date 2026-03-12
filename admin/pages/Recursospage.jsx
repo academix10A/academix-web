@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X, FileText, Link as LinkIcon } from 'lucide-react';
-import { recursosAPI } from '../utils/api';
+import { recursosAPI } from '../utils/api'; 
 
 const RecursosPage = () => {
   const [recursos, setRecursos] = useState([]);

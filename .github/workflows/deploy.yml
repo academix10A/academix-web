@@ -26,7 +26,6 @@ jobs:
 
             echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env.frontend
 
-            docker pull jafetkana/academix-frontend:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/academix-frontend:latest
 
-            docker-compose down
-            docker-compose up -d
+            docker-compose up -d --no-deps backend
