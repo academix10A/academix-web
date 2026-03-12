@@ -6,6 +6,7 @@ import UsersPage from './pages/UsersPage';
 import ProductsPage from './pages/ProductsPage';
 import QuestionsPage from './pages/QuestionsPage';
 import RecursosPage from './pages/RecursosPage';
+import SubtemasPage from './pages/Subtemaspage';
 import ExamenesPage from './pages/ExamenesPage';
 import ExamenCreator from './pages/ExamenCreator';
 import Login from './pages/Login';
@@ -91,6 +92,8 @@ const AdminApp = () => {
         return <UsersPage />;
       case 'products':
         return <ProductsPage />;
+      case 'subtemas':
+        return <SubtemasPage />;
       case 'questions':
         return <QuestionsPage />;
       case 'recursos':

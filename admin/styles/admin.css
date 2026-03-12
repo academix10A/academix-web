@@ -933,12 +933,29 @@
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
 }
 
+.modal-content > form,
+.modal-content > .modal-body {
+  padding: 3rem 4rem !important;
+}
+
+.modal-content .form-group {
+  margin-bottom: 3rem !important;
+}
+
+.modal-content .form-group label {
+  margin-bottom: 1.25rem !important;
+}
+
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2.5rem 3rem 2rem;
+  padding: 3rem 4rem 2.5rem;
   border-bottom: 1px solid var(--admin-border);
+}
+
+.modal-body {
+  padding: 3rem 4rem;
 }
 
 .modal-header h2 {
@@ -971,11 +988,11 @@
 
 /* ===== FORMULARIOS ===== */
 form {
-  padding: 2.5rem 3rem;
+  padding: 3rem 4rem;
 }
 
 .form-group {
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .form-row {
@@ -990,7 +1007,7 @@ form {
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--admin-text);
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   letter-spacing: 0.02em;
 }
 
@@ -1030,9 +1047,9 @@ textarea.form-input {
   display: flex;
   justify-content: center;
   gap: 1.5rem;
-  padding-top: 2rem;
+  padding-top: 3rem !important;
   border-top: 1px solid var(--admin-border);
-  margin-top: 2rem;
+  margin-top: 3rem !important;
 }
 
 .btn-secondary {

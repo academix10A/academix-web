@@ -9,7 +9,8 @@ import {
   ChevronRight,
   LogOut,
   BookOpen,
-  ClipboardList
+  ClipboardList,
+  Layers
 } from 'lucide-react';
 
 const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
@@ -30,6 +31,11 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
       id: 'products', 
       name: 'Productos', 
       icon: Package 
+    },
+    { 
+      id: 'subtemas', 
+      name: 'Subtemas', 
+      icon: Layers 
     },
     { 
       id: 'examenes', 
