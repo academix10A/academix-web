@@ -24,8 +24,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t jafetkana/academix-frontend:latest .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/academix-frontend:latest .
 
       - name: Push Docker image
         run: |
-          docker push jafetkana/academix-frontend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/academix-frontend:latest
