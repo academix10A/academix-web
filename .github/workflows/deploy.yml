@@ -28,4 +28,4 @@ jobs:
 
             docker pull ${{ secrets.DOCKER_USERNAME }}/academix-frontend:latest
 
-            docker-compose up -d --no-deps backend
+            docker-compose up -d --no-deps frontend
