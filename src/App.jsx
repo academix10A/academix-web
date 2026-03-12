@@ -2,6 +2,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './hooks/useAuth'
 import ProtectedRoute from './router/ProtectedRoute'
+import RecursoVerPage from './pages/RecursoVerPage.jsx'
+import Recursos          from './pages/Recursos.jsx'
+import RecursosCategorias from './pages/RecursosCategorias.jsx'
+import RecursosDetalle    from './pages/RecursosDetalle.jsx'
 
 // Páginas públicas
 import Home  from './pages/Home.jsx'
@@ -41,6 +45,29 @@ export default function App() {
           <Route path="/admin" element={
             <ProtectedRoute requireAuth={true} requireRole="admin">
               <AdminDashboard />
+            </ProtectedRoute>
+          } />
+
+          {/* ── Rutas de recursos ───────────────────────────────────── */}
+          <Route path="/recursos" element={
+            <ProtectedRoute requireAuth={true}>
+              <Recursos />
+            </ProtectedRoute>
+          } />
+          <Route path="/recursos/:idTipo" element={
+            <ProtectedRoute requireAuth={true}>
+              <RecursosCategorias />
+            </ProtectedRoute>
+          } />
+          <Route path="/recursos/:idTipo/categoria/:idCategoria" element={
+            <ProtectedRoute requireAuth={true}>
+              <RecursosDetalle />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/recursos/ver/:idRecurso" element={
+            <ProtectedRoute requireAuth={true}>
+              <RecursoVerPage />
             </ProtectedRoute>
           } />
 

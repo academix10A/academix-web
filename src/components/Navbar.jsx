@@ -10,6 +10,7 @@ const links = [
   { label: 'Membresías',     href: '#membresias' },
   { label: 'Sobre Nosotros', href: '#nosotros' },
   { label: 'Contacto',       href: '#contacto' },
+
 ]
 
 export default function Navbar() {
@@ -101,6 +102,15 @@ export default function Navbar() {
                   <User size={15} />
                   <span>Perfil</span>
                 </Link>
+
+                <Link
+  to="/recursos"
+  className={styles.dropdownItem}
+  onClick={() => setDropdown(false)}
+>
+  <BookOpen size={15} />
+  <span>Recursos</span>
+</Link>
 
                 <Link
                   to="/ajustes"
