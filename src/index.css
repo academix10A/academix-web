@@ -1,9 +1,11 @@
+/* Reset global */
 *, *::before, *::after {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
+/* Variables globales */
 :root {
   --blue-light: #63b3ed;
   --blue-mid:   #2b6cb0;
@@ -21,15 +23,77 @@
   --font-body:    'DM Sans', system-ui, sans-serif;
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+}
 
+/* Root SIN limitaciones de ancho */
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Body */
 body {
   font-family: var(--font-body);
   color: var(--text-main);
   background: var(--off-white);
+  margin: 0;
+  padding: 0;
+  width: 100%;
   min-height: 100vh;
 }
 
-a { text-decoration: none; color: inherit; }
+/* Links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
 
-button { cursor: pointer; border: none; background: none; font-family: inherit; }
+/* Buttons */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+/* ---------- Estilos adicionales del template ---------- */
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
