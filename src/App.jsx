@@ -4,7 +4,7 @@ import { AuthProvider } from './hooks/useAuth'
 import ProtectedRoute from './router/ProtectedRoute'
 
 // Admin / User Apps
-import AdminApp from '../admin/AdminApp'
+import AdminApp from './pages/admin/AdminApp'
 import UserApp from '../user/UserApp'
 
 // Recursos
@@ -25,22 +25,12 @@ import Login from './pages/Login.jsx'
 import Registro from './pages/Registro.jsx'
 
 // Admin dashboard
-import AdminDashboard from './pages/admin/Dashboard.jsx'
+// import AdminDashboard from './pages/admin/Dashboard.jsx'
 
 export default function App() {
 
   const userRole = localStorage.getItem('user_role')
   const hasToken = !!localStorage.getItem('auth_token')
-
-  // Si es admin → usar AdminApp
-  if (hasToken && userRole === '1') {
-    return <AdminApp />
-  }
-
-  // Si es usuario normal o premium → usar UserApp
-  if (hasToken && (userRole === '2' || userRole === '3')) {
-    return <UserApp />
-  }
 
   return (
     <AuthProvider>
@@ -60,9 +50,10 @@ export default function App() {
           } />
 
           {/* Admin */}
-          <Route path="/admin" element={
+          <Route path="/admin/*" element={
             <ProtectedRoute requireAuth={true} requireRole="admin">
-              <AdminDashboard />
+              {/* <AdminDashboard /> */}
+              <AdminApp />
             </ProtectedRoute>
           } />
 
