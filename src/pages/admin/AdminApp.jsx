@@ -7,7 +7,7 @@ import UsersPage from './pages/UsersPage';
 import ProductsPage from './pages/ProductsPage';
 import QuestionsPage from './pages/QuestionsPage';
 import RecursosPage from './pages/Recursospage';
-import SubtemasPage from './pages/Subtemaspage';
+import SubtemasPage from './pages/SubtemasPage';
 import ExamenesPage from './pages/ExamenesPage';
 import ExamenCreator from './pages/ExamenCreator';
 import { getAuthToken, removeAuthToken } from './utils/api';
