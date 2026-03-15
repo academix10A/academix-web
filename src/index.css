@@ -1,0 +1,35 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --blue-light: #63b3ed;
+  --blue-mid:   #2b6cb0;
+  --blue-strong:#1a365d;
+  --blue-dark:  #0f2340;
+  --gold:       #d4af37;
+  --gold-light: #f0d060;
+  --gold-dim:   #a07c1a;
+  --white:      #ffffff;
+  --off-white:  #f0f4f8;
+  --text-main:  #1a202c;
+  --text-muted: #718096;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--text-main);
+  background: var(--off-white);
+  min-height: 100vh;
+}
+
+a { text-decoration: none; color: inherit; }
+
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
