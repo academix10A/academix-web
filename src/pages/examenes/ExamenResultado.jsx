@@ -31,7 +31,7 @@ export default function ExamenResultado() {
       <div className={styles.page}>
         <div className={styles.container}>
 
-          {/* ── Score ── */}
+          {/*  Score  */}
           <div className={styles.scoreCard}>
             <div className={styles.medalla}>{medalla.emoji}</div>
             <h1 className={styles.medallaLabel} style={{ color: medalla.color }}>
@@ -65,7 +65,7 @@ export default function ExamenResultado() {
             </div>
           </div>
 
-          {/* ── Desglose por pregunta ── */}
+          {/*  Desglose por pregunta  */}
           <h2 className={styles.desgloseTitle}>Revisión de respuestas</h2>
           <div className={styles.desglose}>
             {preguntas.map((p, i) => (
@@ -108,7 +108,7 @@ export default function ExamenResultado() {
             ))}
           </div>
 
-          {/* ── Botones ── */}
+          {/*  Botones  */}
           <div className={styles.actions}>
             <button className={styles.btnSecundario} onClick={() => navigate('/examenes')}>
               <RotateCcw size={16} />

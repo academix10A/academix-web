@@ -1,0 +1,215 @@
+/* ── Layout ── */
+.page {
+  display: flex;
+  min-height: calc(100vh - 65px);
+  background: var(--blue-dark);
+  padding-top: 65px;
+}
+
+
+.sidebar {
+  width: 28px;       
+  flex-shrink: 0;
+  background: rgba(15,35,64,0.95);
+  border-right: 1px solid rgba(255,255,255,0.07);
+  transition: width 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebarOpen {
+  width: 200px;      
+}
+
+/* Botón toggle  */
+.toggleBtn {
+  position: absolute;
+  top: 1rem;
+  right: 0;
+  width: 28px;
+  height: 40px;
+  background: rgba(212,175,55,0.1);
+  border-left: 1px solid rgba(212,175,55,0.2);
+  border-top: 1px solid rgba(212,175,55,0.2);
+  border-bottom: 1px solid rgba(212,175,55,0.2);
+  border-radius: 6px 0 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s;
+}
+.toggleBtn:hover { background: rgba(212,175,55,0.2); }
+
+/*  Contenido sidebar  */
+.sidebarContent {
+  padding: 1rem 0.6rem 1rem 0.6rem;
+  padding-right: 32px; /* espacio para el toggle */
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.sidebarTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebarEmpty {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.25);
+  text-align: center;
+  padding: 1rem 0;
+}
+
+/*  Lista de videos  */
+.videoList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.videoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: left;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.videoItem:hover { opacity: 0.8; }
+
+/*  Miniatura  */
+.thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.06);
+}
+
+.thumbnailImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.playOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.3);
+  color: var(--white);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.videoItem:hover .playOverlay { opacity: 1; }
+
+.videoTitle {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Player ── */
+.playerWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #0a0a0a;
+}
+
+.videoHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border-bottom:none;
+  flex-wrap: wrap;
+}
+
+.backBtn {
+  display: flex; align-items: center; gap: 0.4rem;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.backBtn:hover { color: var(--gold); }
+
+.videoTitulo {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--white);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.externalLink {
+  display: flex; align-items: center; gap: 0.35rem;
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.externalLink:hover { opacity: 0.75; }
+
+/* iframe responsive */
+.iframeWrap {
+  flex: 1;
+  position: relative;
+  min-height: calc(100vh - 130px);
+  background: #000;
+}
+
+.iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ── Descripción ── */
+.descripcionWrap {
+  padding: 1rem 1.5rem;
+  background: rgba(15,35,64,0.6);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.descripcion {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.6;
+}
+
+/* ── Loading ── */
+.centerWrap {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 100vh; gap: 1rem;
+  background: #0a0a0a;
+  color: rgba(255,255,255,0.4);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { animation: spin 0.8s linear infinite; color: var(--gold); }

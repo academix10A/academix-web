@@ -1,4 +1,4 @@
-/* ── Layout principal ────────────────────────────────────────────── */
+/*  Layout principal  */
 .page {
   display: flex;
   min-height: 100vh;
@@ -6,7 +6,7 @@
   padding-top: 65px; /* altura del navbar */
 }
 
-/* ── Sidebar ─────────────────────────────────────────────────────── */
+/* Sidebar  */
 .sidebar {
   width: 280px;
   flex-shrink: 0;
@@ -83,7 +83,7 @@
 }
 .externalLink:hover { opacity: 0.75; }
 
-/* ── Visor ───────────────────────────────────────────────────────── */
+/*  Visor  */
 .viewer {
   flex: 1;
   display: flex;
@@ -99,7 +99,7 @@
   background: #fff;
 }
 
-/* ── Audio ───────────────────────────────────────────────────────── */
+/* Audio  */
 .audioWrap {
   flex: 1;
   display: flex;
@@ -123,7 +123,7 @@
   border-radius: 50px;
 }
 
-/* ── Video ───────────────────────────────────────────────────────── */
+/* Video  */
 .video {
   width: 100%;
   flex: 1;
@@ -131,7 +131,7 @@
   background: #000;
 }
 
-/* ── Unknown ─────────────────────────────────────────────────────── */
+/*  Unknown  */
 .unknownWrap {
   flex: 1;
   display: flex;
@@ -155,7 +155,7 @@
 }
 .openBtn:hover { opacity: 0.85; }
 
-/* ── Loading / Error ─────────────────────────────────────────────── */
+/*  Loading / Error  */
 .centerWrap {
   min-height: 100vh;
   background: var(--blue-dark);
@@ -168,7 +168,7 @@
 .spinner { animation: spin 0.8s linear infinite; color: var(--gold); }
 .errorMsg { font-size: 0.78rem; color: #fc8181; }
 
-/* ── Responsive ──────────────────────────────────────────────────── */
+/*  Responsive  */
 @media (max-width: 768px) {
   .page { flex-direction: column; }
   .sidebar {

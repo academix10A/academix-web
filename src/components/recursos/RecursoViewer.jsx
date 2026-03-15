@@ -34,7 +34,7 @@ export default function RecursoViewer({ onRecursoLoaded }) {
       .finally(() => setLoading(false))
   }, [idRecurso, token])
 
-  // 2 — Traer metadata de Open Library si aplica
+  // 2  Traer metadata de Open Library si aplica
   const fetchOpenLibraryData = async (workId) => {
     try {
       const res  = await fetch(`https://openlibrary.org/works/${workId}.json`)
@@ -75,7 +75,7 @@ export default function RecursoViewer({ onRecursoLoaded }) {
   return (
     <div className={styles.page}>
 
-      {/* ── Sidebar con info del recurso ── */}
+      {/*  Sidebar con info del recurso */}
       <aside className={styles.sidebar}>
         {/* Portada Open Library si existe */}
         {coverUrl && (
@@ -126,7 +126,7 @@ export default function RecursoViewer({ onRecursoLoaded }) {
   )
 }
 
-// ── Renderiza el player correcto según el tipo de URL ──────────────
+// Renderiza el player correcto según el tipo de URL 
 function ViewerContent({ recurso, urlType }) {
   const url = recurso.url_archivo
 
