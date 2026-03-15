@@ -1,103 +1,34 @@
-// <<<<<<< HEAD
-// // src/App.jsx
-// import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-// import { AuthProvider } from './hooks/useAuth'
-// import ProtectedRoute from './router/ProtectedRoute'
-
-// // Páginas públicas
-// import Home  from './pages/Home.jsx'
-// import Login from './pages/Login.jsx'
-// import Registro from './pages/Registro.jsx'
-
-// // Páginas de usuario autenticado
-// // (misma página Home, pero ahora con funciones desbloqueadas según membresía)
-
-// // Páginas de admin
-// import AdminDashboard from './pages/admin/Dashboard.jsx'
-
-// export default function App() {
-//   return (
-//     <AuthProvider>
-//       <BrowserRouter>
-//         <Routes>
-
-//           {/*Rutas públicas*/}
-//           <Route path="/"        element={<Home />} />
-//           <Route path="/login"   element={<Login />} />
-//           <Route path="/registro" element={<Registro />} />
-          
-
-//           {/*Rutas de usuario autenticado (gratis o premium)*/}
-//           {/*
-//             requireAuth={true} significa: si no estás logueado → /login
-//             No ponemos requireRole porque tanto gratis como premium entran aquí.
-//             usePermissions() dentro de cada componente controla qué ven.
-//           */}
-//           <Route path="/home" element={
-//             <ProtectedRoute requireAuth={true}>
-//               <Home />
-//             </ProtectedRoute>
-//           } />
-
-//           <Route path="/admin" element={
-//             <ProtectedRoute requireAuth={true} requireRole="admin">
-//               <AdminDashboard />
-//             </ProtectedRoute>
-//           } />
-
-//           <Route path="*" element={<Navigate to="/" replace />} />
-
-//         </Routes>
-//       </BrowserRouter>
-//     </AuthProvider>
-//   )
-// }
-// =======
-// import AdminApp from '../admin/AdminApp';
-// import UserApp from '../user/UserApp';
-
-// function App() {
-//   // Obtener el rol del usuario de localStorage
-//   const userRole = localStorage.getItem('user_role');
-//   const hasToken = !!localStorage.getItem('auth_token');
-  
-//   // Si tiene token y es admin (rol = 1)
-//   if (hasToken && userRole === '1') {
-//     return <AdminApp />;
-//   }
-  
-//   // Si tiene token y es usuario normal o premium (rol = 2 o 3)
-//   if (hasToken && (userRole === '2' || userRole === '3')) {
-//     return <UserApp />;
-//   }
-  
-//   // Sin sesión o rol inválido, mostrar login (AdminApp lo maneja)
-//   return <AdminApp />;
-// }
-
-// export default App;
-// >>>>>>> abd99b874deb262eba4191018f173cd0eb07b974
-
 // src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './hooks/useAuth'
 import ProtectedRoute from './router/ProtectedRoute'
 
-// Apps por rol
-import AdminApp from '../admin/AdminApp'
+// Admin / User Apps
+import AdminApp from './pages/admin/AdminApp'
 import UserApp from '../user/UserApp'
 
-// Páginas públicas
+// Recursos
+import RecursoVerPage from './pages/RecursoVerPage.jsx'
+import Recursos from './pages/Recursos.jsx'
+import RecursosCategorias from './pages/RecursosCategorias.jsx'
+import RecursosDetalle from './pages/RecursosDetalle.jsx'
+
+// Exámenes
+import ExamenesPage from './pages/examenes/ExamenesPage.jsx'
+import ExamenDetalle from './pages/examenes/ExamenesDetalle.jsx'
+import ExamenResolver from './pages/examenes/ExamenResolver.jsx'
+import ExamenResultado from './pages/examenes/ExamenResultado.jsx'
+
+// Públicas
 import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import Registro from './pages/Registro.jsx'
 
-// Páginas admin
-import AdminDashboard from './pages/admin/Dashboard.jsx'
+// Admin dashboard
+// import AdminDashboard from './pages/admin/Dashboard.jsx'
 
 export default function App() {
 
-  // lógica de roles del segundo código
   const userRole = localStorage.getItem('user_role')
   const hasToken = !!localStorage.getItem('auth_token')
 
@@ -106,44 +37,76 @@ export default function App() {
       <BrowserRouter>
         <Routes>
 
-          {/* Rutas públicas */}
+          {/* Públicas */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
 
           {/* Usuario autenticado */}
-          <Route
-            path="/home"
-            element={
-              <ProtectedRoute requireAuth={true}>
-                <UserApp />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/home" element={
+            <ProtectedRoute requireAuth={true}>
+              <Home />
+            </ProtectedRoute>
+          } />
 
           {/* Admin */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute requireAuth={true} requireRole="admin">
-                <AdminApp />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/admin/*" element={
+            <ProtectedRoute requireAuth={true} requireRole="admin">
+              {/* <AdminDashboard /> */}
+              <AdminApp />
+            </ProtectedRoute>
+          } />
 
-          {/* Dashboard admin directo si el rol es admin */}
-          {hasToken && userRole === '1' && (
-            <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoute requireAuth={true} requireRole="admin">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-          )}
+          {/* Recursos */}
+          <Route path="/recursos" element={
+            <ProtectedRoute requireAuth={true}>
+              <Recursos />
+            </ProtectedRoute>
+          } />
 
-          {/* Fallback */}
+          <Route path="/recursos/:idTipo" element={
+            <ProtectedRoute requireAuth={true}>
+              <RecursosCategorias />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/recursos/:idTipo/categoria/:idCategoria" element={
+            <ProtectedRoute requireAuth={true}>
+              <RecursosDetalle />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/recursos/ver/:idRecurso" element={
+            <ProtectedRoute requireAuth={true}>
+              <RecursoVerPage />
+            </ProtectedRoute>
+          } />
+
+          {/* Exámenes */}
+          <Route path="/examenes" element={
+            <ProtectedRoute requireAuth={true}>
+              <ExamenesPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/examenes/:idExamen" element={
+            <ProtectedRoute requireAuth={true}>
+              <ExamenDetalle />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/examenes/:idExamen/resolver" element={
+            <ProtectedRoute requireAuth={true}>
+              <ExamenResolver />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/examenes/:idExamen/resultado" element={
+            <ProtectedRoute requireAuth={true}>
+              <ExamenResultado />
+            </ProtectedRoute>
+          } />
+
           <Route path="*" element={<Navigate to="/" replace />} />
 
         </Routes>

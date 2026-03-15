@@ -1,9 +1,11 @@
+/* Reset global */
 *, *::before, *::after {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
+/* Variables globales */
 :root {
   --blue-light: #63b3ed;
   --blue-mid:   #2b6cb0;
@@ -21,34 +23,43 @@
   --font-body:    'DM Sans', system-ui, sans-serif;
 }
 
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: var(--font-body);
-  color: var(--text-main);
-  background: var(--off-white);
-  min-height: 100vh;
+html {
+  scroll-behavior: smooth;
 }
 
-a { text-decoration: none; color: inherit; }
-
-button { cursor: pointer; border: none; background: none; font-family: inherit; }
-
-/* Root SIN limitaciones de ancho - ESTO ES IMPORTANTE */
+/* Root SIN limitaciones de ancho */
 #root {
   width: 100%;
   min-height: 100vh;
 }
 
-/* Body sin padding ni margin */
-/* body {
+/* Body */
+body {
+  font-family: var(--font-body);
+  color: var(--text-main);
+  background: var(--off-white);
   margin: 0;
   padding: 0;
   width: 100%;
   min-height: 100vh;
-} */
+}
 
-/* Opcional: Si necesitas estos estilos para otras partes del proyecto */
+/* Links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+/* ---------- Estilos adicionales del template ---------- */
+
 .logo {
   height: 6em;
   padding: 1.5em;

@@ -136,6 +136,8 @@ export function AuthProvider({ children }) {
       // Persistir en localForage (sobrevive recargas y cierre del navegador)
       await localforage.setItem(TOKEN_KEY, accessToken)
       await localforage.setItem(USER_KEY, userData)
+      localStorage.setItem('auth_token', accessToken);
+      localStorage.setItem('user_role', userData.rol);
 
       setToken(accessToken)
       setUser(userData)

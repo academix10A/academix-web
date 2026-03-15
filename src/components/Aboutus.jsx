@@ -1,4 +1,4 @@
-import styles from './Aboutus.module.css'
+import styles from './AboutUs.module.css'
 import { Users, Target, Lightbulb } from 'lucide-react'
 
 const stats = [

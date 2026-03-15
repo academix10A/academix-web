@@ -1,0 +1,202 @@
+// src/pages/examenes/ExamenesPage.jsx
+// Lista de exámenes con buscador y etiquetas de colores
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Search, BookOpen, Loader, AlertCircle, ChevronRight } from 'lucide-react'
+import Navbar from '../../components/Navbar'
+import { useAuth } from '../../hooks/useAuth'
+import { examenesService, subtemasService } from '../../services/api'
+import styles from './ExamenesPage.module.css'
+import { useSearchParams } from 'react-router-dom'
+
+// Colores para etiquetas — se asignan por índice de subtema
+const ETIQUETA_COLORS = [
+  { bg: 'rgba(99,179,237,0.15)',  border: 'rgba(99,179,237,0.4)',  text: '#63b3ed' },
+  { bg: 'rgba(212,175,55,0.15)',  border: 'rgba(212,175,55,0.4)',  text: '#d4af37' },
+  { bg: 'rgba(154,230,180,0.15)', border: 'rgba(154,230,180,0.4)', text: '#9ae6b4' },
+  { bg: 'rgba(252,129,129,0.15)', border: 'rgba(252,129,129,0.4)', text: '#fc8181' },
+  { bg: 'rgba(183,148,246,0.15)', border: 'rgba(183,148,246,0.4)', text: '#b794f6' },
+  { bg: 'rgba(246,173,85,0.15)',  border: 'rgba(246,173,85,0.4)',  text: '#f6ad55' },
+]
+
+function getColor(index) {
+  return ETIQUETA_COLORS[index % ETIQUETA_COLORS.length]
+}
+
+export default function ExamenesPage() {
+  const { token } = useAuth()
+  const navigate  = useNavigate()
+
+  const [examenes, setExamenes]   = useState([])
+  const [subtemas, setSubtemas]   = useState([])
+  const [loading, setLoading]     = useState(true)
+  const [error, setError]         = useState(null)
+  const [busqueda, setBusqueda]   = useState('')
+  const [filtroSub, setFiltroSub] = useState(null) // id_subtema seleccionado
+  const [searchParams] = useSearchParams()
+
+  useEffect(() => {
+    if (!token) return
+
+    Promise.all([
+      examenesService.getAll(token),
+      subtemasService.getAll(token),
+    ])
+      .then(([exs, subs]) => {
+        setExamenes(Array.isArray(exs) ? exs : exs.items ?? [])
+        setSubtemas(Array.isArray(subs) ? subs : subs.items ?? [])
+      })
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false))
+  }, [token])
+
+  // Filtrar por búsqueda y etiqueta
+  const examenesFiltrados = examenes.filter(ex => {
+    const matchBusqueda = ex.titulo.toLowerCase().includes(busqueda.toLowerCase())
+    const matchSub      = filtroSub ? ex.id_subtema === filtroSub : true
+    return matchBusqueda && matchSub
+  })
+  
+  useEffect(() => {
+  const subtemaParam = searchParams.get('subtema')
+  if (subtemaParam) {
+    setFiltroSub(parseInt(subtemaParam))
+  }
+}, [searchParams])
+
+  // Solo subtemas que tienen al menos un examen
+  const subtemasConExamen = subtemas.filter(s =>
+    examenes.some(ex => ex.id_subtema === s.id_subtema)
+  )
+
+  if (loading) return (
+    <>
+      <Navbar />
+      <div className={styles.centerWrap}>
+        <Loader size={32} className={styles.spinner} />
+        <p>Cargando exámenes…</p>
+      </div>
+    </>
+  )
+
+  if (error) return (
+    <>
+      <Navbar />
+      <div className={styles.centerWrap}>
+        <AlertCircle size={32} style={{ color: '#fc8181' }} />
+        <p>No se pudieron cargar los exámenes</p>
+      </div>
+    </>
+  )
+
+  return (
+    <>
+      <Navbar />
+      <div className={styles.page}>
+
+        {/*  Hero */}
+        <div className={styles.hero}>
+          <h1 className={styles.heroTitle}>Exámenes</h1>
+          <p className={styles.heroSub}>Pon a prueba tu conocimiento</p>
+
+          {/* Buscador */}
+          <div className={styles.searchWrap}>
+            <Search size={18} className={styles.searchIcon} />
+            <input
+              className={styles.searchInput}
+              type="text"
+              placeholder="Buscar examen por título…"
+              value={busqueda}
+              onChange={e => setBusqueda(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className={styles.content}>
+
+          {/* Etiquetas de subtemas  */}
+          {subtemasConExamen.length > 0 && (
+            <div className={styles.etiquetas}>
+              <button
+                className={`${styles.etiqueta} ${filtroSub === null ? styles.etiquetaActive : ''}`}
+                onClick={() => setFiltroSub(null)}
+                style={filtroSub === null ? {
+                  background: 'rgba(212,175,55,0.2)',
+                  borderColor: 'var(--gold)',
+                  color: 'var(--gold)',
+                } : {}}
+              >
+                Todos
+              </button>
+              {subtemasConExamen.map((s, i) => {
+                const color    = getColor(i)
+                const activo   = filtroSub === s.id_subtema
+                return (
+                  <button
+                    key={s.id_subtema}
+                    className={styles.etiqueta}
+                    onClick={() => setFiltroSub(activo ? null : s.id_subtema)}
+                    style={{
+                      background:  activo ? color.bg   : 'rgba(255,255,255,0.04)',
+                      borderColor: activo ? color.border : 'rgba(255,255,255,0.1)',
+                      color:       activo ? color.text  : 'rgba(255,255,255,0.5)',
+                    }}
+                  >
+                    {s.nombre}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          {/*  Grid de exámenes  */}
+          {examenesFiltrados.length === 0 ? (
+            <div className={styles.empty}>
+              <BookOpen size={48} className={styles.emptyIcon} />
+              <p>No hay exámenes que coincidan con tu búsqueda</p>
+            </div>
+          ) : (
+            <div className={styles.grid}>
+              {examenesFiltrados.map((ex, i) => {
+                const subtema = subtemas.find(s => s.id_subtema === ex.id_subtema)
+                const color   = getColor(subtemas.findIndex(s => s.id_subtema === ex.id_subtema))
+                return (
+                  <div
+                    key={ex.id_examen}
+                    className={styles.card}
+                    onClick={() => navigate(`/examenes/${ex.id_examen}`)}
+                  >
+                    <div className={styles.cardTop}>
+                      {subtema && (
+                        <span
+                          className={styles.cardEtiqueta}
+                          style={{
+                            background:  color.bg,
+                            borderColor: color.border,
+                            color:       color.text,
+                          }}
+                        >
+                          {subtema.nombre}
+                        </span>
+                      )}
+                      <ChevronRight size={18} className={styles.cardArrow} />
+                    </div>
+                    <h2 className={styles.cardTitle}>{ex.titulo}</h2>
+                    {ex.descripcion && (
+                      <p className={styles.cardDesc}>{ex.descripcion}</p>
+                    )}
+                    <div className={styles.cardFooter}>
+                      <span className={styles.cardMeta}>
+                        {ex.cantidad_preguntas} preguntas
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
