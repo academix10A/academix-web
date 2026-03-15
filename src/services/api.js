@@ -42,10 +42,14 @@ export const subtemasService = {
   getAll: (token) => apiFetch('/subtemas/', {}, token),
 }
 
-// ── Exámenes ──────────────────────────────────────────────────────
 export const examenesService = {
-  getAll: (token) => apiFetch('/examen/', {}, token),
-  getById: (id, token) => apiFetch(`/examen/${id}`, {}, token),
+  getAll:     (token) => apiFetch('/examen/', {}, token),
+  getById:    (id, token) => apiFetch(`/examen/${id}`, {}, token),
+  getCompleto:(id, token) => apiFetch(`/examen/${id}/completo`, {}, token),
+  submit:     (data, token) => apiFetch('/examen/submit', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }, token),
 }
 
 // ── Publicaciones ─────────────────────────────────────────────────
@@ -58,3 +62,5 @@ export const publicacionesService = {
 export const membresiasService = {
   getAll: (token) => apiFetch('/membresia/', {}, token),
 }
+
+

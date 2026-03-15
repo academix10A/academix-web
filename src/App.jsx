@@ -6,6 +6,10 @@ import RecursoVerPage from './pages/RecursoVerPage.jsx'
 import Recursos          from './pages/Recursos.jsx'
 import RecursosCategorias from './pages/RecursosCategorias.jsx'
 import RecursosDetalle    from './pages/RecursosDetalle.jsx'
+import ExamenesPage    from './pages/examenes/ExamenesPage.jsx'
+import ExamenDetalle   from './pages/examenes/ExamenesDetalle.jsx'
+import ExamenResolver  from './pages/examenes/ExamenResolver.jsx'
+import ExamenResultado from './pages/examenes/ExamenResultado.jsx'
 
 // Páginas públicas
 import Home  from './pages/Home.jsx'
@@ -68,6 +72,27 @@ export default function App() {
           <Route path="/recursos/ver/:idRecurso" element={
             <ProtectedRoute requireAuth={true}>
               <RecursoVerPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/examenes" element={
+            <ProtectedRoute requireAuth={true}>
+              <ExamenesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/examenes/:idExamen" element={
+            <ProtectedRoute requireAuth={true}>
+              <ExamenDetalle />
+            </ProtectedRoute>
+          } />
+          <Route path="/examenes/:idExamen/resolver" element={
+            <ProtectedRoute requireAuth={true}>
+              <ExamenResolver />
+            </ProtectedRoute>
+          } />
+          <Route path="/examenes/:idExamen/resultado" element={
+            <ProtectedRoute requireAuth={true}>
+              <ExamenResultado />
             </ProtectedRoute>
           } />
 

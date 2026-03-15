@@ -108,15 +108,13 @@ export default function RecursoViewer({ onRecursoLoaded }) {
             <p className={styles.descripcion}>{decodeHtml(recurso.descripcion)}</p>
           )}
 
-          <a
-            href={recurso.url_archivo}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
             className={styles.externalLink}
+              onClick={() => navigate(`/examenes?subtema=${recurso.id_subtema}`)}
           >
-            <ExternalLink size={14} />
-            Examen
-          </a>
+            <BookOpen size={14} />
+              Ver examen del tema
+          </button>
         </div>
       </aside>
 
