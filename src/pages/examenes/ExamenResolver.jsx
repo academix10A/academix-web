@@ -8,7 +8,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { examenesService } from '../../services/api'
 import styles from './ExamenResolver.module.css'
 
-// 4 colores para las opciones — estilo Academix, no copia de Kahoot
+
 const OPCION_STYLES = [
   { bg: 'rgba(99,179,237,0.12)',  border: '#63b3ed', hover: 'rgba(99,179,237,0.25)'  },
   { bg: 'rgba(212,175,55,0.12)',  border: '#d4af37', hover: 'rgba(212,175,55,0.25)'  },
@@ -116,25 +116,25 @@ export default function ExamenResolver() {
       <Navbar />
       <div className={styles.page}>
 
-        {/* ── Barra de progreso ── */}
+        {/*  Barra de progreso  */}
         <div className={styles.progressBar}>
           <div className={styles.progressFill} style={{ width: `${progreso}%` }} />
         </div>
 
         <div className={styles.container}>
 
-          {/* ── Contador ── */}
+          {/*  Contador  */}
           <div className={styles.counter}>
             <span className={styles.counterCurrent}>{current + 1}</span>
             <span className={styles.counterTotal}> / {preguntas.length}</span>
           </div>
 
-          {/* ── Pregunta ── */}
+          {/*  Pregunta  */}
           <div className={styles.preguntaCard}>
             <h2 className={styles.preguntaTexto}>{pregunta.contenido}</h2>
           </div>
 
-          {/* ── Opciones ── */}
+          {/*  Opciones */}
           <div className={styles.opciones}>
             {pregunta.opciones.map((op, i) => {
               const style    = OPCION_STYLES[i % OPCION_STYLES.length]
@@ -165,7 +165,7 @@ export default function ExamenResolver() {
             })}
           </div>
 
-          {/* ── Botón enviar (última pregunta ya respondida) ── */}
+          {/* Botón enviar (última pregunta ya respondida)  */}
           {esUltima && yaRespondioActual && !feedback && (
             <button
               className={styles.btnEnviar}

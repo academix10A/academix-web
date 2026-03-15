@@ -94,7 +94,7 @@ export default function ExamenesPage() {
       <Navbar />
       <div className={styles.page}>
 
-        {/* ── Hero ── */}
+        {/*  Hero */}
         <div className={styles.hero}>
           <h1 className={styles.heroTitle}>Exámenes</h1>
           <p className={styles.heroSub}>Pon a prueba tu conocimiento</p>
@@ -114,7 +114,7 @@ export default function ExamenesPage() {
 
         <div className={styles.content}>
 
-          {/* ── Etiquetas de subtemas ── */}
+          {/* Etiquetas de subtemas  */}
           {subtemasConExamen.length > 0 && (
             <div className={styles.etiquetas}>
               <button
@@ -149,7 +149,7 @@ export default function ExamenesPage() {
             </div>
           )}
 
-          {/* ── Grid de exámenes ── */}
+          {/*  Grid de exámenes  */}
           {examenesFiltrados.length === 0 ? (
             <div className={styles.empty}>
               <BookOpen size={48} className={styles.emptyIcon} />
