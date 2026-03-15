@@ -6,7 +6,7 @@ import Dashboard from './pages/Dashboard';
 import UsersPage from './pages/UsersPage';
 import ProductsPage from './pages/ProductsPage';
 import QuestionsPage from './pages/QuestionsPage';
-import RecursosPage from './pages/RecursosPage';
+import RecursosPage from './pages/Recursospage';
 import SubtemasPage from './pages/Subtemaspage';
 import ExamenesPage from './pages/ExamenesPage';
 import ExamenCreator from './pages/ExamenCreator';
