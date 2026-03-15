@@ -1,11 +1,11 @@
-/* ── Página ──────────────────────────────────────────────────────── */
+/* Página  */
 .page {
   min-height: 100vh;
   background: var(--blue-dark);
   padding: 0 0 5rem;
 }
 
-/* ── Hero ────────────────────────────────────────────────────────── */
+/*  Hero  */
 .hero {
   text-align: center;
   padding: 6rem 2rem 4rem;
@@ -27,7 +27,7 @@
   margin: 0 auto;
 }
 
-/* ── Grid ────────────────────────────────────────────────────────── */
+/*  Grid  */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -37,7 +37,7 @@
   padding: 0 2rem;
 }
 
-/* ── Card ────────────────────────────────────────────────────────── */
+/*  Card  */
 .card {
   position: relative;
   background: rgba(255,255,255,0.04);
