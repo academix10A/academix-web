@@ -5,7 +5,6 @@ import ProtectedRoute from './router/ProtectedRoute'
 
 // Admin / User Apps
 import AdminApp from './pages/admin/AdminApp'
-import UserApp from '../user/UserApp'
 
 // Recursos
 import RecursoVerPage from './pages/RecursoVerPage.jsx'

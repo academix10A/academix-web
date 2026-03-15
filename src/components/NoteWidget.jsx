@@ -8,7 +8,7 @@ import {
 import { Link } from 'react-router-dom'
 import { useNotes, SyncError } from '../hooks/useNotes'
 import { useAuth } from '../hooks/useAuth'
-import styles from './NoteWidget.module.css'
+import styles from './Notewidget.module.css'
 
 
 export default function NoteWidget({ recursoPreseleccionado = null }) {
