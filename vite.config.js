@@ -35,10 +35,18 @@ export default defineConfig({
         ]
       },
       workbox: {
+
+        // NO interceptar rutas del backend
+        navigateFallbackDenylist: [
+          /^\/api/,
+          /^\/docs/,
+          /^\/openapi.json/
+        ],
+
         // Estrategia de caché para la API
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/127\.0\.0\.1:8000\/api\/.*/i,
+            urlPattern: /\/api\/.*/,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
@@ -54,7 +62,7 @@ export default defineConfig({
         ]
       },
       devOptions: {
-        enabled: true // Habilita PWA en desarrollo
+        enabled: true
       }
     })
   ]
