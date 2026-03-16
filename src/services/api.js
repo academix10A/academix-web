@@ -60,7 +60,7 @@ export const publicacionesService = {
 
 // ── Membresías ────────────────────────────────────────────────────
 export const membresiasService = {
-  getAll: (token) => apiFetch('/membresia/', {}, token),
+  getAll: () => apiFetch('/membresias/', {}, null),
 }
 
 
