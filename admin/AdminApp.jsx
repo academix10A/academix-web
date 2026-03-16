@@ -6,9 +6,12 @@ import UsersPage from './pages/UsersPage';
 import ProductsPage from './pages/ProductsPage';
 import QuestionsPage from './pages/QuestionsPage';
 import RecursosPage from './pages/RecursosPage';
-import SubtemasPage from './pages/Subtemaspage';
+import SubtemasPage from './pages/SubtemasPage';
+import MembresiasPage from './pages/MembresiasPage';
+import BeneficiosPage from './pages/BeneficiosPage';
 import ExamenesPage from './pages/ExamenesPage';
 import ExamenCreator from './pages/ExamenCreator';
+import SettingsPage from './pages/SettingsPage';
 import Login from './pages/Login';
 import { getAuthToken, setAuthToken as saveAuthToken, removeAuthToken } from './utils/api';
 
@@ -90,6 +93,10 @@ const AdminApp = () => {
         return <Dashboard />;
       case 'users':
         return <UsersPage />;
+      case 'membresias':
+        return <MembresiasPage />;
+      case 'beneficios':
+        return <BeneficiosPage />;
       case 'products':
         return <ProductsPage />;
       case 'subtemas':
@@ -113,17 +120,7 @@ const AdminApp = () => {
           </div>
         );
       case 'settings':
-        return (
-          <div className="page-container">
-            <div className="page-header">
-              <div>
-                <h1 className="page-title">Configuración</h1>
-                <p className="page-subtitle">Ajusta las configuraciones del sistema</p>
-              </div>
-            </div>
-            <p style={{ color: 'var(--admin-gray)' }}>Sección de configuración en construcción...</p>
-          </div>
-        );
+        return <SettingsPage />;
       default:
         return <Dashboard />;
     }
