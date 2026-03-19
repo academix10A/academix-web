@@ -13,7 +13,7 @@ export default defineConfig({
         name: 'Academix - Plataforma Educativa',
         short_name: 'Academix',
         description: 'Plataforma de biblioteca virtual y hub de estudio colaborativo',
-        theme_color: '#a07c1a',
+        theme_color: '#00CED1',
         background_color: '#181935',
         display: 'standalone',
         orientation: 'portrait',
@@ -35,10 +35,18 @@ export default defineConfig({
         ]
       },
       workbox: {
+
+        // NO interceptar rutas del backend
+        navigateFallbackDenylist: [
+          /^\/api/,
+          /^\/docs/,
+          /^\/openapi.json/
+        ],
+
         // Estrategia de caché para la API
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/127\.0\.0\.1:8000\/api\/.*/i,
+            urlPattern: /\/api\/.*/,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
@@ -54,7 +62,7 @@ export default defineConfig({
         ]
       },
       devOptions: {
-        enabled: true // Habilita PWA en desarrollo
+        enabled: true
       }
     })
   ]

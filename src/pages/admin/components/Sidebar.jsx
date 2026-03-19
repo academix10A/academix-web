@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -9,51 +10,67 @@ import {
   ChevronRight,
   LogOut,
   BookOpen,
-  ClipboardList
+  ClipboardList,
+  Layers
 } from 'lucide-react';
 
 const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  const navigate = useNavigate();
+
   const menuItems = [
     { 
       id: 'dashboard', 
+      path: '/admin',
       name: 'Dashboard', 
       icon: LayoutDashboard 
     },
     { 
       id: 'users', 
+      path: '/admin/usuarios',
       name: 'Usuarios', 
       icon: Users 
     },
     { 
       id: 'products', 
+      path: '/admin/products',
       name: 'Productos', 
       icon: Package 
     },
     { 
+      id: 'subtemas', 
+      path: '/admin/subtemas',
+      name: 'Subtemas', 
+      icon: Layers 
+    },
+    { 
       id: 'examenes', 
+      path: '/admin/examenes',
       name: 'Exámenes', 
-      icon: ClipboardList,
-      onClick: () => window.location.hash = '#examenes'
+      icon: ClipboardList
     },
     { 
       id: 'questions', 
+      path: '/admin/preguntas',
       name: 'Preguntas', 
       icon: FileText 
     },
     { 
       id: 'recursos', 
+      path: '/admin/recursos',
       name: 'Recursos', 
       icon: BookOpen 
     },
     { 
       id: 'reports', 
+      path: '/admin/reports',
       name: 'Reportes', 
       icon: FileText 
     },
     { 
       id: 'settings', 
+      path: '/admin/configuracion',
       name: 'Configuración', 
       icon: Settings 
     }
@@ -92,15 +109,8 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
             <button
               key={item.id}
               onClick={() => {
-                if (item.onClick) {
-                  item.onClick();
-                } else {
-                  // Limpiar hash si no es examenes
-                  if (item.id !== 'examenes') {
-                    window.location.hash = '';
-                  }
-                  setActiveMenu(item.id);
-                }
+                navigate(item.path);
+                setActiveMenu(item.id);
               }}
               className={`menu-item ${isActive ? 'active' : ''}`}
               title={isCollapsed ? item.name : ''}

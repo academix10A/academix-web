@@ -5,11 +5,11 @@ import { useAuth } from '../hooks/useAuth'
 import styles from './Navbar.module.css'
 
 const links = [
-  { label: 'Exámenes',       href: '#examenes' },
-  { label: 'Publicaciones',  href: '#publicaciones' },
-  { label: 'Membresías',     href: '#membresias' },
-  { label: 'Sobre Nosotros', href: '#nosotros' },
-  { label: 'Contacto',       href: '#contacto' },
+  { label: 'Exámenes',       href: '/examenes',     isRoute: true },
+  { label: 'Publicaciones',  href: '#publicaciones', isRoute: false },
+  { label: 'Membresías',     href: '/#membresias',    isRoute: false },
+  { label: 'Sobre Nosotros', href: '#nosotros',      isRoute: false },
+  { label: 'Contacto',       href: '#contacto',      isRoute: false },
 ]
 
 export default function Navbar() {
@@ -49,11 +49,13 @@ export default function Navbar() {
           <span>Academix</span>
         </Link>
 
-        {/* Links desktop */}
         <ul className={styles.links}>
           {links.map(l => (
             <li key={l.label}>
-              <a href={l.href} className={styles.link}>{l.label}</a>
+              {l.isRoute
+            ? <Link to={l.href} className={styles.link}>{l.label}</Link>
+            : <a href={l.href} className={styles.link}>{l.label}</a>
+              }
             </li>
           ))}
         </ul>
@@ -103,6 +105,15 @@ export default function Navbar() {
                 </Link>
 
                 <Link
+                  to="/recursos"
+                  className={styles.dropdownItem}
+                  onClick={() => setDropdown(false)}
+                >
+                  <BookOpen size={15} />
+                  <span>Recursos</span>
+                </Link>
+
+                <Link
                   to="/ajustes"
                   className={styles.dropdownItem}
                   onClick={() => setDropdown(false)}
@@ -140,13 +151,13 @@ export default function Navbar() {
       {/* Drawer mobile */}
       <div className={`${styles.drawer} ${open ? styles.drawerOpen : ''}`}>
         {links.map(l => (
-          <a
-            key={l.label} href={l.href}
-            className={styles.drawerLink}
-            onClick={() => setOpen(false)}
-          >
-            {l.label}
-          </a>
+          l.isRoute
+            ? <Link key={l.label} to={l.href} className={styles.drawerLink} onClick={() => setOpen(false)}>
+                {l.label}
+              </Link>
+            : <a key={l.label} href={l.href} className={styles.drawerLink} onClick={() => setOpen(false)}>
+                {l.label}
+              </a>
         ))}
         <div className={styles.drawerDivider} />
         {isAuthenticated ? (

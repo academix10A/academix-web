@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Check, X } from 'lucide-react';
 import { examenesAPI, preguntasAPI, opcionesAPI } from '../utils/api';
 
@@ -26,19 +27,19 @@ const ExamenCreator = () => {
     }
   ]);
 
-  // Cargar subtemas al montar
+// Cargar subtemas al montar + detectar edit mode from route params
   useEffect(() => {
     fetchSubtemas();
-    
-    // Detectar si estamos en modo edición
-    const hash = window.location.hash;
-    if (hash.startsWith('#editar-examen/')) {
-      const id = hash.split('/')[1];
+  }, []);
+
+  const { id } = useParams();
+  useEffect(() => {
+    if (id) {
       setIsEditMode(true);
       setExamenId(parseInt(id));
       cargarExamen(parseInt(id));
     }
-  }, []);
+  }, [id]);
 
   const cargarExamen = async (id) => {
     setLoading(true);
@@ -247,7 +248,7 @@ const ExamenCreator = () => {
       }
 
       alert(isEditMode ? '¡Examen actualizado exitosamente!' : '¡Examen creado exitosamente!');
-      window.location.hash = '#examenes';
+      navigate('/examenes');
     } catch (error) {
       console.error('Error al guardar examen:', error);
       alert('Error al guardar el examen. Por favor intenta de nuevo.');

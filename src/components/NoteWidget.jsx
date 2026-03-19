@@ -1,5 +1,5 @@
 // src/components/NoteWidget.jsx
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   Plus, X, Trash2, Wifi, WifiOff, StickyNote,
   RefreshCw, AlertCircle, CheckCircle, ServerCrash,
@@ -10,7 +10,8 @@ import { useNotes, SyncError } from '../hooks/useNotes'
 import { useAuth } from '../hooks/useAuth'
 import styles from './Notewidget.module.css'
 
-export default function NoteWidget() {
+
+export default function NoteWidget({ recursoPreseleccionado = null }) {
   const { token, user, isAuthenticated } = useAuth()
 
   // Pasamos token e id_usuario al hook — el hook los usa para el fetch y para
@@ -30,17 +31,26 @@ export default function NoteWidget() {
   // Búsqueda de recurso por título
   const [tituloInput, setTituloInput]   = useState('')
   const [recursoFound, setRecursoFound] = useState(null)
+
+  
+ // Si viene un recurso preseleccionado (ej: desde el visor), úsalo automáticamente
+useEffect(() => {
+  if (recursoPreseleccionado) {
+    setRecursoFound(recursoPreseleccionado)
+    setTituloInput(recursoPreseleccionado.titulo)
+  }
+}, [recursoPreseleccionado])
   const [searching, setSearching]       = useState(false)
   const [searchError, setSearchError]   = useState(null)
   const debounceRef = useRef(null)
 
-  //  Toast 
+  
   const showToast = (msg, type = 'error') => {
     setToast({ msg, type })
     setTimeout(() => setToast(null), 5000)
   }
 
-  //  Buscar recurso por título 
+  //  Buscar recurso por título
   const handleTituloChange = (e) => {
     const val = e.target.value
     setTituloInput(val)
@@ -86,7 +96,7 @@ export default function NoteWidget() {
     setSearchError(null)
   }
 
-  // Guardar nota 
+
   const handleSave = async () => {
     if (!text.trim()) return
     if (!recursoFound) {
@@ -174,7 +184,7 @@ export default function NoteWidget() {
         {/* Si no está autenticado — bloquear con mensaje */}
         {!isAuthenticated ? (
           <div className={styles.authGate}>
-            {/* <LogIn size={32} className={styles.authIcon} /> */}
+            <LogIn size={32} className={styles.authIcon} />
             <p className={styles.authMsg}>Inicia sesión para crear y guardar notas</p>
             <Link to="/login" className={styles.authBtn} onClick={() => setOpen(false)}>
               Iniciar Sesión
