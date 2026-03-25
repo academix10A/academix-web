@@ -12,6 +12,7 @@ import BeneficiosPage from './pages/BeneficiosPage';
 import ExamenesPage from './pages/ExamenesPage';
 import ExamenCreator from './pages/ExamenCreator';
 import SettingsPage from './pages/SettingsPage';
+import ReportsPage from './pages/ReportsPage';
 import Login from './pages/Login';
 import { getAuthToken, setAuthToken as saveAuthToken, removeAuthToken } from './utils/api';
 
@@ -108,17 +109,7 @@ const AdminApp = () => {
       case 'examenes':
         return <ExamenesPage />;
       case 'reports':
-        return (
-          <div className="page-container">
-            <div className="page-header">
-              <div>
-                <h1 className="page-title">Reportes</h1>
-                <p className="page-subtitle">Genera y consulta reportes del sistema</p>
-              </div>
-            </div>
-            <p style={{ color: 'var(--admin-gray)' }}>Sección de reportes en construcción...</p>
-          </div>
-        );
+        return <ReportsPage />;
       case 'settings':
         return <SettingsPage />;
       default:

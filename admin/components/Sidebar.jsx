@@ -22,11 +22,14 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [profileFormData, setProfileFormData] = useState({
     correo: '',
-    contrasena_actual: '',
-    contrasena_nueva: '',
-    confirmar_contrasena: ''
+    password_actual: '',
+    password_nueva: '',
+    confirmar_password: ''
   });
 
   useEffect(() => {
@@ -65,46 +68,83 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
   };
 
   const updateProfile = async () => {
-    if (profileFormData.contrasena_nueva && profileFormData.contrasena_nueva !== profileFormData.confirmar_contrasena) {
-      alert('Las contraseñas no coinciden');
-      return;
-    }
-
     try {
-      const updateData = {
-        ...currentUser,
-        correo: profileFormData.correo
-      };
+      // Validaciones previas
+      const cambiarPassword = profileFormData.password_nueva && profileFormData.password_actual;
+      
+      if (cambiarPassword) {
+        if (profileFormData.password_nueva !== profileFormData.confirmar_password) {
+          setErrorMessage('Las contraseñas nuevas no coinciden');
+          setShowErrorModal(true);
+          return;
+        }
 
-      if (profileFormData.contrasena_nueva) {
-        updateData.contrasena = profileFormData.contrasena_nueva;
+        if (profileFormData.password_nueva.length < 8) {
+          setErrorMessage('La nueva contraseña debe tener al menos 8 caracteres');
+          setShowErrorModal(true);
+          return;
+        }
       }
 
-      const response = await fetch(`http://127.0.0.1:8000/api/usuarios/${currentUser.id_usuario}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(updateData)
-      });
-
-      if (response.ok) {
-        alert('Perfil actualizado correctamente');
-        setShowProfileModal(false);
-        setProfileFormData({
+      // 1. Actualizar correo si cambió
+      if (profileFormData.correo !== currentUser.correo) {
+        const updateData = {
+          nombre: currentUser.nombre,
+          apellido_paterno: currentUser.apellido_paterno,
+          apellido_materno: currentUser.apellido_materno,
           correo: profileFormData.correo,
-          contrasena_actual: '',
-          contrasena_nueva: '',
-          confirmar_contrasena: ''
+          id_rol: currentUser.id_rol,
+          id_estado: currentUser.id_estado
+        };
+
+        const responseCorreo = await fetch(`http://127.0.0.1:8000/api/usuarios/${currentUser.id_usuario}/`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          },
+          body: JSON.stringify(updateData)
         });
-        fetchCurrentUser();
-      } else {
-        alert('Error al actualizar perfil');
+
+        if (!responseCorreo.ok) {
+          const errorData = await responseCorreo.json();
+          throw new Error(errorData.detail || 'Error al actualizar correo');
+        }
       }
+
+      // 2. Cambiar contraseña si se proporcionó
+      if (cambiarPassword) {
+        const responsePassword = await fetch(
+          `http://127.0.0.1:8000/api/usuarios/${currentUser.id_usuario}/cambiar-contrasena?contrasena_actual=${encodeURIComponent(profileFormData.password_actual)}&contrasena_nueva=${encodeURIComponent(profileFormData.password_nueva)}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+            }
+          }
+        );
+
+        if (!responsePassword.ok) {
+          const errorData = await responsePassword.json();
+          throw new Error(errorData.detail || 'Error al cambiar contraseña');
+        }
+      }
+
+      // Éxito
+      setShowProfileModal(false);
+      setShowSuccessModal(true);
+      setProfileFormData({
+        correo: profileFormData.correo,
+        password_actual: '',
+        password_nueva: '',
+        confirmar_password: ''
+      });
+      fetchCurrentUser();
+
     } catch (error) {
       console.error('Error:', error);
-      alert('Error al actualizar perfil');
+      setErrorMessage(error.message || 'Error al actualizar perfil');
+      setShowErrorModal(true);
     }
   };
 
@@ -326,23 +366,37 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
               </div>
 
               <div className="form-group">
-                <label>Nueva Contraseña</label>
+                <label>Contraseña Actual *</label>
                 <input
                   type="password"
                   className="form-input"
-                  value={profileFormData.contrasena_nueva}
-                  onChange={(e) => setProfileFormData({...profileFormData, contrasena_nueva: e.target.value})}
+                  value={profileFormData.password_actual}
+                  onChange={(e) => setProfileFormData({...profileFormData, password_actual: e.target.value})}
                   placeholder="••••••••"
                 />
               </div>
 
               <div className="form-group">
-                <label>Confirmar Nueva Contraseña</label>
+                <label>Nueva Contraseña *</label>
                 <input
                   type="password"
                   className="form-input"
-                  value={profileFormData.confirmar_contrasena}
-                  onChange={(e) => setProfileFormData({...profileFormData, confirmar_contrasena: e.target.value})}
+                  value={profileFormData.password_nueva}
+                  onChange={(e) => setProfileFormData({...profileFormData, password_nueva: e.target.value})}
+                  placeholder="••••••••"
+                />
+                <small style={{ color: 'var(--admin-gray)', fontSize: '0.875rem' }}>
+                  Mínimo 8 caracteres
+                </small>
+              </div>
+
+              <div className="form-group">
+                <label>Confirmar Nueva Contraseña *</label>
+                <input
+                  type="password"
+                  className="form-input"
+                  value={profileFormData.confirmar_password}
+                  onChange={(e) => setProfileFormData({...profileFormData, confirmar_password: e.target.value})}
                   placeholder="••••••••"
                 />
               </div>
@@ -362,6 +416,87 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
                 onClick={updateProfile}
               >
                 Guardar Cambios
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Éxito */}
+      {showSuccessModal && (
+        <div className="modal-overlay" onClick={() => setShowSuccessModal(false)}>
+          <div 
+            className="modal-content" 
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '450px', textAlign: 'center' }}
+          >
+            <div style={{ padding: '3rem' }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, var(--admin-success), #10b981)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '3rem',
+                marginBottom: '1.5rem'
+              }}>
+                ✓
+              </div>
+              <h2 style={{ fontSize: '1.75rem', marginBottom: '1rem', color: 'var(--admin-text)' }}>
+                ¡Perfil Actualizado!
+              </h2>
+              <p style={{ fontSize: '1.125rem', color: 'var(--admin-gray)', marginBottom: '2rem' }}>
+                Tus cambios se han guardado correctamente
+              </p>
+              <button 
+                className="btn-primary"
+                onClick={() => setShowSuccessModal(false)}
+                style={{ minWidth: '150px' }}
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Error */}
+      {showErrorModal && (
+        <div className="modal-overlay" onClick={() => setShowErrorModal(false)}>
+          <div 
+            className="modal-content" 
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '450px', textAlign: 'center' }}
+          >
+            <div style={{ padding: '3rem' }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, var(--admin-error), #dc2626)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '3rem',
+                marginBottom: '1.5rem',
+                color: 'white'
+              }}>
+                ✕
+              </div>
+              <h2 style={{ fontSize: '1.75rem', marginBottom: '1rem', color: 'var(--admin-text)' }}>
+                Error
+              </h2>
+              <p style={{ fontSize: '1.125rem', color: 'var(--admin-gray)', marginBottom: '2rem' }}>
+                {errorMessage}
+              </p>
+              <button 
+                className="btn-delete"
+                onClick={() => setShowErrorModal(false)}
+                style={{ minWidth: '150px' }}
+              >
+                Cerrar
               </button>
             </div>
           </div>
