@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 
 const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
+  const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -149,72 +150,72 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
     }
   };
 
-  const navigate = useNavigate();
-
   const menuItems = [
     { 
       id: 'dashboard', 
-      path: '/admin',
       name: 'Dashboard', 
-      icon: LayoutDashboard 
+      icon: LayoutDashboard,
+      path: '/admin'
     },
     { 
       id: 'users', 
-      path: '/admin/usuarios',
       name: 'Usuarios', 
-      icon: Users 
+      icon: Users,
+      path: '/admin/usuarios'
     },
     { 
       id: 'membresias', 
       name: 'Membresías', 
-      icon: CreditCard 
+      icon: CreditCard,
+      path: '/admin/membresias'
     },
     { 
       id: 'beneficios', 
       name: 'Beneficios', 
-      icon: Star 
+      icon: Star,
+      path: '/admin/beneficios'
     },
     { 
       id: 'products', 
-      path: '/admin/products',
       name: 'Productos', 
-      icon: Package 
+      icon: Package,
+      path: '/admin/products'
     },
     { 
       id: 'subtemas', 
-      path: '/admin/subtemas',
       name: 'Subtemas', 
-      icon: Layers 
+      icon: Layers,
+      path: '/admin/subtemas'
     },
     { 
       id: 'examenes', 
-      path: '/admin/examenes',
       name: 'Exámenes', 
-      icon: ClipboardList
+      icon: ClipboardList,
+      path: '/admin/examenes'
     },
     { 
       id: 'questions', 
-      path: '/admin/preguntas',
       name: 'Preguntas', 
-      icon: FileText 
+      icon: FileText,
+      path: '/admin/preguntas'
     },
     { 
       id: 'recursos', 
-      path: '/admin/recursos',
       name: 'Recursos', 
-      icon: BookOpen 
+      icon: BookOpen,
+      path: '/admin/recursos'
     },
     { 
       id: 'reports', 
-      path: '/admin/reports',
       name: 'Reportes', 
-      icon: FileText 
+      icon: FileText,
+      path: '/admin/reports'
     },
     { 
       id: 'settings', 
-      path: '/admin/configuracion',
       name: 'Configuración', 
-      icon: Settings 
+      icon: Settings,
+      path: '/admin/configuracion'
     }
   ];
 
