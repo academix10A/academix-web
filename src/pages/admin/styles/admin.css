@@ -38,6 +38,11 @@
   transition: width 0.3s ease;
   overflow: hidden;
   flex-shrink: 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  height: 100vh;
 }
 
 .sidebar.collapsed {
@@ -217,6 +222,12 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  margin-left: 300px;
+  transition: margin-left 0.3s ease;
+}
+
+.sidebar.collapsed ~ .main-content {
+  margin-left: 85px;
 }
 
 .page-container {
