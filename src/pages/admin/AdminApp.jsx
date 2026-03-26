@@ -4,7 +4,6 @@ import './styles/admin.css';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import UsersPage from './pages/UsersPage';
-import ProductsPage from './pages/ProductsPage';
 import QuestionsPage from './pages/QuestionsPage';
 import RecursosPage from './pages/RecursosPage';
 import SubtemasPage from './pages/SubtemasPage';
@@ -71,7 +70,6 @@ const AdminApp = () => {
           <Route path="usuarios" element={<UsersPage />} />
           <Route path="membresias" element={<MembresiasPage />} />
           <Route path="beneficios" element={<BeneficiosPage />} />
-          <Route path="products" element={<ProductsPage />} />
           <Route path="subtemas" element={<SubtemasPage />} />
           <Route path="examenes" element={<ExamenesPage />} />
           <Route path="crear-examen" element={<ExamenCreator />} />
