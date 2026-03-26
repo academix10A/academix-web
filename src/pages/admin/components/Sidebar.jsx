@@ -176,12 +176,6 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
       path: '/admin/beneficios'
     },
     { 
-      id: 'products', 
-      name: 'Productos', 
-      icon: Package,
-      path: '/admin/products'
-    },
-    { 
       id: 'subtemas', 
       name: 'Subtemas', 
       icon: Layers,
