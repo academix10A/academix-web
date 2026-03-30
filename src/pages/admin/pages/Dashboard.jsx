@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, 
   Users, 
@@ -28,17 +29,19 @@ import {
 } from 'recharts';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     usuarios: { total: 0, activos: 0, inactivos: 0, admins: 0 },
-    productos: { total: 0 },
     recursos: { total: 0, activos: 0 },
     examenes: { total: 0 },
     membresias: { total: 0 },
     subtemas: { total: 0 },
-    beneficios: { total: 0 }
+    beneficios: { total: 0 },
+    intentos: { total: 0, promedio: 0, aprobados: 0 }
   });
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
+  const [intentosPorUsuario, setIntentosPorUsuario] = useState([]);
 
   const COLORS = {
     primary: '#00CED1',
@@ -80,23 +83,55 @@ const Dashboard = () => {
     try {
       const token = localStorage.getItem('auth_token');
       
-      const [usuariosRes, productosRes, recursosRes, examenesRes, membresiasRes, subtemasRes, beneficiosRes] = await Promise.all([
+      const [usuariosRes, recursosRes, examenesRes, membresiasRes, subtemasRes, beneficiosRes, intentosRes] = await Promise.all([
         fetch('http://127.0.0.1:8000/api/usuarios/', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://127.0.0.1:8000/api/producto/', { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch('http://127.0.0.1:8000/api/recurso/', { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch('http://127.0.0.1:8000/api/examen/', { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch('http://127.0.0.1:8000/api/membresias/', { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch('http://127.0.0.1:8000/api/subtemas/', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://127.0.0.1:8000/api/beneficios/', { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch('http://127.0.0.1:8000/api/beneficios/', { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch('http://127.0.0.1:8000/api/intento/', { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
 
       const usuarios = await usuariosRes.json();
-      const productos = await productosRes.json();
       const recursos = await recursosRes.json();
       const examenes = await examenesRes.json();
       const membresias = await membresiasRes.json();
       const subtemas = await subtemasRes.json();
       const beneficios = await beneficiosRes.json();
+      const intentos = await intentosRes.json();
+
+      // Calcular estadísticas de intentos
+      const intentosArray = Array.isArray(intentos) ? intentos : [];
+      const totalIntentos = intentosArray.length;
+      const promedioGeneral = totalIntentos > 0 
+        ? intentosArray.reduce((sum, i) => sum + (i.calificacion || 0), 0) / totalIntentos 
+        : 0;
+      const aprobados = intentosArray.filter(i => i.calificacion >= 60).length;
+
+      // Agrupar intentos por usuario para el gráfico
+      const intentosPorUsuarioMap = {};
+      intentosArray.forEach(intento => {
+        if (!intentosPorUsuarioMap[intento.id_usuario]) {
+          intentosPorUsuarioMap[intento.id_usuario] = [];
+        }
+        intentosPorUsuarioMap[intento.id_usuario].push(intento.calificacion);
+      });
+
+      const usuariosConIntentos = Object.keys(intentosPorUsuarioMap).map(userId => {
+        const usuario = usuarios.find(u => u.id_usuario === parseInt(userId));
+        const calificaciones = intentosPorUsuarioMap[userId];
+        const promedio = calificaciones.reduce((sum, c) => sum + c, 0) / calificaciones.length;
+        
+        return {
+          id: parseInt(userId),
+          nombre: usuario ? `${usuario.nombre} ${usuario.apellido_paterno}` : `Usuario ${userId}`,
+          promedio: Math.round(promedio),
+          intentos: calificaciones.length
+        };
+      }).sort((a, b) => b.promedio - a.promedio).slice(0, 10); // Top 10
+
+      setIntentosPorUsuario(usuariosConIntentos);
 
       setStats({
         usuarios: {
@@ -105,7 +140,6 @@ const Dashboard = () => {
           inactivos: usuarios.filter(u => u.id_estado !== 1).length || 0,
           admins: usuarios.filter(u => u.id_rol === 1).length || 0
         },
-        productos: { total: productos.length || 0 },
         recursos: { 
           total: recursos.length || 0,
           activos: recursos.filter(r => r.id_estado === 1).length || 0
@@ -113,7 +147,12 @@ const Dashboard = () => {
         examenes: { total: examenes.length || 0 },
         membresias: { total: membresias.length || 0 },
         subtemas: { total: subtemas.length || 0 },
-        beneficios: { total: beneficios.length || 0 }
+        beneficios: { total: beneficios.length || 0 },
+        intentos: {
+          total: totalIntentos,
+          promedio: Math.round(promedioGeneral),
+          aprobados: aprobados
+        }
       });
 
     } catch (error) {
@@ -172,11 +211,14 @@ const Dashboard = () => {
 
         <div className="stat-card">
           <div className="stat-icon products">
-            <Package size={24} />
+            <ClipboardList size={24} />
           </div>
           <div className="stat-content">
-            <p className="stat-label">Productos</p>
-            <p className="stat-value">{stats.productos.total}</p>
+            <p className="stat-label">Intentos de Examen</p>
+            <p className="stat-value">{stats.intentos.total}</p>
+            <p style={{ fontSize: '0.875rem', color: 'var(--admin-warning)', marginTop: '0.5rem' }}>
+              Promedio: {stats.intentos.promedio}
+            </p>
           </div>
         </div>
 
@@ -195,29 +237,27 @@ const Dashboard = () => {
 
         <div className="stat-card">
           <div className="stat-icon users">
-            <ClipboardList size={24} />
+            <TrendingUp size={24} />
           </div>
           <div className="stat-content">
             <p className="stat-label">Exámenes</p>
             <p className="stat-value">{stats.examenes.total}</p>
+            <p style={{ fontSize: '0.875rem', color: 'var(--admin-success)', marginTop: '0.5rem' }}>
+              {stats.intentos.aprobados} aprobados
+            </p>
           </div>
         </div>
       </div>
 
       {/* Gráficos */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-        gap: '2rem',
-        marginBottom: '2rem'
-      }}>
-        
+      <div style={{ marginBottom: '2rem' }}>
         {/* Gráfico de Pastel - Usuarios */}
         <div style={{
           padding: '2rem',
           backgroundColor: 'var(--admin-surface)',
           borderRadius: '12px',
-          border: '1px solid var(--admin-border)'
+          border: '1px solid var(--admin-border)',
+          marginBottom: '2rem'
         }}>
           <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', color: 'var(--admin-text)' }}>
             👥 Estado de Usuarios
@@ -245,38 +285,120 @@ const Dashboard = () => {
           </ResponsiveContainer>
         </div>
 
-        {/* Gráfico de Barras - Contenido */}
+        {/* Gráfico de Barras - Top 10 Usuarios (GRANDE) */}
         <div style={{
           padding: '2rem',
           backgroundColor: 'var(--admin-surface)',
           borderRadius: '12px',
-          border: '1px solid var(--admin-border)'
+          border: '2px solid var(--admin-primary)',
+          boxShadow: '0 4px 12px rgba(0, 206, 209, 0.2)'
         }}>
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', color: 'var(--admin-text)' }}>
-            📚 Contenido Disponible
-          </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart
-              data={[
-                { name: 'Subtemas', cantidad: stats.subtemas.total },
-                { name: 'Recursos', cantidad: stats.recursos.total },
-                { name: 'Exámenes', cantidad: stats.examenes.total },
-                { name: 'Productos', cantidad: stats.productos.total }
-              ]}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2d3a" />
-              <XAxis dataKey="name" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#1a1d2e', 
-                  border: '1px solid #00CED1',
-                  borderRadius: '8px'
-                }}
-              />
-              <Bar dataKey="cantidad" fill={COLORS.primary} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            marginBottom: '2rem'
+          }}>
+            <div>
+              <h3 style={{ fontSize: '1.75rem', marginBottom: '0.5rem', color: 'var(--admin-text)' }}>
+                🏆 Top 10 Mejores Estudiantes
+              </h3>
+              <p style={{ color: 'var(--admin-gray)', fontSize: '1rem' }}>
+                Ranking basado en el promedio de calificaciones
+              </p>
+            </div>
+            <div style={{
+              padding: '1rem 2rem',
+              backgroundColor: 'rgba(0, 206, 209, 0.1)',
+              borderRadius: '10px',
+              border: '1px solid var(--admin-primary)'
+            }}>
+              <p style={{ fontSize: '0.875rem', color: 'var(--admin-gray)', marginBottom: '0.25rem' }}>
+                Promedio General
+              </p>
+              <p style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--admin-primary)' }}>
+                {stats.intentos.promedio}
+              </p>
+            </div>
+          </div>
+
+          {intentosPorUsuario.length > 0 ? (
+            <ResponsiveContainer width="100%" height={500}>
+              <BarChart
+                data={intentosPorUsuario}
+                layout="vertical"
+                margin={{ top: 5, right: 30, left: 150, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#2a2d3a" />
+                <XAxis 
+                  type="number" 
+                  stroke="#9ca3af" 
+                  domain={[0, 100]}
+                  tick={{ fontSize: 14 }}
+                />
+                <YAxis 
+                  type="category" 
+                  dataKey="nombre" 
+                  stroke="#9ca3af"
+                  width={140}
+                  tick={{ fontSize: 14, fontWeight: '500' }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#1a1d2e', 
+                    border: '2px solid #00CED1',
+                    borderRadius: '12px',
+                    padding: '1rem'
+                  }}
+                  formatter={(value, name, props) => {
+                    if (name === 'promedio') {
+                      return [
+                        <span style={{ color: '#00CED1', fontWeight: '700', fontSize: '1.25rem' }}>
+                          {value}
+                        </span>, 
+                        `Promedio: `
+                      ];
+                    }
+                    return [value, name];
+                  }}
+                  labelFormatter={(label) => {
+                    const usuario = intentosPorUsuario.find(u => u.nombre === label);
+                    return (
+                      <div>
+                        <div style={{ fontWeight: '700', fontSize: '1.125rem', marginBottom: '0.5rem' }}>
+                          {label}
+                        </div>
+                        <div style={{ fontSize: '0.875rem', color: '#9ca3af' }}>
+                          {usuario?.intentos} intentos realizados
+                        </div>
+                      </div>
+                    );
+                  }}
+                />
+                <Bar 
+                  dataKey="promedio" 
+                  fill={COLORS.primary}
+                  radius={[0, 8, 8, 0]}
+                  label={{ 
+                    position: 'right', 
+                    fill: '#F0F2F5',
+                    fontSize: 14,
+                    fontWeight: '700'
+                  }}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{
+              padding: '3rem',
+              textAlign: 'center',
+              color: 'var(--admin-gray)'
+            }}>
+              <p style={{ fontSize: '1.125rem' }}>
+                No hay datos de intentos disponibles aún
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -391,13 +513,14 @@ const Dashboard = () => {
           gap: '1rem'
         }}>
           {[
-            { label: 'Ver Usuarios', icon: <Users size={20} />, count: stats.usuarios.total },
-            { label: 'Ver Productos', icon: <Package size={20} />, count: stats.productos.total },
-            { label: 'Ver Recursos', icon: <BookOpen size={20} />, count: stats.recursos.total },
-            { label: 'Ver Exámenes', icon: <ClipboardList size={20} />, count: stats.examenes.total }
+            { label: 'Ver Usuarios', icon: <Users size={20} />, count: stats.usuarios.total, path: '/admin/usuarios' },
+            { label: 'Ver Recursos', icon: <BookOpen size={20} />, count: stats.recursos.total, path: '/admin/recursos' },
+            { label: 'Ver Exámenes', icon: <ClipboardList size={20} />, count: stats.examenes.total, path: '/admin/examenes' },
+            { label: 'Ver Reportes', icon: <TrendingUp size={20} />, count: stats.intentos.total, path: '/admin/reports' }
           ].map((item, index) => (
             <div
               key={index}
+              onClick={() => navigate(item.path)}
               style={{
                 padding: '1rem',
                 backgroundColor: 'var(--admin-background)',
