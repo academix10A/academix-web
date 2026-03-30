@@ -19,7 +19,6 @@ import {
 const ReportsPage = () => {
   const [stats, setStats] = useState({
     usuarios: { total: 0, activos: 0, inactivos: 0, admins: 0 },
-    productos: { total: 0 },
     recursos: { total: 0, activos: 0 },
     examenes: { total: 0 },
     membresias: { total: 0 },
@@ -54,11 +53,6 @@ const ReportsPage = () => {
       });
       const usuarios = await usuariosRes.json();
 
-      // Fetch productos
-      const productosRes = await fetch('http://127.0.0.1:8000/api/producto/', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const productos = await productosRes.json();
 
       // Fetch recursos
       const recursosRes = await fetch('http://127.0.0.1:8000/api/recurso/', {
@@ -92,9 +86,6 @@ const ReportsPage = () => {
           inactivos: usuarios.filter(u => u.id_estado !== 1).length || 0,
           admins: usuarios.filter(u => u.id_rol === 1).length || 0
         },
-        productos: {
-          total: productos.length || 0
-        },
         recursos: {
           total: recursos.length || 0,
           activos: recursos.filter(r => r.id_estado === 1).length || 0
@@ -124,7 +115,6 @@ const ReportsPage = () => {
       ['Usuarios Activos', stats.usuarios.activos],
       ['Usuarios Inactivos', stats.usuarios.inactivos],
       ['Administradores', stats.usuarios.admins],
-      ['Productos', stats.productos.total],
       ['Recursos Totales', stats.recursos.total],
       ['Recursos Activos', stats.recursos.activos],
       ['Exámenes', stats.examenes.total],
@@ -212,16 +202,6 @@ const ReportsPage = () => {
               <p style={{ fontSize: '0.875rem', color: 'var(--admin-success)', marginTop: '0.5rem' }}>
                 ✓ {stats.usuarios.activos} activos
               </p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon products">
-              <Package size={24} />
-            </div>
-            <div className="stat-content">
-              <p className="stat-label">Productos</p>
-              <p className="stat-value">{stats.productos.total}</p>
             </div>
           </div>
 
@@ -467,7 +447,6 @@ const ReportsPage = () => {
             <ResponsiveContainer width="100%" height={300}>
               <BarChart
                 data={[
-                  { name: 'Productos', cantidad: stats.productos.total },
                   { name: 'Recursos', cantidad: stats.recursos.total },
                   { name: 'Exámenes', cantidad: stats.examenes.total },
                   { name: 'Subtemas', cantidad: stats.subtemas.total },
