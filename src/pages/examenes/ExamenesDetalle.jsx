@@ -1,10 +1,11 @@
 // src/pages/examenes/ExamenDetalle.jsx
-// Pantalla de inicio — muestra info del examen antes de comenzar
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, BookOpen, Clock, HelpCircle, Loader, AlertCircle, Play } from 'lucide-react'
 import Navbar from '../../components/Navbar'
+import StarButton from '../../components/StarButton'
 import { useAuth } from '../../hooks/useAuth'
+import { useFavorites } from '../../hooks/useFavorites'
 import { examenesService } from '../../services/api'
 import styles from './ExamenesDetalle.module.css'
 
@@ -12,6 +13,7 @@ export default function ExamenDetalle() {
   const { idExamen } = useParams()
   const { token }    = useAuth()
   const navigate     = useNavigate()
+  const { isFavoriteExamen, toggleFavoriteExamen } = useFavorites()
 
   const [examen, setExamen]   = useState(null)
   const [loading, setLoading] = useState(true)
@@ -19,7 +21,6 @@ export default function ExamenDetalle() {
 
   useEffect(() => {
     if (!token) return
-    
     examenesService.getCompleto(idExamen, token)
       .then(setExamen)
       .catch(err => setError(err.message))
@@ -45,6 +46,8 @@ export default function ExamenDetalle() {
     </>
   )
 
+  const esFav = isFavoriteExamen(examen.id_examen)
+
   return (
     <>
       <Navbar />
@@ -61,7 +64,16 @@ export default function ExamenDetalle() {
           </div>
 
           <h1 className={styles.titulo}>{examen.titulo}</h1>
-          <p className={styles.descripcion}>{examen.descripcion}</p>
+
+          {/* Descripción + estrella en la misma fila */}
+          <div className={styles.descripcionRow}>
+            <p className={styles.descripcion}>{examen.descripcion}</p>
+            <StarButton
+              active={esFav}
+              onToggle={() => toggleFavoriteExamen(examen.id_examen)}
+              size={18}
+            />
+          </div>
 
           <div className={styles.stats}>
             <div className={styles.stat}>

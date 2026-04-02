@@ -1,15 +1,14 @@
 // src/pages/examenes/ExamenesPage.jsx
-// Lista de exámenes con buscador y etiquetas de colores
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Search, BookOpen, Loader, AlertCircle, ChevronRight } from 'lucide-react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Search, BookOpen, Loader, AlertCircle, ChevronRight, Star } from 'lucide-react'
 import Navbar from '../../components/Navbar'
+import StarButton from '../../components/StarButton'
 import { useAuth } from '../../hooks/useAuth'
+import { useFavorites } from '../../hooks/useFavorites'
 import { examenesService, subtemasService } from '../../services/api'
 import styles from './ExamenesPage.module.css'
-import { useSearchParams } from 'react-router-dom'
 
-// Colores para etiquetas — se asignan por índice de subtema
 const ETIQUETA_COLORS = [
   { bg: 'rgba(99,179,237,0.15)',  border: 'rgba(99,179,237,0.4)',  text: '#63b3ed' },
   { bg: 'rgba(212,175,55,0.15)',  border: 'rgba(212,175,55,0.4)',  text: '#d4af37' },
@@ -23,21 +22,24 @@ function getColor(index) {
   return ETIQUETA_COLORS[index % ETIQUETA_COLORS.length]
 }
 
+// Valor especial para el filtro de favoritos — no es un id_subtema real
+const FILTRO_FAVORITOS = 'favoritos'
+
 export default function ExamenesPage() {
-  const { token } = useAuth()
-  const navigate  = useNavigate()
+  const { token }    = useAuth()
+  const navigate     = useNavigate()
+  const [searchParams] = useSearchParams()
+  const { isFavoriteExamen, toggleFavoriteExamen, counts } = useFavorites()
 
   const [examenes, setExamenes]   = useState([])
   const [subtemas, setSubtemas]   = useState([])
   const [loading, setLoading]     = useState(true)
   const [error, setError]         = useState(null)
   const [busqueda, setBusqueda]   = useState('')
-  const [filtroSub, setFiltroSub] = useState(null) // id_subtema seleccionado
-  const [searchParams] = useSearchParams()
+  const [filtroSub, setFiltroSub] = useState(null)
 
   useEffect(() => {
     if (!token) return
-
     Promise.all([
       examenesService.getAll(token),
       subtemasService.getAll(token),
@@ -50,21 +52,18 @@ export default function ExamenesPage() {
       .finally(() => setLoading(false))
   }, [token])
 
-  // Filtrar por búsqueda y etiqueta
-  const examenesFiltrados = examenes.filter(ex => {
-    const matchBusqueda = ex.titulo.toLowerCase().includes(busqueda.toLowerCase())
-    const matchSub      = filtroSub ? ex.id_subtema === filtroSub : true
-    return matchBusqueda && matchSub
-  })
-  
   useEffect(() => {
-  const subtemaParam = searchParams.get('subtema')
-  if (subtemaParam) {
-    setFiltroSub(parseInt(subtemaParam))
-  }
-}, [searchParams])
+    const subtemaParam = searchParams.get('subtema')
+    if (subtemaParam) setFiltroSub(parseInt(subtemaParam))
+  }, [searchParams])
 
-  // Solo subtemas que tienen al menos un examen
+  const examenesFiltrados = examenes.filter(ex => {
+    const matchBusqueda  = ex.titulo.toLowerCase().includes(busqueda.toLowerCase())
+    const matchFavoritos = filtroSub === FILTRO_FAVORITOS ? isFavoriteExamen(ex.id_examen) : true
+    const matchSub       = (filtroSub && filtroSub !== FILTRO_FAVORITOS) ? ex.id_subtema === filtroSub : true
+    return matchBusqueda && matchFavoritos && matchSub
+  })
+
   const subtemasConExamen = subtemas.filter(s =>
     examenes.some(ex => ex.id_subtema === s.id_subtema)
   )
@@ -89,17 +88,17 @@ export default function ExamenesPage() {
     </>
   )
 
+  const mostrandoFavoritos = filtroSub === FILTRO_FAVORITOS
+
   return (
     <>
       <Navbar />
       <div className={styles.page}>
 
-        {/*  Hero */}
+        {/* Hero */}
         <div className={styles.hero}>
           <h1 className={styles.heroTitle}>Exámenes</h1>
           <p className={styles.heroSub}>Pon a prueba tu conocimiento</p>
-
-          {/* Buscador */}
           <div className={styles.searchWrap}>
             <Search size={18} className={styles.searchIcon} />
             <input
@@ -114,9 +113,11 @@ export default function ExamenesPage() {
 
         <div className={styles.content}>
 
-          {/* Etiquetas de subtemas  */}
+          {/* Filtros — Todos + Favoritos + Subtemas */}
           {subtemasConExamen.length > 0 && (
             <div className={styles.etiquetas}>
+
+              {/* Todos */}
               <button
                 className={`${styles.etiqueta} ${filtroSub === null ? styles.etiquetaActive : ''}`}
                 onClick={() => setFiltroSub(null)}
@@ -128,18 +129,36 @@ export default function ExamenesPage() {
               >
                 Todos
               </button>
+
+              {/* Favoritos — siempre visible */}
+              <button
+                className={`${styles.etiqueta} ${styles.etiquetaFavoritos} ${mostrandoFavoritos ? styles.etiquetaFavoritosActive : ''}`}
+                onClick={() => setFiltroSub(mostrandoFavoritos ? null : FILTRO_FAVORITOS)}
+              >
+                <Star
+                  size={13}
+                  fill={mostrandoFavoritos ? 'currentColor' : 'none'}
+                  style={{ flexShrink: 0 }}
+                />
+                Favoritos
+                {counts.examenes > 0 && (
+                  <span className={styles.favCount}>{counts.examenes}</span>
+                )}
+              </button>
+
+              {/* Subtemas dinámicos */}
               {subtemasConExamen.map((s, i) => {
-                const color    = getColor(i)
-                const activo   = filtroSub === s.id_subtema
+                const color  = getColor(i)
+                const activo = filtroSub === s.id_subtema
                 return (
                   <button
                     key={s.id_subtema}
                     className={styles.etiqueta}
                     onClick={() => setFiltroSub(activo ? null : s.id_subtema)}
                     style={{
-                      background:  activo ? color.bg   : 'rgba(255,255,255,0.04)',
-                      borderColor: activo ? color.border : 'rgba(255,255,255,0.1)',
-                      color:       activo ? color.text  : 'rgba(255,255,255,0.5)',
+                      background:  activo ? color.bg     : 'rgba(255,255,255,0.04)',
+                      borderColor: activo ? color.border  : 'rgba(255,255,255,0.1)',
+                      color:       activo ? color.text    : 'rgba(255,255,255,0.5)',
                     }}
                   >
                     {s.nombre}
@@ -149,21 +168,36 @@ export default function ExamenesPage() {
             </div>
           )}
 
-          {/*  Grid de exámenes  */}
+          {/* Grid */}
           {examenesFiltrados.length === 0 ? (
             <div className={styles.empty}>
-              <BookOpen size={48} className={styles.emptyIcon} />
-              <p>No hay exámenes que coincidan con tu búsqueda</p>
+              {mostrandoFavoritos ? (
+                <>
+                  <Star size={48} className={styles.emptyIcon} />
+                  <p>Todavía no tienes favoritos</p>
+                  <span className={styles.emptyHint}>
+                    Agrega uno nuevo con la estrella ★ en cualquier examen
+                  </span>
+                </>
+              ) : (
+                <>
+                  <BookOpen size={48} className={styles.emptyIcon} />
+                  <p>No hay exámenes que coincidan con tu búsqueda</p>
+                </>
+              )}
             </div>
           ) : (
             <div className={styles.grid}>
-              {examenesFiltrados.map((ex, i) => {
-                const subtema = subtemas.find(s => s.id_subtema === ex.id_subtema)
-                const color   = getColor(subtemas.findIndex(s => s.id_subtema === ex.id_subtema))
+              {examenesFiltrados.map((ex) => {
+                const subtema   = subtemas.find(s => s.id_subtema === ex.id_subtema)
+                const colorIdx  = subtemas.findIndex(s => s.id_subtema === ex.id_subtema)
+                const color     = getColor(colorIdx)
+                const esFav     = isFavoriteExamen(ex.id_examen)
+
                 return (
                   <div
                     key={ex.id_examen}
-                    className={styles.card}
+                    className={`${styles.card} ${esFav ? styles.cardFavorita : ''}`}
                     onClick={() => navigate(`/examenes/${ex.id_examen}`)}
                   >
                     <div className={styles.cardTop}>
@@ -179,7 +213,13 @@ export default function ExamenesPage() {
                           {subtema.nombre}
                         </span>
                       )}
-                      <ChevronRight size={18} className={styles.cardArrow} />
+                      <div className={styles.cardActions}>
+                        <StarButton
+                          active={esFav}
+                          onToggle={() => toggleFavoriteExamen(ex.id_examen)}
+                        />
+                        <ChevronRight size={18} className={styles.cardArrow} />
+                      </div>
                     </div>
                     <h2 className={styles.cardTitle}>{ex.titulo}</h2>
                     {ex.descripcion && (
