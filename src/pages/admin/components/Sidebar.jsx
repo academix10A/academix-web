@@ -16,7 +16,8 @@ import {
   Star,
   User,
   Mail,
-  Lock
+  Lock,
+  UserCheck
 } from 'lucide-react';
 
 const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
@@ -165,9 +166,15 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
     },
     { 
       id: 'membresias', 
-      name: 'Membresías', 
+      name: 'Tipos de Membresía', 
       icon: CreditCard,
       path: '/admin/membresias'
+    },
+    { 
+      id: 'usuario_membresias', 
+      name: 'Membresías Activas', 
+      icon: UserCheck,
+      path: '/admin/usuario-membresias'
     },
     { 
       id: 'beneficios', 

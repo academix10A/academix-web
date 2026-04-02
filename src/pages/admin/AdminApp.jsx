@@ -8,6 +8,7 @@ import QuestionsPage from './pages/QuestionsPage';
 import RecursosPage from './pages/RecursosPage';
 import SubtemasPage from './pages/SubtemasPage';
 import MembresiasPage from './pages/MembresiasPage';
+import UsuarioMembresiasPage from './pages/UsuarioMembresiasPage';
 import BeneficiosPage from './pages/BeneficiosPage';
 import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
@@ -38,9 +39,9 @@ const AdminApp = () => {
     const path = location.pathname;
     
     if (path.includes('usuarios')) setActiveMenu('users');
+    if (path.includes('usuario-membresias')) setActiveMenu('usuario_membresias');
     else if (path.includes('membresias')) setActiveMenu('membresias');
     else if (path.includes('beneficios')) setActiveMenu('beneficios');
-    else if (path.includes('products')) setActiveMenu('products');
     else if (path.includes('subtemas')) setActiveMenu('subtemas');
     else if (path.includes('examen')) setActiveMenu('examenes');
     else if (path.includes('preguntas')) setActiveMenu('questions');
@@ -69,6 +70,7 @@ const AdminApp = () => {
           <Route index element={<Dashboard />} />
           <Route path="usuarios" element={<UsersPage />} />
           <Route path="membresias" element={<MembresiasPage />} />
+          <Route path="usuario-membresias" element={<UsuarioMembresiasPage />} />
           <Route path="beneficios" element={<BeneficiosPage />} />
           <Route path="subtemas" element={<SubtemasPage />} />
           <Route path="examenes" element={<ExamenesPage />} />
