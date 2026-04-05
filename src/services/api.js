@@ -63,4 +63,27 @@ export const membresiasService = {
   getAll: () => apiFetch('/membresias/', {}, null),
 }
 
+// Paypal
+export const paypalService = {
+  createOrder: (idMembresia, token) =>
+    apiFetch(
+      '/paypal/create-order',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          id_membresia: idMembresia,
+        }),
+      },
+      token
+    ),
+
+  captureOrder: (orderID, idMembresia, token) =>
+    apiFetch(
+      `/paypal/capture/${orderID}?id_membresia=${idMembresia}`,
+      {
+        method: 'POST',
+      },
+      token
+    ),
+}
 

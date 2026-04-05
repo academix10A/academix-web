@@ -367,3 +367,25 @@
   font-size: 0.75rem;
   color: #fc8181;
 }
+
+.noteTopRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  justify-content: space-between;
+}
+ 
+/* El texto ocupa todo el espacio disponible */
+.noteTopRow .noteText {
+  flex: 1;
+  margin: 0;
+}
+ 
+/* Nota marcada como favorita:
+   línea dorada arriba + fondo levemente dorado */
+.noteItemFavorita {
+  border-color: rgba(212, 175, 55, 0.35) !important;
+  background: rgba(212, 175, 55, 0.04) !important;
+  /* La línea dorada arriba es el border-top */
+  border-top: 2px solid rgba(212, 175, 55, 0.6) !important;
+}

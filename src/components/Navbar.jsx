@@ -7,7 +7,7 @@ import styles from './Navbar.module.css'
 const links = [
   { label: 'Exámenes',       href: '/examenes',     isRoute: true },
   { label: 'Publicaciones',  href: '#publicaciones', isRoute: false },
-  { label: 'Membresías',     href: '/#membresias',    isRoute: false },
+  { label: 'Membresías',     href: '/membresias',    isRoute: true },
   { label: 'Sobre Nosotros', href: '#nosotros',      isRoute: false },
   { label: 'Contacto',       href: '#contacto',      isRoute: false },
 ]

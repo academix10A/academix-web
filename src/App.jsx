@@ -6,6 +6,9 @@ import ProtectedRoute from './router/ProtectedRoute'
 // Admin / User Apps
 import AdminApp from './pages/admin/AdminApp'
 
+// Membresia
+import PagarMembresia from './pages/Membresia.jsx'
+
 // Recursos
 import RecursoVerPage from './pages/RecursoVerPage.jsx'
 import Recursos from './pages/Recursos.jsx'
@@ -53,6 +56,13 @@ export default function App() {
             <ProtectedRoute requireAuth={true} requireRole="admin">
               {/* <AdminDashboard /> */}
               <AdminApp />
+            </ProtectedRoute>
+          } />
+
+          {/* Recursos */}
+          <Route path="/membresias" element={
+            <ProtectedRoute requireAuth={true}>
+              <PagarMembresia />
             </ProtectedRoute>
           } />
 
