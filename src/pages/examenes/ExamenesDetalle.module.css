@@ -1,3 +1,5 @@
+
+
 .page {
   min-height: 100vh;
   background:
@@ -50,13 +52,22 @@
   line-height: 1.2;
 }
 
+/* Descripción y estrella en la misma fila, alineadas */
+.descripcionRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
 .descripcion {
   font-size: 0.9rem;
   color: rgba(255,255,255,0.45);
   line-height: 1.7;
+  /* Sin margin — el gap del flex maneja el espacio */
 }
 
-/*  Stats  */
 .stats {
   display: flex;
   align-items: center;
@@ -92,7 +103,6 @@
   background: rgba(255,255,255,0.08);
 }
 
-/*  Reglas  */
 .reglas {
   display: flex;
   flex-direction: column;
@@ -109,7 +119,6 @@
   color: rgba(255,255,255,0.45);
 }
 
-/*  Botón  */
 .btnComenzar {
   display: flex; align-items: center; gap: 0.6rem;
   padding: 1rem 2.5rem;
