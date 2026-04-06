@@ -1,0 +1,298 @@
+.panel {
+  width: 320px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #1e3a5f 0%, #0f2340 100%);
+  border-left: 1px solid rgba(212,175,55,0.2);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 65px);
+  position: sticky;
+  top: 65px;
+  transition: width 0.3s ease;
+}
+
+.collapsed {
+  width: 20px;
+  min-width: 20px;
+  border-left: none;
+  overflow: visible;
+  background: transparent;
+}
+
+/* Flecha en el borde izquierdo */
+.toggleBtn {
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 48px;
+  background: linear-gradient(135deg, #1e3a5f 0%, #0f2340 100%);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  color: var(--gold);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  z-index: 100;
+}
+.toggleBtn:hover {
+  background: rgba(212,175,55,0.15);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(212,175,55,0.15);
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--gold);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+}
+.closeBtn:hover {
+  color: var(--white);
+  background: rgba(255,255,255,0.07);
+}
+
+.historial {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: rgba(255,255,255,0.2);
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.pendiente {
+  background: rgba(212,175,55,0.08);
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pendienteLabel {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.35);
+}
+
+.pendienteTexto {
+  font-size: 0.85rem;
+  color: rgba(212,175,55,0.9);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.pendienteBtns {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.preguntarBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  background: rgba(212,175,55,0.15);
+  border: 1px solid rgba(212,175,55,0.35);
+  border-radius: 8px;
+  color: var(--gold);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.preguntarBtn:hover:not(:disabled) { background: rgba(212,175,55,0.25); }
+.preguntarBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.descartarBtn {
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.3);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.descartarBtn:hover { color: rgba(255,255,255,0.6); }
+
+.item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.itemHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: rgba(255,255,255,0.6);
+  transition: background 0.2s;
+}
+.itemHeader:hover { background: rgba(212,175,55,0.07); }
+
+.itemTexto {
+  font-size: 0.78rem;
+  font-style: italic;
+  flex: 1;
+  color: rgba(212,175,55,0.8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemBody {
+  padding: 0 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.explicacion {
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.85);
+  padding-top: 0.75rem;
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.msgUser {
+  align-self: flex-end;
+  background: rgba(212,175,55,0.15);
+  border: 1px solid rgba(212,175,55,0.25);
+  color: rgba(255,255,255,0.9);
+  border-radius: 10px 10px 2px 10px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  max-width: 85%;
+  line-height: 1.5;
+}
+
+.msgAI {
+  align-self: flex-start;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.8);
+  border-radius: 10px 10px 10px 2px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  max-width: 85%;
+  line-height: 1.5;
+}
+
+.inputRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.input {
+  flex: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  color: var(--white);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input::placeholder { color: rgba(255,255,255,0.25); }
+.input:focus { border-color: rgba(212,175,55,0.4); }
+
+.sendBtn {
+  width: 32px;
+  height: 32px;
+  background: rgba(212,175,55,0.15);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 8px;
+  color: var(--gold);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.sendBtn:hover:not(:disabled) { background: rgba(212,175,55,0.25); }
+.sendBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.loadingRow {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.loadingDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(212,175,55,0.6);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.loadingDot:nth-child(2) { animation-delay: 0.2s; }
+.loadingDot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%       { opacity: 1;   transform: scale(1.1); }
+}
