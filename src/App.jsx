@@ -26,14 +26,19 @@ import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import Registro from './pages/Registro.jsx'
 
+// Notas
+import NotaDetallePage from './pages/NotaDetallePage'
+
+// Publicacion
+import PublicacionesPage    from './pages/PublicacionesPage'
+import PublicacionDetallePage from './pages/PublicacionDetallePage'
+
+import UserDashboard from './pages/UserDashboard.jsx'
+
 // Admin dashboard
 // import AdminDashboard from './pages/admin/Dashboard.jsx'
 
 export default function App() {
-
-  const userRole = localStorage.getItem('user_role')
-  const hasToken = !!localStorage.getItem('auth_token')
-
   return (
     <AuthProvider>
       <BrowserRouter>
@@ -66,6 +71,31 @@ export default function App() {
             </ProtectedRoute>
           } />
 
+          {/* Notas */}
+          <Route path="/notas/:idNota" element={
+            <ProtectedRoute requireAuth={true}>
+              <NotaDetallePage />
+            </ProtectedRoute> 
+          } />
+
+          {/* Publicaciones */}
+          <Route path="/publicaciones" element={
+            <ProtectedRoute requireAuth={true}>
+              <PublicacionesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/publicaciones/:idPublicacion" element={
+            <ProtectedRoute requireAuth={true}>
+              <PublicacionDetallePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/dashboard" element={
+            <ProtectedRoute requireAuth={true}>
+              <UserDashboard />
+            </ProtectedRoute>
+          } />
+          
           {/* Recursos */}
           <Route path="/recursos" element={
             <ProtectedRoute requireAuth={true}>

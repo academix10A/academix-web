@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X } from 'lucide-react';
+import { beneficiosService } from "../../../services/api";
 
 const BeneficiosPage = () => {
   const [beneficios, setBeneficios] = useState([]);
@@ -22,15 +23,10 @@ const BeneficiosPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/beneficios/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await beneficiosService.getAll()
       
-      if (response.ok) {
-        const data = await response.json();
-        setBeneficios(Array.isArray(data) ? data : []);
+      if (response) {
+        setBeneficios(Array.isArray(response) ? response : []);
       } else {
         throw new Error('Error al cargar beneficios');
       }
@@ -45,16 +41,9 @@ const BeneficiosPage = () => {
 
   const createBeneficio = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/beneficios/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await beneficiosService.postBeneficio(formData)
 
-      if (response.ok) {
+      if (response) {
         await fetchBeneficios();
         closeModal();
       } else {
@@ -69,16 +58,9 @@ const BeneficiosPage = () => {
 
   const updateBeneficio = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/beneficios/${editingBeneficio.id_beneficio}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await beneficiosService.putBeneficio(editingBeneficio.id_beneficio, formData)
 
-      if (response.ok) {
+      if (response) {
         await fetchBeneficios();
         closeModal();
       } else {
@@ -95,14 +77,9 @@ const BeneficiosPage = () => {
     if (!confirm('¿Estás seguro de eliminar este beneficio?')) return;
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/beneficios/${id}/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await beneficiosService.deleteBeneficio(id)
 
-      if (response.ok) {
+      if (response) {
         await fetchBeneficios();
       } else {
         alert('Error al eliminar el beneficio');

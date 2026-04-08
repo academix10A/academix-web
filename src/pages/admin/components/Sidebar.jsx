@@ -19,6 +19,7 @@ import {
   Lock,
   UserCheck
 } from 'lucide-react';
+import { usuariosService } from "../../../services/api";
 
 const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
   const navigate = useNavigate();
@@ -48,16 +49,11 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const userId = payload.sub;
 
-      const response = await fetch(`http://127.0.0.1:8000/api/usuarios/${userId}/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await usuariosService.getById(userId)
 
-      if (response.ok) {
-        const data = await response.json();
-        setCurrentUser(data);
-        setProfileFormData(prev => ({ ...prev, correo: data.correo }));
+      if (response) {
+        setCurrentUser(response);
+        setProfileFormData(prev => ({ ...prev, correo: response.correo }));
       }
     } catch (error) {
       console.error('Error al cargar usuario:', error);
@@ -100,14 +96,7 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
           id_estado: currentUser.id_estado
         };
 
-        const responseCorreo = await fetch(`http://127.0.0.1:8000/api/usuarios/${currentUser.id_usuario}/`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          },
-          body: JSON.stringify(updateData)
-        });
+        const responseCorreo = await usuariosService.putUserEmail(currentUser.id_usuario, updateData)
 
         if (!responseCorreo.ok) {
           const errorData = await responseCorreo.json();
@@ -117,15 +106,7 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
 
       // 2. Cambiar contraseña si se proporcionó
       if (cambiarPassword) {
-        const responsePassword = await fetch(
-          `http://127.0.0.1:8000/api/usuarios/${currentUser.id_usuario}/cambiar-contrasena?contrasena_actual=${encodeURIComponent(profileFormData.password_actual)}&contrasena_nueva=${encodeURIComponent(profileFormData.password_nueva)}`,
-          {
-            method: 'PATCH',
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-            }
-          }
-        );
+        const responsePassword = await usuariosService.patchUserPassword(currentUser.id_usuario, profileFormData.password_actual, profileFormData.password_nueva)
 
         if (!responsePassword.ok) {
           const errorData = await responsePassword.json();

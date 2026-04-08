@@ -34,6 +34,27 @@ export function detectUrlType(url) {
 }
 
 /**
+ * Normaliza una URL que puede ser:
+ *   - Absoluta:  https://ejemplo.com/archivo.pdf  → se devuelve igual
+ *   - Relativa:  /documentos/archivo.pdf          → se convierte a absoluta
+ *                academix/documentos/archivo.pdf  → se convierte a absoluta
+ *
+ * Usar siempre esta función antes de pasar la URL a un iframe o fetch.
+ */
+export function resolveUrl(url) {
+  if (!url) return null
+
+  // Ya es absoluta
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+
+  // Relativa con /
+  if (url.startsWith('/')) return `${window.location.origin}${url}`
+
+  // Relativa sin / (ej: "academix/documentos/x.pdf")
+  return `${window.location.origin}/${url}`
+}
+
+/**
  * Convierte URL de Drive para embed
  * https://drive.google.com/file/d/ID/view  →  https://drive.google.com/file/d/ID/preview
  */

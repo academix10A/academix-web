@@ -12,7 +12,6 @@ export function useFavorites({ id_usuario } = {}) {
     ? `${FAVORITES_KEY}_${id_usuario}`
     : FAVORITES_KEY
 
-  // Cargar al montar o cuando cambia el usuario
   useEffect(() => {
     setLoaded(false)
     setFavorites(DEFAULT_STATE)
@@ -30,8 +29,6 @@ export function useFavorites({ id_usuario } = {}) {
     })
   }, [storageKey])
 
-  // Persistir ante cada cambio
-  // loaded evita sobreescribir con DEFAULT_STATE vacío al montar
   useEffect(() => {
     if (!loaded) return
     localforage.setItem(storageKey, favorites)
@@ -45,13 +42,11 @@ export function useFavorites({ id_usuario } = {}) {
     // }).catch(() => {})
   }, [favorites, storageKey, loaded])
 
-  // Normalizamos a string para evitar el bug de 3 !== '3'
   const toStr          = (id)       => String(id)
   const isInList       = (list, id) => list.includes(toStr(id))
   const addToList      = (list, id) => { const s = toStr(id); return list.includes(s) ? list : [...list, s] }
   const removeFromList = (list, id) => list.filter(i => i !== toStr(id))
 
-  // Exámenes
   const isFavoriteExamen = useCallback(
     (id) => isInList(favorites.examenes, id),
     [favorites.examenes]
@@ -64,8 +59,7 @@ export function useFavorites({ id_usuario } = {}) {
         : addToList(prev.examenes, id),
     }))
   }, [])
-
-  //
+  
   const isFavoriteNota = useCallback(
     (id) => isInList(favorites.notas, id),
     [favorites.notas]
@@ -79,7 +73,6 @@ export function useFavorites({ id_usuario } = {}) {
     }))
   }, [])
 
-  // Recursos
   const isFavoriteRecurso = useCallback(
     (id) => isInList(favorites.recursos, id),
     [favorites.recursos]

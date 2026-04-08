@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X } from 'lucide-react';
+import { beneficiosService, membresiasService } from "../../../services/api";
 
 const MembresiasPage = () => {
   const [membresias, setMembresias] = useState([]);
@@ -28,15 +29,10 @@ const MembresiasPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/membresias/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await membresiasService.getAll()
       
-      if (response.ok) {
-        const data = await response.json();
-        setMembresias(Array.isArray(data) ? data : []);
+      if (response) {
+        setMembresias(Array.isArray(response) ? response : []);
       } else {
         throw new Error('Error al cargar membresías');
       }
@@ -51,15 +47,10 @@ const MembresiasPage = () => {
 
   const fetchBeneficios = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/beneficios/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await beneficiosService.getAll()
       
-      if (response.ok) {
-        const data = await response.json();
-        setBeneficios(Array.isArray(data) ? data : []);
+      if (response) {
+        setBeneficios(Array.isArray(response) ? response : []);
       }
     } catch (error) {
       console.error('Error al cargar beneficios:', error);
@@ -68,16 +59,9 @@ const MembresiasPage = () => {
 
   const createMembresia = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/membresias/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await membresiasService.postMembresia(formData)
 
-      if (response.ok) {
+      if (response) {
         await fetchMembresias();
         closeModal();
       } else {
@@ -92,16 +76,9 @@ const MembresiasPage = () => {
 
   const updateMembresia = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/membresias/${editingMembresia.id_membresia}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await membresiasService.putMembresia(formData)
 
-      if (response.ok) {
+      if (response) {
         await fetchMembresias();
         closeModal();
       } else {
@@ -118,14 +95,9 @@ const MembresiasPage = () => {
     if (!confirm('¿Estás seguro de eliminar esta membresía?')) return;
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/membresias/${id}/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await membresiasService.deleteMembresia(id)
 
-      if (response.ok) {
+      if (response) {
         await fetchMembresias();
       } else {
         alert('Error al eliminar la membresía');

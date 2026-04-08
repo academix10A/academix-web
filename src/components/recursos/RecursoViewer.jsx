@@ -1,48 +1,99 @@
-// src/components/recursos/RecursoViewer.jsx
-// Visor universal — detecta el tipo de URL y renderiza el player correcto
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ExternalLink, Loader, AlertCircle, BookOpen } from 'lucide-react'
+import {
+  ArrowLeft, ExternalLink, Loader, AlertCircle,
+  BookOpen, WifiOff, CheckCircle, Info, Users,
+} from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { recursosService } from '../../services/api'
 import {
   detectUrlType, URL_TYPE,
   getDriveEmbedUrl, getYoutubeEmbedUrl,
+  resolveUrl,
 } from '../../services/urlDetector'
+import OfflineButton from './OfflineButton'
+import { obtenerMetadata } from '../../services/offlineService'
+import { useProgreso, ESTRATEGIA } from '../../hooks/useProgreso'
 import styles from './RecursoViewer.module.css'
+import NotasCompartidasPanel from '../NotasCompartidasPanel'
+
+function resolverEstrategia(urlType, tieneUrl, tieneContenido) {
+  if (!tieneUrl && tieneContenido) return ESTRATEGIA.TEXTO
+  return 'otro'
+}
 
 export default function RecursoViewer({ onRecursoLoaded }) {
-  const { idRecurso }     = useParams()
-  const { token }         = useAuth()
-  const navigate          = useNavigate()
+  const { idRecurso }   = useParams()
+  const { token, user } = useAuth()
+  const navigate        = useNavigate()
+  
+  const [mostrarNotas, setMostrarNotas] = useState(false)
+  const [recurso,   setRecurso]   = useState(null)
+  const [olData,    setOlData]    = useState(null)
+  const [loading,   setLoading]   = useState(true)
+  const [error,     setError]     = useState(null)
+  const [esOffline, setEsOffline] = useState(false)
 
-  const [recurso, setRecurso]   = useState(null)
-  const [olData, setOlData]     = useState(null)
-  const [loading, setLoading]   = useState(true)
-  const [error, setError]       = useState(null)
+  const mediaRef = useRef(null)
 
-  useEffect(() => {
-    recursosService.getById(idRecurso, token)
-      .then(data => {
-        setRecurso(data)
-        onRecursoLoaded?.(data)
-        if (data.external_id) {
-          fetchOpenLibraryData(data.external_id)
-        }
-      })
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [idRecurso, token])
+  const tieneUrl       = !!recurso?.url_archivo?.trim()
+  const tieneContenido = !!recurso?.contenido?.trim()
+  const urlNormalizada = tieneUrl ? resolveUrl(recurso.url_archivo) : null
+  const urlType        = tieneUrl ? detectUrlType(urlNormalizada) : null
+  const estrategia     = recurso
+    ? resolverEstrategia(urlType, tieneUrl, tieneContenido)
+    : null
 
-  // 2  Traer metadata de Open Library si aplica
+  const usarProgreso = estrategia === ESTRATEGIA.TEXTO
+
+  const {
+    porcentaje,
+    completado,
+    ultimaPosicion,
+    marcarCompletado,
+  } = useProgreso(
+    recurso && !esOffline && usarProgreso ? parseInt(idRecurso) : null,
+    estrategia,
+    mediaRef,
+  )
+
+  useEffect(() => { cargarRecurso() }, [idRecurso, token])
+
+  async function cargarRecurso() {
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await recursosService.getById(idRecurso, token)
+      setRecurso(data)
+      setEsOffline(false)
+      onRecursoLoaded?.(data)
+      if (data.external_id) fetchOpenLibraryData(data.external_id)
+      setLoading(false)
+      return
+    } catch { /* sin red */ }
+
+    try {
+      const metadata = await obtenerMetadata(parseInt(idRecurso))
+      if (metadata) {
+        setRecurso(metadata)
+        setEsOffline(true)
+        onRecursoLoaded?.(metadata)
+      } else {
+        setError('No hay conexión y este recurso no está guardado offline.')
+      }
+    } catch {
+      setError('No se pudo cargar el recurso.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const fetchOpenLibraryData = async (workId) => {
     try {
       const res  = await fetch(`https://openlibrary.org/works/${workId}.json`)
       const data = await res.json()
       setOlData(data)
-    } catch {
-      // Si falla Open Library, no es crítico — el recurso sigue mostrándose
-    }
+    } catch { /* no crítico */ }
   }
 
   const decodeHtml = (str) => {
@@ -51,6 +102,8 @@ export default function RecursoViewer({ onRecursoLoaded }) {
     txt.innerHTML = str
     return txt.value
   }
+
+  const esPremium = user?.rol === 'premium' || user?.rol === 'admin'
 
   if (loading) return (
     <div className={styles.centerWrap}>
@@ -67,32 +120,30 @@ export default function RecursoViewer({ onRecursoLoaded }) {
     </div>
   )
 
-  const urlType  = detectUrlType(recurso.url_archivo)
   const coverUrl = olData
     ? `https://covers.openlibrary.org/b/id/${olData.covers?.[0]}-L.jpg`
     : null
 
   return (
     <div className={styles.page}>
-
-      {/*  Sidebar con info del recurso */}
       <aside className={styles.sidebar}>
-        {/* Portada Open Library si existe */}
-        {coverUrl && (
-          <img src={coverUrl} alt={recurso.titulo} className={styles.cover} />
-        )}
-
-        {!coverUrl && (
-          <div className={styles.coverPlaceholder}>
-            <BookOpen size={48} />
-          </div>
-        )}
+        {coverUrl
+          ? <img src={coverUrl} alt={recurso.titulo} className={styles.cover} />
+          : <div className={styles.coverPlaceholder}><BookOpen size={48} /></div>
+        }
 
         <div className={styles.meta}>
           <button className={styles.backBtn} onClick={() => navigate(-1)}>
             <ArrowLeft size={15} />
             <span>Regresar</span>
           </button>
+
+          {esOffline && (
+            <div className={styles.offlineBadge}>
+              <WifiOff size={13} />
+              <span>Modo offline</span>
+            </div>
+          )}
 
           <h1 className={styles.titulo}>{recurso.titulo}</h1>
 
@@ -103,39 +154,153 @@ export default function RecursoViewer({ onRecursoLoaded }) {
                 : olData.description?.value ?? ''}
             </p>
           )}
-
           {!olData && recurso.descripcion && (
             <p className={styles.descripcion}>{decodeHtml(recurso.descripcion)}</p>
           )}
 
+          {/* ── Progreso (solo con red) ── */}
+          {!esOffline && recurso && (
+            <div className={styles.progresoWrap}>
+
+              {/* Barra solo texto */}
+              {estrategia === ESTRATEGIA.TEXTO && (
+                <>
+                  <div className={styles.progresoBar}>
+                    <div
+                      className={styles.progresoFill}
+                      style={{ width: `${porcentaje}%` }}
+                    />
+                  </div>
+                  <span className={styles.progresoPct}>{porcentaje}% leído</span>
+                </>
+              )}
+
+              {/* Mensaje para NO texto */}
+              {estrategia !== ESTRATEGIA.TEXTO && (
+                <div className={styles.progresoAviso}>
+                  <Info size={12} />
+                  <span>
+                    Este tipo de recurso (PDF, video, audio, etc.) no guarda progreso de lectura.
+                  </span>
+                </div>
+              )}
+
+              {/* Botón solo texto */}
+              {estrategia === ESTRATEGIA.TEXTO && (
+                completado ? (
+                  <div className={styles.completadoBadge}>
+                    <CheckCircle size={14} />
+                    <span>Completado</span>
+                  </div>
+                ) : (
+                  <button
+                    className={styles.btnCompletado}
+                    onClick={marcarCompletado}
+                  >
+                    <CheckCircle size={14} />
+                    Marcar como leído
+                  </button>
+                )
+              )}
+
+            </div>
+          )}
+
+          {!esOffline && (
+            <OfflineButton recurso={recurso} esPremium={esPremium} />
+          )}
+
           <button
             className={styles.externalLink}
-              onClick={() => navigate(`/examenes?subtema=${recurso.id_subtema}`)}
+            onClick={() => navigate(`/examenes?subtema=${recurso.id_subtema}`)}
           >
             <BookOpen size={14} />
-              Ver examen del tema
+            Ver examen del tema
           </button>
+          <button
+            className={styles.notasBtn}
+            onClick={() => setMostrarNotas(true)}
+          >
+            <Users size={14} />
+            Ver notas compartidas
+          </button>
+          {mostrarNotas && (
+            <NotasCompartidasPanel
+              idRecurso={parseInt(idRecurso)}
+              token={token}
+              onClose={() => setMostrarNotas(false)}
+            />
+          )}
         </div>
       </aside>
 
-      {/* ── Visor principal ── */}
       <main className={styles.viewer}>
-        <ViewerContent recurso={recurso} urlType={urlType} />
+        <ViewerContent
+          recurso={recurso}
+          urlNormalizada={urlNormalizada}
+          urlType={urlType}
+          tieneUrl={tieneUrl}
+          tieneContenido={tieneContenido}
+          esOffline={esOffline}
+          estrategia={estrategia}
+          ultimaPosicion={ultimaPosicion}
+          mediaRef={mediaRef}
+        />
       </main>
     </div>
   )
 }
 
-// Renderiza el player correcto según el tipo de URL 
-function ViewerContent({ recurso, urlType }) {
-  const url = recurso.url_archivo
+function ViewerContent({
+  recurso, urlNormalizada, urlType,
+  tieneUrl, tieneContenido, esOffline,
+  estrategia, ultimaPosicion, mediaRef,
+}) {
+
+  useEffect(() => {
+    if (estrategia !== ESTRATEGIA.TEXTO) return
+    const el = document.getElementById('texto-contenido')
+    if (el && ultimaPosicion > 0) {
+      setTimeout(() => { el.scrollTop = ultimaPosicion }, 100)
+    }
+  }, [ultimaPosicion, estrategia])
+
+  if (!tieneUrl) {
+    if (tieneContenido) {
+      return (
+        <div
+          id="texto-contenido"
+          className={styles.textContent}
+        >
+          <div className={styles.textBody} style={{ whiteSpace: 'pre-wrap' }}>
+            {recurso.contenido}
+          </div>
+        </div>
+      )
+    }
+    return (
+      <div className={styles.unknownWrap}>
+        <AlertCircle size={48} style={{ color: 'rgba(255,255,255,0.2)' }} />
+        <p>Este recurso no tiene contenido disponible todavía.</p>
+      </div>
+    )
+  }
+
+  if (esOffline && (urlType === URL_TYPE.DRIVE || urlType === URL_TYPE.YOUTUBE)) {
+    return (
+      <div className={styles.unknownWrap}>
+        <WifiOff size={48} style={{ color: 'rgba(255,255,255,0.2)' }} />
+        <p>Este tipo de recurso requiere conexión a internet.</p>
+      </div>
+    )
+  }
 
   switch (urlType) {
 
     case URL_TYPE.DRIVE:
       return (
         <iframe
-          src={getDriveEmbedUrl(url)}
+          src={getDriveEmbedUrl(urlNormalizada)}
           className={styles.iframe}
           allow="autoplay"
           title={recurso.titulo}
@@ -145,7 +310,7 @@ function ViewerContent({ recurso, urlType }) {
     case URL_TYPE.YOUTUBE:
       return (
         <iframe
-          src={getYoutubeEmbedUrl(url)}
+          src={getYoutubeEmbedUrl(urlNormalizada)}
           className={styles.iframe}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
           allowFullScreen
@@ -156,7 +321,7 @@ function ViewerContent({ recurso, urlType }) {
     case URL_TYPE.PDF:
       return (
         <iframe
-          src={`${url}#toolbar=1&navpanes=1`}
+          src={`${urlNormalizada}#toolbar=1&navpanes=1`}
           className={styles.iframe}
           title={recurso.titulo}
         />
@@ -167,7 +332,7 @@ function ViewerContent({ recurso, urlType }) {
     case URL_TYPE.ARCHIVE:
       return (
         <iframe
-          src={url}
+          src={urlNormalizada}
           className={styles.iframe}
           title={recurso.titulo}
           allowFullScreen
@@ -180,8 +345,17 @@ function ViewerContent({ recurso, urlType }) {
         <div className={styles.audioWrap}>
           <BookOpen size={64} className={styles.audioIcon} />
           <p className={styles.audioTitle}>{recurso.titulo}</p>
-          <audio controls className={styles.audioPlayer}>
-            <source src={url} />
+          <audio
+            ref={mediaRef}
+            controls
+            className={styles.audioPlayer}
+            onLoadedMetadata={() => {
+              if (mediaRef.current && ultimaPosicion > 0) {
+                mediaRef.current.currentTime = ultimaPosicion
+              }
+            }}
+          >
+            <source src={urlNormalizada} />
             Tu navegador no soporta audio.
           </audio>
         </div>
@@ -189,8 +363,17 @@ function ViewerContent({ recurso, urlType }) {
 
     case URL_TYPE.VIDEO:
       return (
-        <video controls className={styles.video}>
-          <source src={url} />
+        <video
+          ref={mediaRef}
+          controls
+          className={styles.video}
+          onLoadedMetadata={() => {
+            if (mediaRef.current && ultimaPosicion > 0) {
+              mediaRef.current.currentTime = ultimaPosicion
+            }
+          }}
+        >
+          <source src={urlNormalizada} />
           Tu navegador no soporta video.
         </video>
       )
@@ -201,7 +384,7 @@ function ViewerContent({ recurso, urlType }) {
           <AlertCircle size={48} style={{ color: 'rgba(255,255,255,0.2)' }} />
           <p>No se puede previsualizar este recurso directamente.</p>
           <a
-            href={url}
+            href={urlNormalizada}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.openBtn}

@@ -1,4 +1,3 @@
-// src/components/recursos/VideoViewer.jsx
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, Loader, AlertCircle, ChevronLeft, ChevronRight, Play } from 'lucide-react'
@@ -16,14 +15,13 @@ export default function VideoViewer() {
   const [similares, setSimilares]     = useState([])
   const [loading, setLoading]         = useState(true)
   const [error, setError]             = useState(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false) // empieza cerrado
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     if (!token) return
     recursosService.getById(idRecurso, token)
       .then(data => {
         setRecurso(data)
-        // Traer videos similares — mismo subtema y mismo tipo
         return recursosService.getAll(token).then(todos => {
           const arr = Array.isArray(todos) ? todos : todos.items ?? []
           const filtrados = arr.filter(r =>
@@ -147,7 +145,6 @@ export default function VideoViewer() {
   )
 }
 
-// Extrae thumbnail de YouTube por ID del video
 function getYoutubeThumbnail(url) {
   if (!url) return ''
   const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/)

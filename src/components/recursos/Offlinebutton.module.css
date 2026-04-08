@@ -1,0 +1,66 @@
+/* src/components/recursos/OfflineButton.module.css */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, background 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.descargar {
+  background: rgba(0, 206, 209, 0.15);
+  color: #00CED1;
+  border: 1px solid rgba(0, 206, 209, 0.3);
+}
+
+.guardado {
+  background: rgba(72, 187, 120, 0.15);
+  color: #48bb78;
+  border: 1px solid rgba(72, 187, 120, 0.3);
+}
+
+.cargando {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: not-allowed;
+}
+
+.trash {
+  margin-left: auto;
+  opacity: 0.6;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.errorMsg {
+  font-size: 0.75rem;
+  color: #fc8181;
+  margin: 0;
+  text-align: center;
+}

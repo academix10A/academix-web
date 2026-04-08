@@ -2,7 +2,6 @@ import styles from './StarButton.module.css'
 
 export default function StarButton({ active = false, onToggle, size = 16, className = '' }) {
   const handleClick = (e) => {
-    // Evitamos que el click se propague a la card que tiene su propio onClick
     e.stopPropagation()
     onToggle?.()
   }

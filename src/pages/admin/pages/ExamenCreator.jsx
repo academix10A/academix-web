@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Check, X } from 'lucide-react';
-import { examenesAPI, preguntasAPI, opcionesAPI } from '../utils/api';
+import { examenesService, opcionService, preguntaService, subtemasService } from "../../../services/api";
 
 const ExamenCreator = () => {
   const [step, setStep] = useState(1);
@@ -45,7 +45,7 @@ const ExamenCreator = () => {
     setLoading(true);
     try {
       // 1. Cargar datos del examen
-      const examen = await examenesAPI.getById(id);
+      const examen = await examenesService.getById(id);
       setExamenData({
         titulo: examen.titulo,
         descripcion: examen.descripcion,
@@ -53,28 +53,18 @@ const ExamenCreator = () => {
       });
 
       // 2. Cargar preguntas del examen
-      const response = await fetch(`http://127.0.0.1:8000/api/pregunta/`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await preguntaService.getAll()
       
-      if (response.ok) {
-        const todasPreguntas = await response.json();
-        const preguntasDelExamen = todasPreguntas.filter(p => p.id_examen === id);
+      if (response) {
+        const preguntasDelExamen = response.filter(p => p.id_examen === id);
         
         // 3. Cargar opciones de cada pregunta
         const preguntasConOpciones = await Promise.all(
           preguntasDelExamen.map(async (pregunta) => {
-            const opcionesRes = await fetch(`http://127.0.0.1:8000/api/opcion/`, {
-              headers: {
-                'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-              }
-            });
+            const opcionesRes = await opcionService.getAll()
             
             if (opcionesRes.ok) {
-              const todasOpciones = await opcionesRes.json();
-              const opcionesDePregunta = todasOpciones
+              const opcionesDePregunta = opcionesRes
                 .filter(o => o.id_pregunta === pregunta.id_pregunta)
                 .map(o => ({
                   respuesta: o.respuesta,
@@ -116,14 +106,9 @@ const ExamenCreator = () => {
 
   const fetchSubtemas = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/subtemas/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setSubtemas(data);
+      const response = await subtemasService.getAll()
+      if (response) {
+        setSubtemas(response);
       }
     } catch (error) {
       console.error('Error al cargar subtemas:', error);
@@ -198,31 +183,26 @@ const ExamenCreator = () => {
       
       if (isEditMode) {
         // Modo edición: actualizar examen existente
-        await examenesAPI.update(examenId, {
+        await examenesService.putExamen(examenId, {
           ...examenData,
           cantidad_preguntas: preguntas.length
         });
         idExamen = examenId;
         
         // Eliminar preguntas y opciones antiguas
-        const response = await fetch(`http://127.0.0.1:8000/api/pregunta/`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          }
-        });
+        const response = await preguntaService.getAll()
         
-        if (response.ok) {
-          const todasPreguntas = await response.json();
-          const preguntasAntiguasDelExamen = todasPreguntas.filter(p => p.id_examen === idExamen);
+        if (response) {
+          const preguntasAntiguasDelExamen = response.filter(p => p.id_examen === idExamen);
           
           // Eliminar preguntas antiguas (y sus opciones se eliminan en cascada)
           for (const pregunta of preguntasAntiguasDelExamen) {
-            await preguntasAPI.delete(pregunta.id_pregunta);
+            await preguntaService.deletePregunta(pregunta.id_pregunta);
           }
         }
       } else {
         // Modo creación: crear nuevo examen
-        const examenCreado = await examenesAPI.create({
+        const examenCreado = await examenesService.postExamen({
           ...examenData,
           cantidad_preguntas: preguntas.length
         });
@@ -231,7 +211,7 @@ const ExamenCreator = () => {
 
       // Crear preguntas y opciones (nuevas o actualizadas)
       for (const pregunta of preguntas) {
-        const preguntaCreada = await preguntasAPI.create({
+        const preguntaCreada = await preguntaService.postPregunta({
           contenido: pregunta.contenido,
           id_examen: idExamen
         });
@@ -239,7 +219,7 @@ const ExamenCreator = () => {
         const idPregunta = preguntaCreada.id_pregunta;
 
         for (const opcion of pregunta.opciones) {
-          await opcionesAPI.create({
+          await opcionService.postOpcion({
             respuesta: opcion.respuesta,
             es_correcta: opcion.es_correcta,
             id_pregunta: idPregunta

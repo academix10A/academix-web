@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, FileText, Users, Calendar } from 'lucide-react';
-import { examenesAPI } from '../utils/api';
+import { examenesService, subtemasService } from "../../../services/api";
 
 const ExamenesPage = () => {
   const [examenes, setExamenes] = useState([]);
@@ -16,14 +16,9 @@ const ExamenesPage = () => {
 
   const fetchSubtemas = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/subtemas/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setSubtemas(data);
+      const response = await subtemasService.getAll()
+      if (response) {
+        setSubtemas(response);
       }
     } catch (error) {
       console.error('Error al cargar subtemas:', error);
@@ -34,7 +29,7 @@ const ExamenesPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await examenesAPI.getAll();
+      const data = await examenesService.getAll();
       setExamenes(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error al cargar exámenes:', error);
@@ -49,7 +44,7 @@ const ExamenesPage = () => {
     if (!confirm('¿Estás seguro de eliminar este examen?')) return;
 
     try {
-      await examenesAPI.delete(id);
+      await examenesService.deleteExamen(id);
       await fetchExamenes();
     } catch (error) {
       console.error('Error al eliminar examen:', error);

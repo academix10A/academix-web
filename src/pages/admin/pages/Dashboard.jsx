@@ -27,6 +27,7 @@ import {
   Legend, 
   ResponsiveContainer 
 } from 'recharts';
+import { usuariosService, recursosService, examenesService, membresiasService, subtemasService, beneficiosService, intentoService } from "../../../services/api";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -65,13 +66,10 @@ const Dashboard = () => {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const userId = payload.sub;
 
-      const response = await fetch(`http://127.0.0.1:8000/api/usuarios/${userId}/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await usuariosService.getById(userId)
 
-      if (response.ok) {
-        const data = await response.json();
-        setCurrentUser(data);
+      if (response) {
+        setCurrentUser(response);
       }
     } catch (error) {
       console.error('Error al cargar usuario:', error);
@@ -81,25 +79,23 @@ const Dashboard = () => {
   const fetchAllStats = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('auth_token');
-      
       const [usuariosRes, recursosRes, examenesRes, membresiasRes, subtemasRes, beneficiosRes, intentosRes] = await Promise.all([
-        fetch('http://127.0.0.1:8000/api/usuarios/', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://127.0.0.1:8000/api/recurso/', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://127.0.0.1:8000/api/examen/', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://127.0.0.1:8000/api/membresias/', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://127.0.0.1:8000/api/subtemas/', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://127.0.0.1:8000/api/beneficios/', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://127.0.0.1:8000/api/intento/', { headers: { 'Authorization': `Bearer ${token}` } })
+        usuariosService.getAll(),
+        recursosService.getAll(),
+        examenesService.getAll(),
+        membresiasService.getAll(),
+        subtemasService.getAll(),
+        beneficiosService.getAll(),
+        intentoService.getAll()
       ]);
 
-      const usuarios = await usuariosRes.json();
-      const recursos = await recursosRes.json();
-      const examenes = await examenesRes.json();
-      const membresias = await membresiasRes.json();
-      const subtemas = await subtemasRes.json();
-      const beneficios = await beneficiosRes.json();
-      const intentos = await intentosRes.json();
+      const usuarios = usuariosRes
+      const recursos = recursosRes
+      const examenes = examenesRes
+      const membresias = membresiasRes
+      const subtemas = subtemasRes
+      const beneficios = beneficiosRes
+      const intentos = intentosRes
 
       // Calcular estadísticas de intentos
       const intentosArray = Array.isArray(intentos) ? intentos : [];
@@ -364,14 +360,14 @@ const Dashboard = () => {
                   labelFormatter={(label) => {
                     const usuario = intentosPorUsuario.find(u => u.nombre === label);
                     return (
-                      <div>
-                        <div style={{ fontWeight: '700', fontSize: '1.125rem', marginBottom: '0.5rem' }}>
+                      <span>
+                        <span style={{ fontWeight: '700', fontSize: '1.125rem', display: 'block', marginBottom: '0.5rem' }}>
                           {label}
-                        </div>
-                        <div style={{ fontSize: '0.875rem', color: '#9ca3af' }}>
+                        </span>
+                        <span style={{ fontSize: '0.875rem', color: '#9ca3af', display: 'block' }}>
                           {usuario?.intentos} intentos realizados
-                        </div>
-                      </div>
+                        </span>
+                      </span>
                     );
                   }}
                 />
