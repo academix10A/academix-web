@@ -5,7 +5,7 @@ import {
   eliminarRecursoOffline,
   estaOffline,
 } from '../../services/offlineService'
-import styles from './OfflineButton.module.css'
+import styles from './Offlinebutton.module.css'
 
 export default function OfflineButton({ recurso, esPremium }) {
   const [guardado,  setGuardado]  = useState(false)
