@@ -6,7 +6,7 @@ import {
   Users, BookOpen, Copy, Check,
 } from 'lucide-react'
 import Navbar from '../components/Navbar'
-import styles from './NotaDetallePage.module.css'
+import styles from './Notadetallepage.module.css'
 import { notasService } from "../services/api";
 
 async function fetchNota(idNota) {
