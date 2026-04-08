@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Search, CreditCard, Users, Calendar, TrendingUp, CheckCircle, XCircle, DollarSign } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import {
+  usuarioMembresiaService,
+  usuariosService,
+  membresiasService
+} from '../../../services/api'
 
 const UsuarioMembresiasPage = () => {
   const [usuarioMembresias, setUsuarioMembresias] = useState([]);
@@ -44,20 +49,14 @@ const UsuarioMembresiasPage = () => {
       const token = localStorage.getItem('auth_token');
       
       const [usuarioMembresiasRes, usuariosRes, membresiasRes] = await Promise.all([
-        fetch('http://127.0.0.1:8000/api/usuario_membresia/', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://127.0.0.1:8000/api/usuarios/', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://127.0.0.1:8000/api/membresias/', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+        usuarioMembresiaService.getAll(token),
+        usuariosService.getAll(token),
+        membresiasService.getAll(token),
       ]);
 
-      const usuarioMembresiasData = await usuarioMembresiasRes.json();
-      const usuariosData = await usuariosRes.json();
-      const membresiasData = await membresiasRes.json();
+      const usuarioMembresiasData = usuarioMembresiasRes
+      const usuariosData = usuariosRes
+      const membresiasData = membresiasRes
 
       setUsuarioMembresias(Array.isArray(usuarioMembresiasData) ? usuarioMembresiasData : []);
       setUsuarios(Array.isArray(usuariosData) ? usuariosData : []);

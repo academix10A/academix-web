@@ -3,7 +3,6 @@ import { Check, Zap, Crown, BookOpen, Star } from 'lucide-react'
 import { membresiasService } from '../services/api'
 import styles from './Memberships.module.css'
 
-// Ícono por tipo de membresía
 function getMembresiaIcon(tipo, nombre) {
   const t = tipo?.toLowerCase() ?? ''
   const n = nombre?.toLowerCase() ?? ''
@@ -13,7 +12,6 @@ function getMembresiaIcon(tipo, nombre) {
   return <Star size={28} />
 }
 
-// Cuál es el más popular — el primero que sea mensual o el segundo
 function esDestacado(membresia, index, total) {
   const n = membresia.nombre?.toLowerCase() ?? ''
   return n.includes('mensual') || (total >= 3 && index === 1)
@@ -24,13 +22,18 @@ export default function Memberships() {
   const [loading, setLoading]       = useState(true)
 
   useEffect(() => {
-    membresiasService.getAll(null)  // membresías son públicas, no necesitan token
-      .then(data => setMembresias(Array.isArray(data) ? data : data.items ?? []))
-      .catch(() => setMembresias([]))  // si falla, queda vacío sin romper la página
+    membresiasService.getAll(null)
+      .then(data => {
+        const lista = Array.isArray(data) ? data : data.items ?? []
+
+        const filtradas = lista.filter(m => m.costo > 0)
+
+        setMembresias(filtradas)
+      })
+      .catch(() => setMembresias([]))
       .finally(() => setLoading(false))
   }, [])
 
-  // Mientras carga muestra placeholders
   if (loading) return (
     <section id="membresias" className={styles.section}>
       <div className={styles.header}>

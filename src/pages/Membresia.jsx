@@ -2,13 +2,9 @@ import { useState, useEffect } from "react";
 import Navbar from '../components/Navbar.jsx';
 import './Membresia.css';
 import PaypalButton from "../components/PaypalButton.jsx";
+import { membresiasService } from "../services/api.js";
 
 const ICON_TIPO = {
-  gratuito: (
-    <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor" />
-    </svg>
-  ),
   mensual: (
     <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
       <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2.1-2h9.8l.9-4.4-3.3 3.2L12 8.5 9.5 12.8 6.2 9.6l.9 4.4z" fill="currentColor" />
@@ -89,34 +85,6 @@ function PagoForm({ membresia, onBack, onSuccess }) {
       setLoadingGratis(false);
       onSuccess();
     }, 1200);
-  };
-
-  const createOrder = async () => {
-    setPaypalError(null);
-    const res = await fetch("http://127.0.0.1:8000/api/paypal/create-order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id_membresia: membresia.id_membresia }),
-    });
-    const data = await res.json();
-    return data.orderID;
-  };
-
-  const onApprove = async (data) => {
-    const res = await fetch(
-      `http://127.0.0.1:8000/api/paypal/capture/${data.orderID}?id_membresia=${membresia.id_membresia}`,
-      { method: "POST" }
-    );
-    const result = await res.json();
-    if (result.success) {
-      onSuccess();
-    } else {
-      setPaypalError("Hubo un problema al procesar el pago. Inténtalo de nuevo.");
-    }
-  };
-
-  const onError = () => {
-    setPaypalError("Ocurrió un error con PayPal. Inténtalo de nuevo.");
   };
 
   return (
@@ -243,14 +211,23 @@ export default function PagarMembresia({ membresiaInicial = null }) {
     const [paso, setPaso] = useState(1);
     const [seleccionada, setSeleccionada] = useState(null);
 
+    // useEffect(() => {
+    //   membresiasService.getAll()
+    //     .then((data) => {
+    //       setMembresias(data);
+    //       setSeleccionada(data[0]);
+    //     })
+    //     .catch((err) => console.error("Error cargando membresías:", err));
+    // }, []);
     useEffect(() => {
-        fetch("http://127.0.0.1:8000/api/membresias/")
-            .then((res) => res.json())
-            .then((data) => {
-            setMembresias(data);
-            setSeleccionada(data[0]); // selecciona la primera por defecto
-            })
-            .catch((err) => console.error("Error cargando membresías:", err));
+      membresiasService.getAll()
+        .then((data) => {
+          const membresiasFiltradas = data.filter(m => m.costo > 0);
+
+          setMembresias(membresiasFiltradas);
+          setSeleccionada(membresiasFiltradas[0]);
+        })
+        .catch((err) => console.error("Error cargando membresías:", err));
     }, []);
 
   const handleContinuar = () => {

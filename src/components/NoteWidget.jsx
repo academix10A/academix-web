@@ -1,4 +1,3 @@
-// src/components/NoteWidget.jsx
 import { useState, useRef, useEffect } from 'react'
 import {
   Plus, X, Trash2, Wifi, WifiOff, StickyNote,
@@ -11,11 +10,11 @@ import { useAuth } from '../hooks/useAuth'
 import { useFavorites } from '../hooks/useFavorites'
 import StarButton from './StarButton'
 import styles from './Notewidget.module.css'
+import { recursosService } from '../services/api'
 
 export default function NoteWidget({ recursoPreseleccionado = null }) {
-  const { token, user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const { notes, addNote, deleteNote, retryPending, pendingCount } = useNotes({
-    token,
     id_usuario: user?.id_usuario,
   })
   const { isFavoriteNota, toggleFavoriteNota } = useFavorites()
@@ -56,25 +55,12 @@ export default function NoteWidget({ recursoPreseleccionado = null }) {
     debounceRef.current = setTimeout(async () => {
       setSearching(true)
       try {
-        const res = await fetch(
-          `http://localhost:8000/api/recurso/titulo/${encodeURIComponent(val.trim())}`,
-          {
-            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-            signal:  AbortSignal.timeout(5000),
-          }
-        )
-        if (res.ok) {
-          const data    = await res.json()
-          const recurso = Array.isArray(data) ? data[0] : data
-          if (recurso?.id_recurso) {
-            setRecursoFound(recurso)
-          } else {
-            setSearchError('No se encontró ningún recurso con ese título.')
-          }
-        } else if (res.status === 404) {
-          setSearchError('No se encontró ningún recurso con ese título.')
+        const data   = await recursosService.getByTitulo(val.trim())
+        const recurso = Array.isArray(data) ? data[0] : data
+        if (recurso?.id_recurso) {
+          setRecursoFound(recurso)
         } else {
-          setSearchError(`Error del servidor (HTTP ${res.status}).`)
+          setSearchError('No se encontró ningún recurso con ese título.')
         }
       } catch {
         setSearchError('No se pudo conectar con el servidor para buscar el recurso.')
@@ -107,7 +93,6 @@ export default function NoteWidget({ recursoPreseleccionado = null }) {
     setCompartida(false)
     clearRecurso()
 
-    // Fix: si el recurso venía preseleccionado, lo restauramos para la siguiente nota
     if (recursoPreseleccionado) {
       setRecursoFound(recursoPreseleccionado)
       setTituloInput(recursoPreseleccionado.titulo)

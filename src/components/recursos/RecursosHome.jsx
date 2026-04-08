@@ -1,4 +1,3 @@
-// src/components/recursos/RecursosHome.jsx
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BookOpen, Headphones, Video, FileText, File, ArrowRight, Loader, AlertCircle } from 'lucide-react'
@@ -6,8 +5,6 @@ import { useAuth } from '../../hooks/useAuth'
 import { tiposService } from '../../services/api'
 import styles from './RecursosHome.module.css'
 
-// Mapeo flexible — acepta cualquier nombre que venga de la BD
-// Si no coincide ninguno, usa el fallback
 function getTipoConfig(nombre) {
   const n = nombre?.toLowerCase().trim()
 

@@ -1,4 +1,3 @@
-// src/hooks/useNotes.js
 import { useState, useEffect } from 'react'
 import localforage from 'localforage'
 

@@ -6,7 +6,7 @@ import styles from './Navbar.module.css'
 
 const links = [
   { label: 'Exámenes',       href: '/examenes',     isRoute: true },
-  { label: 'Publicaciones',  href: '#publicaciones', isRoute: false },
+  { label: 'Publicaciones',  href: '/publicaciones',  isRoute: true  },
   { label: 'Membresías',     href: '/membresias',    isRoute: true },
   { label: 'Sobre Nosotros', href: '#nosotros',      isRoute: false },
   { label: 'Contacto',       href: '#contacto',      isRoute: false },
@@ -14,7 +14,7 @@ const links = [
 
 export default function Navbar() {
   const [open, setOpen]         = useState(false)   
-  const [dropdown, setDropdown] = useState(false)   // dropdown del usuario
+  const [dropdown, setDropdown] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { isAuthenticated, user, logout } = useAuth()
   const dropdownRef = useRef(null)
@@ -25,7 +25,6 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -36,7 +35,6 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Nombre visible: si tiene nombre usa ese, si no usa la parte del email antes del @
   const displayName = user?.nombre || user?.email?.split('@')[0] || 'Usuario'
 
   return (
