@@ -1,4 +1,3 @@
-// src/components/recursos/CategoriasList.jsx
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Loader, ChevronRight, BookOpen, Headphones, Video, FileText, File } from 'lucide-react'
@@ -6,7 +5,6 @@ import { useAuth } from '../../hooks/useAuth'
 import { subtemasService, recursosService, tiposService } from '../../services/api'
 import styles from './CategoriasList.module.css'
 
-// Mismo helper que RecursosHome — ícono por nombre de tipo
 function getTipoIcon(nombre) {
   const n = nombre?.toLowerCase().trim()
   if (n?.includes('audio'))   return <Headphones size={22} />
@@ -21,7 +19,7 @@ export default function CategoriasList() {
   const { token }  = useAuth()
   const navigate   = useNavigate()
 
-  const [tipo, setTipo]           = useState(null)   // el tipo actual (nombre, id)
+  const [tipo, setTipo]           = useState(null)
   const [subtemas, setSubtemas]   = useState([])
   const [recursos, setRecursos]   = useState([])
   const [loading, setLoading]     = useState(true)
@@ -34,7 +32,6 @@ export default function CategoriasList() {
       recursosService.getAll(token),
     ])
       .then(([tipos, subs, recs]) => {
-        // Encontrar el tipo actual por id desde la BD
         const tiposArr = Array.isArray(tipos) ? tipos : tipos.items ?? []
         const tipoActual = tiposArr.find(t => String(t.id_tipo) === String(idTipo))
         setTipo(tipoActual ?? null)

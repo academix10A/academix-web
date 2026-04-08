@@ -27,5 +27,6 @@ dev-dist
 .env.local
 .env.development
 .env.production
+.env.frontend
 
 *.tsbuildinfo

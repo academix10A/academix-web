@@ -15,6 +15,7 @@ import {
   Legend, 
   ResponsiveContainer 
 } from 'recharts';
+import { examenesService, membresiasService, recursosService, subtemasService, usuariosService } from '../../../services/api';
 
 const ReportsPage = () => {
   const [stats, setStats] = useState({
@@ -48,35 +49,20 @@ const ReportsPage = () => {
       const token = localStorage.getItem('auth_token');
       
       // Fetch usuarios
-      const usuariosRes = await fetch('http://127.0.0.1:8000/api/usuarios/', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const usuarios = await usuariosRes.json();
+      const usuarios = await usuariosService.getAll()
 
 
       // Fetch recursos
-      const recursosRes = await fetch('http://127.0.0.1:8000/api/recurso/', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const recursos = await recursosRes.json();
+      const recursos = await recursosService.getAll()
 
       // Fetch examenes
-      const examenesRes = await fetch('http://127.0.0.1:8000/api/examen/', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const examenes = await examenesRes.json();
+      const examenes = await examenesService.getAll()
 
       // Fetch membresias
-      const membresiasRes = await fetch('http://127.0.0.1:8000/api/membresias/', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const membresias = await membresiasRes.json();
+      const membresias = await membresiasService.getAll()
 
       // Fetch subtemas
-      const subtemasRes = await fetch('http://127.0.0.1:8000/api/subtemas/', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const subtemas = await subtemasRes.json();
+      const subtemas = await subtemasService.getAll()
 
       // Procesar estadísticas
       setStats({

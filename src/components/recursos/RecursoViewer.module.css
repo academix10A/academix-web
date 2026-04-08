@@ -180,3 +180,199 @@
   .cover { max-width: 160px; margin: 0 auto; }
   .iframe { min-height: 60vh; }
 }
+
+/* ── Agregar al final de RecursoViewer.module.css ── */
+
+/* Visor de contenido textual */
+.textContent {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 2rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.textBody {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+/* Agregar al final de RecursoViewer.module.css */
+
+/* Badge "Modo offline" */
+.offlineBadge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(246, 173, 85, 0.15);
+  border: 1px solid rgba(246, 173, 85, 0.35);
+  color: #f6ad55;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+  width: fit-content;
+}
+
+/* Visor de contenido textual */
+.textContent {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 2rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.textBody {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+/* ── Agregar al final de RecursoViewer.module.css ── */
+
+/* Progreso de lectura */
+.progresoWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.progresoBar {
+  width: 100%;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progresoFill {
+  height: 100%;
+  background: #00CED1;
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+
+.progresoPct {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Aviso para recursos iframe (caja negra) */
+.progresoAviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.progresoAviso svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  opacity: 0.5;
+}
+
+/* Botón marcar como leído */
+.btnCompletado {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+
+.btnCompletado:hover {
+  background: rgba(72, 187, 120, 0.15);
+  border-color: rgba(72, 187, 120, 0.3);
+  color: #48bb78;
+}
+
+/* Badge completado */
+.completadoBadge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #48bb78;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+/* Badge modo offline */
+.offlineBadge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(246, 173, 85, 0.15);
+  border: 1px solid rgba(246, 173, 85, 0.35);
+  color: #f6ad55;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+  width: fit-content;
+}
+
+/* Visor de contenido textual */
+.textContent {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 2rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.textBody {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.notasBtn {
+  display: flex; align-items: center; gap: 0.4rem;
+  color: rgba(255,255,255,0.55);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+
+.notasBtn:hover {
+  background: rgba(212,175,55,0.1);
+  border-color: rgba(212,175,55,0.3);
+  color: var(--gold);
+}

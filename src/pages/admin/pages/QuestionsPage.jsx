@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Filter, X } from 'lucide-react';
-import Table from '../components/Table';
-import { preguntasAPI } from '../utils/api';
+import { preguntaService } from '../../../services/api';
 
 const QuestionsPage = () => {
   const [questions, setQuestions] = useState([]);
@@ -27,7 +26,7 @@ const QuestionsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await preguntasAPI.getAll();
+      const data = await preguntaService.getAll();
       setQuestions(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error al cargar preguntas:', error);
@@ -41,7 +40,7 @@ const QuestionsPage = () => {
   // Crear nueva pregunta
   const createQuestion = async () => {
     try {
-      await preguntasAPI.create(formData);
+      await preguntaService.postPregunta(formData);
       await fetchQuestions();
       closeModal();
     } catch (error) {
@@ -53,7 +52,7 @@ const QuestionsPage = () => {
   // Actualizar pregunta existente
   const updateQuestion = async () => {
     try {
-      await preguntasAPI.update(editingQuestion.id_pregunta, formData);
+      await preguntaService.putPregunta(editingQuestion.id_pregunta, formData);
       await fetchQuestions();
       closeModal();
     } catch (error) {
@@ -67,7 +66,7 @@ const QuestionsPage = () => {
     if (!confirm('¿Estás seguro de eliminar esta pregunta?')) return;
 
     try {
-      await preguntasAPI.delete(id);
+      await preguntaService.deletePregunta(id);
       await fetchQuestions();
     } catch (error) {
       console.error('Error al eliminar pregunta:', error);

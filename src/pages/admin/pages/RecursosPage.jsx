@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X, Link as LinkIcon } from 'lucide-react';
+import { estadoService, recursosService, subtemasService, tipoService } from '../../../services/api';
 
 const RecursosPage = () => {
   const [recursos, setRecursos] = useState([]);
@@ -34,15 +35,10 @@ const RecursosPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/recurso/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await recursosService.getAll()
       
-      if (response.ok) {
-        const data = await response.json();
-        setRecursos(Array.isArray(data) ? data : []);
+      if (response) {
+        setRecursos(Array.isArray(response) ? response : []);
       } else {
         throw new Error('Error al cargar recursos');
       }
@@ -57,15 +53,10 @@ const RecursosPage = () => {
 
   const fetchSubtemas = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/subtemas/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await subtemasService.getAll()
       
-      if (response.ok) {
-        const data = await response.json();
-        setSubtemas(Array.isArray(data) ? data : []);
+      if (response) {
+        setSubtemas(Array.isArray(response) ? response : []);
       }
     } catch (error) {
       console.error('Error al cargar subtemas:', error);
@@ -74,15 +65,10 @@ const RecursosPage = () => {
 
   const fetchEstados = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/estado/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await estadoService.getAll()
       
-      if (response.ok) {
-        const data = await response.json();
-        setEstados(Array.isArray(data) ? data : []);
+      if (response) {
+        setEstados(Array.isArray(response) ? response : []);
       }
     } catch (error) {
       console.error('Error al cargar estados:', error);
@@ -91,15 +77,10 @@ const RecursosPage = () => {
 
   const fetchTipos = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/tipo/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await tipoService.getAll()
       
-      if (response.ok) {
-        const data = await response.json();
-        setTipos(Array.isArray(data) ? data : []);
+      if (response) {
+        setTipos(Array.isArray(response) ? response : []);
       }
     } catch (error) {
       console.error('Error al cargar tipos:', error);
@@ -108,16 +89,9 @@ const RecursosPage = () => {
 
   const createRecurso = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/recurso/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await recursosService.postRecurso(formData)
 
-      if (response.ok) {
+      if (response) {
         await fetchRecursos();
         closeModal();
       } else {
@@ -132,16 +106,9 @@ const RecursosPage = () => {
 
   const updateRecurso = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/recurso/${editingRecurso.id_recurso}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await recursosService.putRecurso(editingRecurso.id_recurso, formData)
 
-      if (response.ok) {
+      if (response) {
         await fetchRecursos();
         closeModal();
       } else {
@@ -158,14 +125,9 @@ const RecursosPage = () => {
     if (!confirm('¿Estás seguro de eliminar este recurso?')) return;
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/recurso/${id}/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await recursosService.deleteRecurso(id)
 
-      if (response.ok) {
+      if (response) {
         await fetchRecursos();
       } else {
         alert('Error al eliminar el recurso');

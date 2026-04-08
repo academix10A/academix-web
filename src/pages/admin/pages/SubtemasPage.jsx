@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X } from 'lucide-react';
+import { subtemasService } from '../../../services/api';
 
 const SubtemasPage = () => {
   const [subtemas, setSubtemas] = useState([]);
@@ -24,15 +25,10 @@ const SubtemasPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/subtemas/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await subtemasService.getAll()
       
-      if (response.ok) {
-        const data = await response.json();
-        setSubtemas(Array.isArray(data) ? data : []);
+      if (response) {
+        setSubtemas(Array.isArray(response) ? response : []);
       } else {
         throw new Error('Error al cargar subtemas');
       }
@@ -47,16 +43,9 @@ const SubtemasPage = () => {
 
   const createSubtema = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/subtemas/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await subtemasService.postSubtemas(formData)
 
-      if (response.ok) {
+      if (response) {
         await fetchSubtemas();
         closeModal();
       } else {
@@ -70,16 +59,9 @@ const SubtemasPage = () => {
 
   const updateSubtema = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/subtemas/${editingSubtema.id_subtema}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await subtemasService.putSubtemas(editingSubtema.id_subtema, formData)
 
-      if (response.ok) {
+      if (response) {
         await fetchSubtemas();
         closeModal();
       } else {
@@ -95,14 +77,9 @@ const SubtemasPage = () => {
     if (!confirm('¿Estás seguro de eliminar este subtema?')) return;
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/subtemas/${id}/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await subtemasService.deleteSubtemas(id)
 
-      if (response.ok) {
+      if (response) {
         await fetchSubtemas();
       } else {
         alert('Error al eliminar el subtema');

@@ -1,9 +1,8 @@
 // Configuración de la API
 
 // URL base de la API - cambiar según tu entorno
-export const API_BASE_URL = 'http://127.0.0.1:8000/api';
+export const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-// ⚠️ Función para obtener el token desde localStorage
 export const getAuthToken = () => {
   return localStorage.getItem('auth_token') || '';
 };
@@ -63,7 +62,7 @@ export const apiRequest = async (endpoint, options = {}) => {
     const response = await fetch(url, { ...defaultOptions, ...options });
     
     // Si la respuesta no es ok, lanzar error
-    if (!response.ok) {
+    if (!response) {
       if (response.status === 401) {
         // Token inválido o expirado - redirigir al login
         removeAuthToken();

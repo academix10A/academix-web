@@ -8,7 +8,7 @@ import QuestionsPage from './pages/QuestionsPage';
 import RecursosPage from './pages/RecursosPage';
 import SubtemasPage from './pages/SubtemasPage';
 import MembresiasPage from './pages/MembresiasPage';
-import UsuarioMembresiasPage from './pages/UsuarioMembresiasPage';
+import UsuarioMembresiasPage from './pages/Usuariomembresiaspage';
 import BeneficiosPage from './pages/BeneficiosPage';
 import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
