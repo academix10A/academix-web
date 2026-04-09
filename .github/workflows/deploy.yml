@@ -24,7 +24,7 @@ jobs:
 
             cd ~/academix
 
-            echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env.frontend
+            echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env.production
 
             docker pull ${{ secrets.DOCKER_USERNAME }}/academix-frontend:latest
 
