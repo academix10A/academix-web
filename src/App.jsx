@@ -11,6 +11,7 @@ import RecursoVerPage from './pages/RecursoVerPage.jsx'
 import Recursos from './pages/Recursos.jsx'
 import RecursosCategorias from './pages/RecursosCategorias.jsx'
 import RecursosDetalle from './pages/RecursosDetalle.jsx'
+import Biblioteca from './pages/Biblioteca'
 
 // Exámenes
 import ExamenesPage from './pages/examenes/ExamenesPage.jsx'
@@ -60,6 +61,12 @@ export default function App() {
           <Route path="/recursos" element={
             <ProtectedRoute requireAuth={true}>
               <Recursos />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/biblioteca" element={
+            <ProtectedRoute requireAuth={true}>
+              <Biblioteca />
             </ProtectedRoute>
           } />
 

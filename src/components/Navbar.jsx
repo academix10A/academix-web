@@ -5,11 +5,13 @@ import { useAuth } from '../hooks/useAuth'
 import styles from './Navbar.module.css'
 
 const links = [
+  { label: 'Biblioteca', href: '/biblioteca', isRoute: true },
   { label: 'Exámenes',       href: '/examenes',     isRoute: true },
   { label: 'Publicaciones',  href: '#publicaciones', isRoute: false },
   { label: 'Membresías',     href: '/#membresias',    isRoute: false },
   { label: 'Sobre Nosotros', href: '#nosotros',      isRoute: false },
   { label: 'Contacto',       href: '#contacto',      isRoute: false },
+  
 ]
 
 export default function Navbar() {

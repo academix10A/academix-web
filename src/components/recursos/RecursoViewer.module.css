@@ -17,6 +17,9 @@
   flex-direction: column;
   gap: 1.25rem;
   overflow-y: auto;
+  position: sticky;
+  top: 65px;
+  height: calc(100vh - 65px);
 }
 
 .cover {

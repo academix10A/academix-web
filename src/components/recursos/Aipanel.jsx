@@ -1,28 +1,32 @@
 // src/components/recursos/AIPanel.jsx
 import { useState } from 'react'
-import { X, Send, Sparkles, ChevronDown, ChevronUp, ChevronRight, ChevronLeft } from 'lucide-react'
+import { X, Sparkles, ChevronDown, ChevronUp, ChevronRight, ChevronLeft } from 'lucide-react'
 import styles from './AIPanel.module.css'
 
 const WEBHOOK = 'https://n8n-n8n-academix.wulckn.easypanel.host/webhook/ai-academix'
 
 export default function AIPanel({ selectedText, onClose }) {
-  const [historial, setHistorial]   = useState([])
-  const [pendiente, setPendiente]   = useState(null)
-  const [input, setInput]           = useState('')
-  const [loading, setLoading]       = useState(false)
-  const [expandido, setExpandido]   = useState(null)
-  const [collapsed, setCollapsed]   = useState(false)
+  const [historial, setHistorial]     = useState([])
+  const [pendiente, setPendiente]     = useState(null)
   const [descartados, setDescartados] = useState([])
+  const [loading, setLoading]         = useState(false)
+  const [expandido, setExpandido]     = useState(null)
+  const [collapsed, setCollapsed]     = useState(false)
 
-  if (selectedText && selectedText !== pendiente && !historial.find(i => i.texto === selectedText) && !descartados.includes(selectedText)) {
+  if (
+    selectedText &&
+    selectedText !== pendiente &&
+    !historial.find(i => i.texto === selectedText) &&
+    !descartados.includes(selectedText)
+  ) {
     setPendiente(selectedText)
     if (collapsed) setCollapsed(false)
   }
 
-  const consultarIA = async (texto, contexto) => {
+  const consultarIA = async (texto, pregunta) => {
     setLoading(true)
-    const payload = contexto
-      ? { texto_seleccionado: contexto, pregunta_seguimiento: texto }
+    const payload = pregunta
+      ? { texto_seleccionado: texto, pregunta_seguimiento: pregunta }
       : { texto_seleccionado: texto }
 
     try {
@@ -31,26 +35,46 @@ export default function AIPanel({ selectedText, onClose }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
-      const data = await res.json()
-      const respuesta = data.explicacion || 'Sin respuesta.'
+      const raw  = await res.text()
+      let data
+      try {
+        data = JSON.parse(raw)
+      } catch {
+        data = { explicacion: raw, sugerencias: [] }
+      }
 
-      if (contexto) {
+      const explicacion = data.explicacion || 'Sin respuesta.'
+      const sugerencias = Array.isArray(data.sugerencias) ? data.sugerencias : []
+
+      if (pregunta) {
+        // Es una pregunta de seguimiento — agregar al chat del item
         setHistorial(prev => prev.map(item =>
-          item.texto === contexto
-            ? { ...item, chat: [...item.chat, { tipo: 'user', msg: texto }, { tipo: 'ai', msg: respuesta }] }
+          item.texto === texto
+            ? {
+                ...item,
+                chat: [
+                  ...item.chat,
+                  { tipo: 'user', msg: pregunta },
+                  { tipo: 'ai', msg: explicacion, sugerencias }
+                ]
+              }
             : item
         ))
       } else {
+        // Es una nueva palabra/párrafo
         const nuevoId = Date.now()
-        setHistorial(prev => [...prev, { texto, explicacion: respuesta, chat: [], id: nuevoId }])
+        setHistorial(prev => [
+          ...prev,
+          { texto, explicacion, sugerencias, chat: [], id: nuevoId }
+        ])
         setExpandido(nuevoId)
         setPendiente(null)
       }
     } catch {
-      if (contexto) {
+      if (pregunta) {
         setHistorial(prev => prev.map(item =>
-          item.texto === contexto
-            ? { ...item, chat: [...item.chat, { tipo: 'user', msg: texto }, { tipo: 'ai', msg: 'Error al conectar.' }] }
+          item.texto === texto
+            ? { ...item, chat: [...item.chat, { tipo: 'user', msg: pregunta }, { tipo: 'ai', msg: 'Error al conectar.', sugerencias: [] }] }
             : item
         ))
       }
@@ -59,21 +83,18 @@ export default function AIPanel({ selectedText, onClose }) {
     }
   }
 
-  const enviarSeguimiento = (contexto) => {
-    if (!input.trim() || loading) return
-    consultarIA(input.trim(), contexto)
-    setInput('')
+  const descartar = () => {
+    setDescartados(prev => [...prev, pendiente])
+    setPendiente(null)
   }
 
   return (
     <div className={`${styles.panel} ${collapsed ? styles.collapsed : ''}`}>
 
-      {/* Flecha para colapsar/expandir en el borde izquierdo */}
       <button className={styles.toggleBtn} onClick={() => setCollapsed(c => !c)}>
         {collapsed ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
       </button>
 
-      {/* Contenido del panel — se oculta cuando está colapsado */}
       {!collapsed && (
         <>
           <div className={styles.header}>
@@ -91,7 +112,9 @@ export default function AIPanel({ selectedText, onClose }) {
             {pendiente && (
               <div className={styles.pendiente}>
                 <p className={styles.pendienteLabel}>Texto seleccionado:</p>
-                <p className={styles.pendienteTexto}>"{pendiente.length > 80 ? pendiente.slice(0, 80) + '…' : pendiente}"</p>
+                <p className={styles.pendienteTexto}>
+                  "{pendiente.length > 80 ? pendiente.slice(0, 80) + '…' : pendiente}"
+                </p>
                 <div className={styles.pendienteBtns}>
                   <button
                     className={styles.preguntarBtn}
@@ -101,10 +124,7 @@ export default function AIPanel({ selectedText, onClose }) {
                     <Sparkles size={14} />
                     {loading ? 'Consultando…' : 'Preguntar a la IA'}
                   </button>
-                  <button className={styles.descartarBtn} onClick={() => {
-                    setDescartados(prev => [...prev, pendiente])
-                    setPendiente(null)
-                  }}>
+                  <button className={styles.descartarBtn} onClick={descartar}>
                     Descartar
                   </button>
                 </div>
@@ -134,34 +154,50 @@ export default function AIPanel({ selectedText, onClose }) {
                   <div className={styles.itemBody}>
                     <p className={styles.explicacion}>{item.explicacion}</p>
 
-                    {item.chat.length > 0 && (
-                      <div className={styles.chat}>
-                        {item.chat.map((msg, i) => (
-                          <div key={i} className={msg.tipo === 'user' ? styles.msgUser : styles.msgAI}>
-                            {msg.msg}
-                          </div>
+                    {/* Sugerencias de la explicación principal */}
+                    {item.sugerencias.length > 0 && (
+                      <div className={styles.sugerencias}>
+                        <p className={styles.sugerenciasLabel}>Profundiza:</p>
+                        {item.sugerencias.map((s, i) => (
+                          <button
+                            key={i}
+                            className={styles.sugerenciaBtn}
+                            onClick={() => consultarIA(item.texto, s)}
+                            disabled={loading}
+                          >
+                            {s}
+                          </button>
                         ))}
                       </div>
                     )}
 
-                    <div className={styles.inputRow}>
-                      <input
-                        type="text"
-                        className={styles.input}
-                        placeholder="Pregunta algo más…"
-                        value={expandido === item.id ? input : ''}
-                        onChange={e => setInput(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && enviarSeguimiento(item.texto)}
-                        disabled={loading}
-                      />
-                      <button
-                        className={styles.sendBtn}
-                        onClick={() => enviarSeguimiento(item.texto)}
-                        disabled={loading || !input.trim()}
-                      >
-                        <Send size={14} />
-                      </button>
-                    </div>
+                    {/* Chat de seguimiento */}
+                    {item.chat.length > 0 && (
+                      <div className={styles.chat}>
+                        {item.chat.map((msg, i) => (
+                          <div key={i}>
+                            <div className={msg.tipo === 'user' ? styles.msgUser : styles.msgAI}>
+                              {msg.msg}
+                            </div>
+                            {/* Sugerencias de respuestas del chat */}
+                            {msg.tipo === 'ai' && msg.sugerencias?.length > 0 && (
+                              <div className={styles.sugerencias}>
+                                {msg.sugerencias.map((s, j) => (
+                                  <button
+                                    key={j}
+                                    className={styles.sugerenciaBtn}
+                                    onClick={() => consultarIA(item.texto, s)}
+                                    disabled={loading}
+                                  >
+                                    {s}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

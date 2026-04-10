@@ -6,8 +6,10 @@
   display: flex;
   flex-direction: column;
   height: calc(100vh - 65px);
+  max-height: calc(100vh - 65px);
   position: sticky;
   top: 65px;
+  overflow: hidden;
   transition: width 0.3s ease;
 }
 
@@ -19,7 +21,6 @@
   background: transparent;
 }
 
-/* Flecha en el borde izquierdo */
 .toggleBtn {
   position: absolute;
   left: -18px;
@@ -50,6 +51,7 @@
   padding: 1rem 1.25rem;
   border-bottom: 1px solid rgba(212,175,55,0.15);
   flex-shrink: 0;
+  min-height: 56px;
 }
 
 .headerTitle {
@@ -81,10 +83,25 @@
 .historial {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.historial::-webkit-scrollbar {
+  width: 4px;
+}
+.historial::-webkit-scrollbar-track {
+  background: transparent;
+}
+.historial::-webkit-scrollbar-thumb {
+  background: rgba(212,175,55,0.2);
+  border-radius: 4px;
+}
+.historial::-webkit-scrollbar-thumb:hover {
+  background: rgba(212,175,55,0.4);
 }
 
 .empty {
@@ -109,6 +126,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .pendienteLabel {
@@ -165,6 +183,7 @@
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 10px;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .itemHeader {
@@ -208,6 +227,40 @@
   padding-top: 0.75rem;
 }
 
+.sugerencias {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  align-items: flex-end;
+}
+
+.sugerenciasLabel {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 0.25rem;
+  align-self: flex-start;
+}
+
+.sugerenciaBtn {
+  align-self: flex-end;
+  padding: 0.5rem 0.75rem;
+  background: rgba(212,175,55,0.15);
+  border: 1px solid rgba(212,175,55,0.25);
+  color: rgba(255,255,255,0.9);
+  border-radius: 10px 10px 2px 10px;
+  font-size: 0.82rem;
+  max-width: 85%;
+  line-height: 1.5;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+  display: block;
+  margin-left: auto;
+}
+.sugerenciaBtn:hover:not(:disabled) { background: rgba(212,175,55,0.28); }
+.sugerenciaBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 .chat {
   display: flex;
   flex-direction: column;
@@ -238,48 +291,12 @@
   line-height: 1.5;
 }
 
-.inputRow {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.input {
-  flex: 1;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.82rem;
-  color: var(--white);
-  outline: none;
-  transition: border-color 0.2s;
-}
-.input::placeholder { color: rgba(255,255,255,0.25); }
-.input:focus { border-color: rgba(212,175,55,0.4); }
-
-.sendBtn {
-  width: 32px;
-  height: 32px;
-  background: rgba(212,175,55,0.15);
-  border: 1px solid rgba(212,175,55,0.3);
-  border-radius: 8px;
-  color: var(--gold);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background 0.2s;
-}
-.sendBtn:hover:not(:disabled) { background: rgba(212,175,55,0.25); }
-.sendBtn:disabled { opacity: 0.4; cursor: not-allowed; }
-
 .loadingRow {
   display: flex;
   gap: 5px;
   justify-content: center;
   padding: 0.75rem;
+  flex-shrink: 0;
 }
 
 .loadingDot {
