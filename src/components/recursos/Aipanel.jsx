@@ -1,53 +1,99 @@
 // src/components/recursos/AIPanel.jsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Sparkles, ChevronDown, ChevronUp, ChevronRight, ChevronLeft } from 'lucide-react'
+import { useAuth } from '../../hooks/useAuth'
 import styles from './AIPanel.module.css'
 
-const WEBHOOK = 'https://n8n-n8n-academix.wulckn.easypanel.host/webhook/ai-academix'
+const API_IA = 'http://127.0.0.1:8000/api/ia'
 
 export default function AIPanel({ selectedText, onClose }) {
-  const [historial, setHistorial]     = useState([])
-  const [pendiente, setPendiente]     = useState(null)
+  const [historial, setHistorial] = useState([])
+  const [pendiente, setPendiente] = useState(null)
   const [descartados, setDescartados] = useState([])
-  const [loading, setLoading]         = useState(false)
-  const [expandido, setExpandido]     = useState(null)
-  const [collapsed, setCollapsed]     = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [expandido, setExpandido] = useState(null)
+  const [collapsed, setCollapsed] = useState(false)
+  const [cuota, setCuota] = useState(null)
 
-  if (
-    selectedText &&
-    selectedText !== pendiente &&
-    !historial.find(i => i.texto === selectedText) &&
-    !descartados.includes(selectedText)
-  ) {
-    setPendiente(selectedText)
-    if (collapsed) setCollapsed(false)
-  }
+  const { token } = useAuth()
+
+  useEffect(() => {
+    if (!token) return
+
+    fetch(`${API_IA}/cuota`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(async (r) => {
+        if (!r.ok) throw new Error('No se pudo cargar la cuota')
+        return r.json()
+      })
+      .then((data) => setCuota(data))
+      .catch(() => setCuota(null))
+  }, [token])
+
+  useEffect(() => {
+    if (!selectedText) return
+
+    const yaExiste = historial.some(i => i.texto === selectedText)
+    const yaDescartado = descartados.includes(selectedText)
+
+    if (selectedText !== pendiente && !yaExiste && !yaDescartado) {
+      setPendiente(selectedText)
+      if (collapsed) setCollapsed(false)
+    }
+  }, [selectedText, historial, descartados, pendiente, collapsed])
 
   const consultarIA = async (texto, pregunta) => {
+    if (!token) {
+      alert('Tu sesión no es válida. Inicia sesión nuevamente.')
+      return
+    }
+
+    if (cuota?.bloqueado) {
+      alert(`Agotaste tus ${cuota.limite_diario} consultas diarias de IA.`)
+      return
+    }
+
     setLoading(true)
-    const payload = pregunta
-      ? { texto_seleccionado: texto, pregunta_seguimiento: pregunta }
-      : { texto_seleccionado: texto }
+
+    const payload = {
+      texto_seleccionado: texto,
+      pregunta_seguimiento: pregunta || null,
+    }
 
     try {
-      const res  = await fetch(WEBHOOK, {
+      const res = await fetch(`${API_IA}/consultar`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
       })
-      const raw  = await res.text()
-      let data
-      try {
-        data = JSON.parse(raw)
-      } catch {
-        data = { explicacion: raw, sugerencias: [] }
+
+      const data = await res.json().catch(() => ({}))
+
+      if (res.status === 403) {
+        const msg = data?.detail?.message || 'Agotaste tus consultas diarias de IA.'
+        alert(msg)
+        setCuota(data?.detail || null)
+        return
       }
 
-      const explicacion = data.explicacion || 'Sin respuesta.'
-      const sugerencias = Array.isArray(data.sugerencias) ? data.sugerencias : []
+      if (!res.ok) {
+        throw new Error(data?.detail || 'Error al consultar la IA')
+      }
+
+      if (data?.cuota) {
+        setCuota(data.cuota)
+      }
+
+      const explicacion = data?.explicacion || 'Sin respuesta.'
+      const sugerencias = Array.isArray(data?.sugerencias) ? data.sugerencias : []
 
       if (pregunta) {
-        // Es una pregunta de seguimiento — agregar al chat del item
         setHistorial(prev => prev.map(item =>
           item.texto === texto
             ? {
@@ -61,7 +107,6 @@ export default function AIPanel({ selectedText, onClose }) {
             : item
         ))
       } else {
-        // Es una nueva palabra/párrafo
         const nuevoId = Date.now()
         setHistorial(prev => [
           ...prev,
@@ -74,9 +119,18 @@ export default function AIPanel({ selectedText, onClose }) {
       if (pregunta) {
         setHistorial(prev => prev.map(item =>
           item.texto === texto
-            ? { ...item, chat: [...item.chat, { tipo: 'user', msg: pregunta }, { tipo: 'ai', msg: 'Error al conectar.', sugerencias: [] }] }
+            ? {
+                ...item,
+                chat: [
+                  ...item.chat,
+                  { tipo: 'user', msg: pregunta },
+                  { tipo: 'ai', msg: 'Error al conectar con la IA.', sugerencias: [] }
+                ]
+              }
             : item
         ))
+      } else {
+        alert('No se pudo consultar la IA.')
       }
     } finally {
       setLoading(false)
@@ -84,13 +138,13 @@ export default function AIPanel({ selectedText, onClose }) {
   }
 
   const descartar = () => {
+    if (!pendiente) return
     setDescartados(prev => [...prev, pendiente])
     setPendiente(null)
   }
 
   return (
     <div className={`${styles.panel} ${collapsed ? styles.collapsed : ''}`}>
-
       <button className={styles.toggleBtn} onClick={() => setCollapsed(c => !c)}>
         {collapsed ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
       </button>
@@ -107,23 +161,51 @@ export default function AIPanel({ selectedText, onClose }) {
             </button>
           </div>
 
-          <div className={styles.historial}>
+          {cuota && (
+            <div
+              style={{
+                fontSize: '0.8rem',
+                color: '#cbd5e1',
+                padding: '0.65rem 0.85rem',
+                borderBottom: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.03)',
+              }}
+            >
+              {cuota.limite_diario === null
+                ? `Membresía: ${cuota.membresia} · IA ilimitada`
+                : `Consultas IA hoy: ${cuota.usadas_hoy}/${cuota.limite_diario} · Restantes: ${cuota.restantes}`
+              }
+            </div>
+          )}
 
+          <div className={styles.historial}>
             {pendiente && (
               <div className={styles.pendiente}>
                 <p className={styles.pendienteLabel}>Texto seleccionado:</p>
                 <p className={styles.pendienteTexto}>
                   "{pendiente.length > 80 ? pendiente.slice(0, 80) + '…' : pendiente}"
                 </p>
+
+                {cuota?.bloqueado && (
+                  <p style={{ color: '#fca5a5', fontSize: '0.8rem', marginTop: '0.5rem' }}>
+                    Agotaste tus {cuota.limite_diario} consultas diarias de IA.
+                  </p>
+                )}
+
                 <div className={styles.pendienteBtns}>
                   <button
                     className={styles.preguntarBtn}
                     onClick={() => consultarIA(pendiente, null)}
-                    disabled={loading}
+                    disabled={loading || cuota?.bloqueado}
                   >
                     <Sparkles size={14} />
-                    {loading ? 'Consultando…' : 'Preguntar a la IA'}
+                    {cuota?.bloqueado
+                      ? 'Consultas agotadas'
+                      : loading
+                        ? 'Consultando…'
+                        : 'Preguntar a la IA'}
                   </button>
+
                   <button className={styles.descartarBtn} onClick={descartar}>
                     Descartar
                   </button>
@@ -154,7 +236,6 @@ export default function AIPanel({ selectedText, onClose }) {
                   <div className={styles.itemBody}>
                     <p className={styles.explicacion}>{item.explicacion}</p>
 
-                    {/* Sugerencias de la explicación principal */}
                     {item.sugerencias.length > 0 && (
                       <div className={styles.sugerencias}>
                         <p className={styles.sugerenciasLabel}>Profundiza:</p>
@@ -163,7 +244,7 @@ export default function AIPanel({ selectedText, onClose }) {
                             key={i}
                             className={styles.sugerenciaBtn}
                             onClick={() => consultarIA(item.texto, s)}
-                            disabled={loading}
+                            disabled={loading || cuota?.bloqueado}
                           >
                             {s}
                           </button>
@@ -171,7 +252,6 @@ export default function AIPanel({ selectedText, onClose }) {
                       </div>
                     )}
 
-                    {/* Chat de seguimiento */}
                     {item.chat.length > 0 && (
                       <div className={styles.chat}>
                         {item.chat.map((msg, i) => (
@@ -179,7 +259,7 @@ export default function AIPanel({ selectedText, onClose }) {
                             <div className={msg.tipo === 'user' ? styles.msgUser : styles.msgAI}>
                               {msg.msg}
                             </div>
-                            {/* Sugerencias de respuestas del chat */}
+
                             {msg.tipo === 'ai' && msg.sugerencias?.length > 0 && (
                               <div className={styles.sugerencias}>
                                 {msg.sugerencias.map((s, j) => (
@@ -187,7 +267,7 @@ export default function AIPanel({ selectedText, onClose }) {
                                     key={j}
                                     className={styles.sugerenciaBtn}
                                     onClick={() => consultarIA(item.texto, s)}
-                                    disabled={loading}
+                                    disabled={loading || cuota?.bloqueado}
                                   >
                                     {s}
                                   </button>

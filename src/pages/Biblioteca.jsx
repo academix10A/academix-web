@@ -10,6 +10,25 @@ import styles from './Biblioteca.module.css'
 const TIPO_LIBRO = 1
 const PROXY = 'http://127.0.0.1:8000/api'
 
+const isOpenLibraryWorkId = (value) => /^OL.*W$/i.test(value || '')
+const coverCache = new Map()
+const extractDriveFileId = (url) => {
+  if (!url) return null
+
+  const patterns = [
+    /\/file\/d\/([a-zA-Z0-9_-]+)/,
+    /[?&]id=([a-zA-Z0-9_-]+)/,
+    /\/document\/d\/([a-zA-Z0-9_-]+)/,
+  ]
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match) return match[1]
+  }
+
+  return null
+}
+
 export default function Biblioteca() {
   const { token }   = useAuth()
   const navigate    = useNavigate()
@@ -175,40 +194,93 @@ function SeccionSubtema({ subtema, libros, onLibroClick }) {
 
 function LibroCard({ libro, onClick }) {
   const [cover, setCover] = useState(null)
+  const [coverFailed, setCoverFailed] = useState(false)
 
   useEffect(() => {
-    if (!libro.external_id) return
+    let cancelled = false
+    setCover(null)
+    setCoverFailed(false)
 
-    const worksUrl = `https://openlibrary.org/works/${libro.external_id}.json`
-    const proxyWorksUrl = `${PROXY}/proxy/portada?url=${encodeURIComponent(worksUrl)}`
+    const resolveCover = async () => {
+      if (!libro.url_archivo) return
 
-    fetch(proxyWorksUrl)
-      .then(r => r.json())
-      .then(data => {
-        const coverId = data.covers?.[0]
-        if (coverId) {
-          const coverImgUrl = `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`
-          setCover(`${PROXY}/proxy/portada?url=${encodeURIComponent(coverImgUrl)}`)
+      // Archive.org
+      if (libro.url_archivo.includes('archive.org/details/')) {
+        const identifier = libro.url_archivo.split('archive.org/details/')[1]?.split('/')[0]
+        if (identifier && !cancelled) {
+          setCover(`https://archive.org/services/img/${identifier}`)
         }
-      })
-      .catch(() => null)
-  }, [libro.external_id])
+        return
+      }
+
+      // Google Drive
+      const driveId = extractDriveFileId(libro.url_archivo)
+      if (driveId) {
+        if (!cancelled) {
+          const driveThumbUrl = `https://drive.google.com/thumbnail?id=${driveId}&sz=w400`
+          setCover(`${PROXY}/proxy/portada?url=${encodeURIComponent(driveThumbUrl)}`)
+        }
+        return
+      }
+
+      // Open Library
+      if (isOpenLibraryWorkId(libro.external_id)) {
+        try {
+          const worksUrl = `https://openlibrary.org/works/${libro.external_id}.json`
+          const proxyUrl = `${PROXY}/proxy/portada?url=${encodeURIComponent(worksUrl)}`
+          const res = await fetch(proxyUrl)
+          const data = await res.json()
+
+          const coverId = data.covers?.[0]
+          if (coverId && !cancelled) {
+            const coverImgUrl = `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`
+            setCover(`${PROXY}/proxy/portada?url=${encodeURIComponent(coverImgUrl)}`)
+          }
+        } catch {
+          if (!cancelled) setCoverFailed(true)
+        }
+      }
+    }
+
+    resolveCover()
+
+    return () => {
+      cancelled = true
+    }
+  }, [libro])
+
+  const showFallback = !cover || coverFailed
 
   return (
     <div className={styles.card} onClick={onClick}>
       <div className={styles.cardCover}>
-        {cover
-          ? <img src={cover} alt={libro.titulo} className={styles.cardImg} />
-          : (
-            <div className={styles.cardPlaceholder}>
-              <BookOpen size={36} />
-            </div>
-          )
-        }
+        {showFallback ? (
+          <div className={styles.cardPlaceholder}>
+            <img
+              src="/book-placeholder.png"
+              alt="Portada no disponible"
+              className={styles.cardImg}
+            />
+          </div>
+        ) : (
+          <img
+            src={cover}
+            alt={libro.titulo}
+            className={styles.cardImg}
+            loading="lazy"
+            decoding="async"
+            onError={() => {
+              setCoverFailed(true)
+              setCover(null)
+            }}
+          />
+        )}
+
         <div className={styles.cardOverlay}>
           <span className={styles.cardOverlayText}>Leer ahora</span>
         </div>
       </div>
+
       <div className={styles.cardInfo}>
         <h3 className={styles.cardTitle}>{libro.titulo}</h3>
         {libro.descripcion && (
