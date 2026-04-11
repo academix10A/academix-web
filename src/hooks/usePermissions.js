@@ -1,7 +1,7 @@
 // src/hooks/usePermissions.js
 import { useAuth } from './useAuth'
 
-/*Aquí defines qué puede hacer cada membresía.*/
+/* Aquí defines qué puede hacer cada membresía. */
 const PERMISOS = {
   gratis: {
     // ── Notas ──────────────────────────────────────────────────
@@ -14,15 +14,15 @@ const PERMISOS = {
 
     // ── Biblioteca ─────────────────────────────────────────────
     verRecursos:         true,
-    descargarRecursos:   false,   // solo premium puede descargar
+    descargarRecursos:   false,
 
     // ── Exámenes ───────────────────────────────────────────────
     tomarExamenes:       true,
     verResultados:       true,
 
     // ── IA ─────────────────────────────────────────────────────
-    usarAsistenciaIA:    false,   // exclusivo premium
-    verHistorialIA:      false,
+    usarAsistenciaIA:    true,   // ahora sí puede usar IA
+    verHistorialIA:      false,  // pero sin historial premium
 
     // ── Perfil ─────────────────────────────────────────────────
     editarPerfil:        true,
@@ -39,30 +39,48 @@ const PERMISOS = {
 
     // ── Biblioteca ─────────────────────────────────────────────
     verRecursos:         true,
-    descargarRecursos:   true,    //  puede descargar
+    descargarRecursos:   true,
 
     // ── Exámenes ───────────────────────────────────────────────
     tomarExamenes:       true,
     verResultados:       true,
 
     // ── IA ─────────────────────────────────────────────────────
-    usarAsistenciaIA:    true,    // tiene IA
-    verHistorialIA:      true,    // ve su historial
+    usarAsistenciaIA:    true,
+    verHistorialIA:      true,
 
     // ── Perfil ─────────────────────────────────────────────────
     editarPerfil:        true,
   },
 }
 
+function normalizarMembresia(nombre) {
+  if (!nombre) return 'gratis'
+
+  if (nombre === 'Plan Gratuito') {
+    return 'gratis'
+  }
+
+  if (
+    nombre === 'Plan Premium Mensual' ||
+    nombre === 'Plan Premium Semestral' ||
+    nombre === 'Plan Premium Anual'
+  ) {
+    return 'premium'
+  }
+
+  return 'gratis'
+}
+
 export function usePermissions() {
   const { user, isAuthenticated } = useAuth()
 
-  const esAdmin    = isAuthenticated && user?.rol === 'admin'
-  const membresia  = user?.membresia ?? 'gratis'   // si no hay membresía, tratarlo como gratis
-  
+  const esAdmin = isAuthenticated && user?.rol === 'admin'
+  const membresia = normalizarMembresia(user?.membresia)
+
   const puede = (permiso) => {
     if (!isAuthenticated) return false
-    if (esAdmin)          return true   // admin puede todo
+    if (esAdmin) return true
     return PERMISOS[membresia]?.[permiso] ?? false
   }
 
@@ -71,6 +89,6 @@ export function usePermissions() {
     esAdmin,
     membresia,
     esPremium: membresia === 'premium',
-    esGratis:  membresia === 'gratis',
+    esGratis: membresia === 'gratis',
   }
 }

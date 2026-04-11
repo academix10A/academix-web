@@ -3,7 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft, ExternalLink, Loader, AlertCircle,
   BookOpen, WifiOff, CheckCircle, Info, Users,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react'
+import { Document, Page, pdfjs } from 'react-pdf'
 import { useAuth } from '../../hooks/useAuth'
 import { recursosService } from '../../services/api'
 import {
@@ -14,8 +16,30 @@ import {
 import OfflineButton from './OfflineButton'
 import { obtenerMetadata } from '../../services/offlineService'
 import { useProgreso, ESTRATEGIA } from '../../hooks/useProgreso'
+import { useTextSelection } from '../../hooks/useTextSelection'
+import AIPanel from './AIPanel'
 import styles from './RecursoViewer.module.css'
 import NotasCompartidasPanel from '../NotasCompartidasPanel'
+import 'react-pdf/dist/Page/TextLayer.css'
+import 'react-pdf/dist/Page/AnnotationLayer.css'
+
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
+
+const PROXY = 'http://127.0.0.1:8000/api'
+
+const extractDriveFileId = (url) => {
+  if (!url) return null
+  const patterns = [
+    /\/file\/d\/([a-zA-Z0-9_-]+)/,
+    /[?&]id=([a-zA-Z0-9_-]+)/,
+    /\/document\/d\/([a-zA-Z0-9_-]+)/,
+  ]
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match) return match[1]
+  }
+  return null
+}
 
 function resolverEstrategia(urlType, tieneUrl, tieneContenido) {
   if (!tieneUrl && tieneContenido) return ESTRATEGIA.TEXTO
@@ -26,15 +50,21 @@ export default function RecursoViewer({ onRecursoLoaded }) {
   const { idRecurso }   = useParams()
   const { token, user } = useAuth()
   const navigate        = useNavigate()
-  
-  const [mostrarNotas, setMostrarNotas] = useState(false)
-  const [recurso,   setRecurso]   = useState(null)
-  const [olData,    setOlData]    = useState(null)
-  const [loading,   setLoading]   = useState(true)
-  const [error,     setError]     = useState(null)
-  const [esOffline, setEsOffline] = useState(false)
 
-  const mediaRef = useRef(null)
+  const [mostrarNotas, setMostrarNotas]           = useState(false)
+  const [recurso, setRecurso]                     = useState(null)
+  const [olData, setOlData]                       = useState(null)
+  const [coverUrl, setCoverUrl]                   = useState(null)
+  const [loading, setLoading]                     = useState(true)
+  const [error, setError]                         = useState(null)
+  const [esOffline, setEsOffline]                 = useState(false)
+  const [panelAbierto, setPanelAbierto]           = useState(false)
+  const [textoSeleccionado, setTextoSeleccionado] = useState(null)
+
+  const mediaRef  = useRef(null)
+  const viewerRef = useRef(null)
+
+  const [selection, clearSelection] = useTextSelection(viewerRef)
 
   const tieneUrl       = !!recurso?.url_archivo?.trim()
   const tieneContenido = !!recurso?.contenido?.trim()
@@ -57,6 +87,13 @@ export default function RecursoViewer({ onRecursoLoaded }) {
     mediaRef,
   )
 
+  useEffect(() => {
+    if (!selection.text) return
+    setTextoSeleccionado(selection.text)
+    setPanelAbierto(true)
+    clearSelection()
+  }, [selection.text])
+
   useEffect(() => { cargarRecurso() }, [idRecurso, token])
 
   async function cargarRecurso() {
@@ -67,10 +104,12 @@ export default function RecursoViewer({ onRecursoLoaded }) {
       setRecurso(data)
       setEsOffline(false)
       onRecursoLoaded?.(data)
-      if (data.external_id) fetchOpenLibraryData(data.external_id)
+      if (data.external_id && /^OL.*W$/i.test(data.external_id)) {
+        fetchOpenLibraryData(data.external_id)
+      }
       setLoading(false)
       return
-    } catch { /* sin red */ }
+    } catch { }
 
     try {
       const metadata = await obtenerMetadata(parseInt(idRecurso))
@@ -88,12 +127,42 @@ export default function RecursoViewer({ onRecursoLoaded }) {
     }
   }
 
+  useEffect(() => {
+    if (!recurso?.url_archivo) {
+      setCoverUrl(null)
+      return
+    }
+
+    if (recurso.url_archivo.includes('archive.org/details/')) {
+      const identifier = recurso.url_archivo.split('archive.org/details/')[1]?.split('/')[0]
+      if (identifier) {
+        setCoverUrl(`https://archive.org/services/img/${identifier}`)
+        return
+      }
+    }
+
+    const driveId = extractDriveFileId(recurso.url_archivo)
+    if (driveId) {
+      const driveThumbUrl = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`
+      setCoverUrl(`${PROXY}/proxy/portada?url=${encodeURIComponent(driveThumbUrl)}`)
+      return
+    }
+
+    if (olData?.covers?.[0]) {
+      const coverImgUrl = `https://covers.openlibrary.org/b/id/${olData.covers[0]}-L.jpg`
+      setCoverUrl(`${PROXY}/proxy/portada?url=${encodeURIComponent(coverImgUrl)}`)
+      return
+    }
+
+    setCoverUrl(null)
+  }, [recurso, olData])
+
   const fetchOpenLibraryData = async (workId) => {
     try {
       const res  = await fetch(`https://openlibrary.org/works/${workId}.json`)
       const data = await res.json()
       setOlData(data)
-    } catch { /* no crítico */ }
+    } catch { }
   }
 
   const decodeHtml = (str) => {
@@ -120,17 +189,18 @@ export default function RecursoViewer({ onRecursoLoaded }) {
     </div>
   )
 
-  const coverUrl = olData
-    ? `https://covers.openlibrary.org/b/id/${olData.covers?.[0]}-L.jpg`
-    : null
-
   return (
     <div className={styles.page}>
       <aside className={styles.sidebar}>
-        {coverUrl
-          ? <img src={coverUrl} alt={recurso.titulo} className={styles.cover} />
-          : <div className={styles.coverPlaceholder}><BookOpen size={48} /></div>
-        }
+        <img
+          src={coverUrl || '/book-placeholder.png'}
+          alt={recurso.titulo}
+          className={styles.cover}
+          onError={(e) => {
+            e.currentTarget.onerror = null
+            e.currentTarget.src = '/book-placeholder.png'
+          }}
+        />
 
         <div className={styles.meta}>
           <button className={styles.backBtn} onClick={() => navigate(-1)}>
@@ -158,11 +228,8 @@ export default function RecursoViewer({ onRecursoLoaded }) {
             <p className={styles.descripcion}>{decodeHtml(recurso.descripcion)}</p>
           )}
 
-          {/* ── Progreso (solo con red) ── */}
           {!esOffline && recurso && (
             <div className={styles.progresoWrap}>
-
-              {/* Barra solo texto */}
               {estrategia === ESTRATEGIA.TEXTO && (
                 <>
                   <div className={styles.progresoBar}>
@@ -175,7 +242,6 @@ export default function RecursoViewer({ onRecursoLoaded }) {
                 </>
               )}
 
-              {/* Mensaje para NO texto */}
               {estrategia !== ESTRATEGIA.TEXTO && (
                 <div className={styles.progresoAviso}>
                   <Info size={12} />
@@ -185,7 +251,6 @@ export default function RecursoViewer({ onRecursoLoaded }) {
                 </div>
               )}
 
-              {/* Botón solo texto */}
               {estrategia === ESTRATEGIA.TEXTO && (
                 completado ? (
                   <div className={styles.completadoBadge}>
@@ -202,7 +267,6 @@ export default function RecursoViewer({ onRecursoLoaded }) {
                   </button>
                 )
               )}
-
             </div>
           )}
 
@@ -217,6 +281,7 @@ export default function RecursoViewer({ onRecursoLoaded }) {
             <BookOpen size={14} />
             Ver examen del tema
           </button>
+
           <button
             className={styles.notasBtn}
             onClick={() => setMostrarNotas(true)}
@@ -224,6 +289,7 @@ export default function RecursoViewer({ onRecursoLoaded }) {
             <Users size={14} />
             Ver notas compartidas
           </button>
+
           {mostrarNotas && (
             <NotasCompartidasPanel
               idRecurso={parseInt(idRecurso)}
@@ -234,7 +300,7 @@ export default function RecursoViewer({ onRecursoLoaded }) {
         </div>
       </aside>
 
-      <main className={styles.viewer}>
+      <main ref={viewerRef} className={styles.viewer}>
         <ViewerContent
           recurso={recurso}
           urlNormalizada={urlNormalizada}
@@ -247,6 +313,142 @@ export default function RecursoViewer({ onRecursoLoaded }) {
           mediaRef={mediaRef}
         />
       </main>
+
+      {panelAbierto && (
+        <AIPanel
+          selectedText={textoSeleccionado}
+          onClose={() => setPanelAbierto(false)}
+        />
+      )}
+    </div>
+  )
+}
+
+function ProxyViewer({ url }) {
+  const [html, setHtml]       = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError]     = useState(null)
+  const containerRef          = useRef(null)
+
+  useEffect(() => {
+    setLoading(true)
+    fetch(`${PROXY}/proxy/libro?url=${encodeURIComponent(url)}`)
+      .then(r => {
+        if (!r.ok) throw new Error('Error al cargar el libro')
+        return r.text()
+      })
+      .then(data => { setHtml(data); setLoading(false) })
+      .catch(err => { setError(err.message); setLoading(false) })
+  }, [url])
+
+  useEffect(() => {
+    if (!html || !containerRef.current) return
+    const host = containerRef.current
+    if (!host.shadowRoot) {
+      host.attachShadow({ mode: 'open' })
+    }
+    host.shadowRoot.innerHTML = html
+  }, [html])
+
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'rgba(255,255,255,0.4)' }}>
+      <Loader size={32} style={{ animation: 'spin 0.8s linear infinite', color: '#d4af37' }} />
+    </div>
+  )
+
+  if (error) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'rgba(255,255,255,0.4)' }}>
+      <p>{error}</p>
+    </div>
+  )
+
+  return (
+    <div
+      ref={containerRef}
+      className={styles.proxyContent}
+    />
+  )
+}
+
+function PdfJsViewer({ url, title }) {
+  const [numPages, setNumPages]   = useState(0)
+  const [pageNumber, setPageNumber] = useState(1)
+  const [pageWidth, setPageWidth] = useState(900)
+  const wrapRef = useRef(null)
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (!wrapRef.current) return
+      setPageWidth(Math.max(320, Math.min(wrapRef.current.clientWidth - 32, 1100)))
+    }
+    updateWidth()
+    const observer = new ResizeObserver(updateWidth)
+    if (wrapRef.current) observer.observe(wrapRef.current)
+    window.addEventListener('resize', updateWidth)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', updateWidth)
+    }
+  }, [])
+
+  const pdfUrl = `${PROXY}/proxy/pdf?url=${encodeURIComponent(url)}`
+
+  return (
+    <div ref={wrapRef} className={styles.pdfWrap}>
+      <div className={styles.pdfScrollArea}>
+        <div className={styles.pdfToolbar}>
+          <button
+            className={styles.pdfNavBtn}
+            onClick={() => setPageNumber(p => Math.max(1, p - 1))}
+            disabled={pageNumber <= 1}
+          >
+            <ChevronLeft size={16} />
+            Anterior
+          </button>
+
+          <span className={styles.pdfCounter}>
+            Página {pageNumber} de {numPages || '...'}
+          </span>
+
+          <button
+            className={styles.pdfNavBtn}
+            onClick={() => setPageNumber(p => Math.min(numPages, p + 1))}
+            disabled={!numPages || pageNumber >= numPages}
+          >
+            Siguiente
+            <ChevronRight size={16} />
+          </button>
+        </div>
+
+        <div className={styles.pdfDocumentWrap}>
+          <Document
+            file={pdfUrl}
+            loading={
+              <div className={styles.pdfLoading}>
+                <Loader size={28} className={styles.spinner} />
+                <p>Cargando PDF…</p>
+              </div>
+            }
+            error={
+              <div className={styles.pdfError}>
+                <AlertCircle size={28} />
+                <p>No se pudo abrir el PDF.</p>
+              </div>
+            }
+            onLoadSuccess={({ numPages }) => {
+              setNumPages(numPages)
+              setPageNumber(1)
+            }}
+          >
+            <Page
+              pageNumber={pageNumber}
+              width={pageWidth}
+              renderTextLayer={true}
+              renderAnnotationLayer={true}
+            />
+          </Document>
+        </div>
+      </div>
     </div>
   )
 }
@@ -256,7 +458,6 @@ function ViewerContent({
   tieneUrl, tieneContenido, esOffline,
   estrategia, ultimaPosicion, mediaRef,
 }) {
-
   useEffect(() => {
     if (estrategia !== ESTRATEGIA.TEXTO) return
     const el = document.getElementById('texto-contenido')
@@ -268,10 +469,7 @@ function ViewerContent({
   if (!tieneUrl) {
     if (tieneContenido) {
       return (
-        <div
-          id="texto-contenido"
-          className={styles.textContent}
-        >
+        <div id="texto-contenido" className={styles.textContent}>
           <div className={styles.textBody} style={{ whiteSpace: 'pre-wrap' }}>
             {recurso.contenido}
           </div>
@@ -296,8 +494,10 @@ function ViewerContent({
   }
 
   switch (urlType) {
-
     case URL_TYPE.DRIVE:
+      if (recurso.id_tipo === 1) {
+        return <PdfJsViewer url={urlNormalizada} title={recurso.titulo} />
+      }
       return (
         <iframe
           src={getDriveEmbedUrl(urlNormalizada)}
@@ -319,16 +519,12 @@ function ViewerContent({
       )
 
     case URL_TYPE.PDF:
-      return (
-        <iframe
-          src={`${urlNormalizada}#toolbar=1&navpanes=1`}
-          className={styles.iframe}
-          title={recurso.titulo}
-        />
-      )
+      return <PdfJsViewer url={urlNormalizada} title={recurso.titulo} />
 
     case URL_TYPE.GUTENBERG:
     case URL_TYPE.HTML:
+      return <ProxyViewer url={urlNormalizada} />
+
     case URL_TYPE.ARCHIVE:
       return (
         <iframe
