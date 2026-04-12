@@ -2,9 +2,10 @@
 import { useState, useEffect } from 'react'
 import { X, Sparkles, ChevronDown, ChevronUp, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
-import styles from './AIPanel.module.css'
+import styles from './Aipanel.module.css'
 
-const API_IA = 'http://127.0.0.1:8000/api/ia'
+// const API_IA = 'http://127.0.0.1:8000/api/ia'
+const API_IA = `${import.meta.env.VITE_API_URL}/ia`
 
 export default function AIPanel({ selectedText, onClose }) {
   const [historial, setHistorial] = useState([])
