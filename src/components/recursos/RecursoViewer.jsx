@@ -87,10 +87,18 @@ export default function RecursoViewer({ onRecursoLoaded }) {
     mediaRef,
   )
 
+  // useEffect(() => {
+  //   if (!selection.text) return
+  //   setTextoSeleccionado(selection.text)
+  //   setPanelAbierto(true)
+  //   clearSelection()
+  // }, [selection.text])
+
   useEffect(() => {
     if (!selection.text) return
     setTextoSeleccionado(selection.text)
     setPanelAbierto(true)
+    setMostrarNotas(false)   // ← cierra notas al abrir IA
     clearSelection()
   }, [selection.text])
 
@@ -284,7 +292,7 @@ export default function RecursoViewer({ onRecursoLoaded }) {
 
           <button
             className={styles.notasBtn}
-            onClick={() => setMostrarNotas(true)}
+            onClick={() => { setMostrarNotas(true); setPanelAbierto(false) }}
           >
             <Users size={14} />
             Ver notas compartidas

@@ -34,7 +34,9 @@ import NotaDetallePage from './pages/NotaDetallePage'
 import PublicacionesPage    from './pages/PublicacionesPage'
 import PublicacionDetallePage from './pages/PublicacionDetallePage'
 
-import UserDashboard from './pages/UserDashboardPage.jsx'
+// Usuario
+import PerfilPage from './pages/PerfilPage.jsx'
+import AjustesPage from './pages/AjustesPage.jsx'
 
 // Admin dashboard
 // import AdminDashboard from './pages/admin/Dashboard.jsx'
@@ -54,6 +56,18 @@ export default function App() {
           <Route path="/home" element={
             <ProtectedRoute requireAuth={true}>
               <Home />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/perfil" element={
+            <ProtectedRoute requireAuth={true}>
+              <PerfilPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/ajustes" element={
+            <ProtectedRoute requireAuth={true}>
+              <AjustesPage />
             </ProtectedRoute>
           } />
 
@@ -88,12 +102,6 @@ export default function App() {
           <Route path="/publicaciones/:idPublicacion" element={
             <ProtectedRoute requireAuth={true}>
               <PublicacionDetallePage />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/dashboard" element={
-            <ProtectedRoute requireAuth={true}>
-              <UserDashboard />
             </ProtectedRoute>
           } />
           
