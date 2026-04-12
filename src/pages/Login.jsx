@@ -45,7 +45,7 @@ export default function Login() {
         navigate('/admin')        // admin → su dashboard
       } else {
         // gratis o premium → home (usePermissions controla qué ven ahí)
-        const from = location.state?.from?.pathname ?? '/dashboard'
+        const from = location.state?.from?.pathname ?? '/biblioteca'
         navigate(from, { replace: true })
       }
     } else {
