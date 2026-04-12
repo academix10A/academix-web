@@ -6,6 +6,7 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
   z-index: 200;
+  top: 65px;
   backdrop-filter: blur(2px);
   animation: fadeIn 0.2s ease;
 }
@@ -19,6 +20,7 @@
   bottom: 0;
   width: 380px;
   max-width: 95vw;
+  top: 65px;
   background: #0f1f3d;
   border-left: 1px solid rgba(255, 255, 255, 0.08);
   z-index: 201;

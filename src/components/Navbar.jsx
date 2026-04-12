@@ -1,23 +1,47 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
-import { BookOpen, Menu, X, LogOut, User, Settings, ChevronDown } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
+import { BookOpen, Menu, X, LogOut, User, Settings, ChevronDown, LayoutDashboard, FileText, GraduationCap, StickyNote } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import styles from './Navbar.module.css'
 
-const links = [
-  { label: 'Exámenes',       href: '/examenes',     isRoute: true },
-  { label: 'Publicaciones',  href: '/publicaciones',  isRoute: true  },
-  { label: 'Membresías',     href: '/membresias',    isRoute: true },
-  { label: 'Sobre Nosotros', href: '#nosotros',      isRoute: false },
-  { label: 'Contacto',       href: '#contacto',      isRoute: false },
+// const links = [
+//   { label: 'Biblioteca', href: '/biblioteca', isRoute: true },
+//   { label: 'Exámenes',       href: '/examenes',     isRoute: true },
+//   { label: 'Publicaciones',  href: '/publicaciones',  isRoute: true  },
+//   { label: 'Membresías',     href: '/membresias',    isRoute: true },
+//   { label: 'Sobre Nosotros', href: '#nosotros',      isRoute: false },
+//   { label: 'Contacto',       href: '#contacto',      isRoute: false },
+// ]
+
+// Links shown when NOT logged in
+const publicLinks = [
+  // { label: 'Exámenes',       href: '/examenes',      isRoute: true  },
+  // { label: 'Publicaciones',  href: '/publicaciones',  isRoute: true  },
+  { label: 'Membresías',     href: '#membresias',     isRoute: false  },
+  { label: 'Sobre Nosotros', href: '#nosotros',       isRoute: false },
+  { label: 'Contacto',       href: '#contacto',       isRoute: false },
+]
+
+// Links shown when logged in
+const authLinks = [
+  { label: 'Biblioteca',    href: '/biblioteca',     isRoute: true  },
+  { label: 'Membresías',    href: '/membresias',     isRoute: true  },
+  { label: 'Publicaciones', href: '/publicaciones',  isRoute: true  },
+  { label: 'Exámenes',      href: '/examenes',       isRoute: true  },
+  { label: 'Notas',         href: '/notas',          isRoute: true  },
 ]
 
 export default function Navbar() {
-  const [open, setOpen]         = useState(false)   
+  const [open,     setOpen]     = useState(false)
   const [dropdown, setDropdown] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { isAuthenticated, user, logout } = useAuth()
   const dropdownRef = useRef(null)
+  const location = useLocation()
+  const hiddenRoutes = ['/login', '/registro']
+  const isAuthPage = hiddenRoutes.includes(location.pathname)
+
+  const links = isAuthenticated ? authLinks : publicLinks
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -47,115 +71,99 @@ export default function Navbar() {
           <span>Academix</span>
         </Link>
 
-        <ul className={styles.links}>
+        {/* Desktop Links */}
+        {/* <ul className={styles.links}>
           {links.map(l => (
             <li key={l.label}>
               {l.isRoute
-            ? <Link to={l.href} className={styles.link}>{l.label}</Link>
-            : <a href={l.href} className={styles.link}>{l.label}</a>
+                ? <Link to={l.href} className={styles.link}>{l.label}</Link>
+                : <a href={l.href} className={styles.link}>{l.label}</a>
               }
             </li>
           ))}
-        </ul>
-
-        {/* Usuario autenticado → dropdown | sin sesión → botón login */}
-        {isAuthenticated ? (
-          <div className={styles.userArea} ref={dropdownRef}>
-            {/* Botón que abre el dropdown */}
-            <button
-              className={styles.userBtn}
-              onClick={() => setDropdown(v => !v)}
-              aria-expanded={dropdown}
-              aria-haspopup="true"
-            >
-              <div className={styles.avatar}>
-                {displayName.charAt(0).toUpperCase()}
-              </div>
-              <span className={styles.userName}>{displayName}</span>
-              <ChevronDown
-                size={14}
-                className={`${styles.chevron} ${dropdown ? styles.chevronOpen : ''}`}
-              />
-            </button>
-
-            {/* Dropdown menu */}
-            {dropdown && (
-              <div className={styles.dropdown}>
-                {/* Info del usuario arriba del menú */}
-                <div className={styles.dropdownHeader}>
-                  <p className={styles.dropdownName}>{displayName}</p>
-                  <p className={styles.dropdownEmail}>{user?.email}</p>
-                  {user?.membresia && (
-                    <span className={styles.dropdownBadge}>{user.membresia}</span>
-                  )}
-                </div>
-
-                <div className={styles.dropdownDivider} />
-
-                {/* Opciones */}
-                <Link
-                  to="/perfil"
-                  className={styles.dropdownItem}
-                  onClick={() => setDropdown(false)}
-                >
-                  <User size={15} />
-                  <span>Perfil</span>
-                </Link>
-
-                <Link
-                  to="/recursos"
-                  className={styles.dropdownItem}
-                  onClick={() => setDropdown(false)}
-                >
-                  <BookOpen size={15} />
-                  <span>Recursos</span>
-                </Link>
-
-                <Link
-                  to="/ajustes"
-                  className={styles.dropdownItem}
-                  onClick={() => setDropdown(false)}
-                >
-                  <Settings size={15} />
-                  <span>Ajustes</span>
-                </Link>
-
-                <div className={styles.dropdownDivider} />
-
-                <button
-                  className={`${styles.dropdownItem} ${styles.dropdownLogout}`}
-                  onClick={() => { logout(); setDropdown(false) }}
-                >
-                  <LogOut size={15} />
-                  <span>Cerrar sesión</span>
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <Link to="/login" className={styles.loginBtn}>Iniciar Sesión</Link>
+        </ul> */}
+        {!isAuthPage && (
+          <ul className={styles.links}>
+            {links.map(l => (
+              <li key={l.label}>
+                {l.isRoute
+                  ? <Link to={l.href} className={styles.link}>{l.label}</Link>
+                  : <a href={l.href} className={styles.link}>{l.label}</a>
+                }
+              </li>
+            ))}
+          </ul>
         )}
 
-        {/* Hamburguesa mobile */}
-        <button
-          className={styles.burger}
-          onClick={() => setOpen(!open)}
-          aria-label="Menú"
-        >
+        {/* Auth area */}
+        {!isAuthPage && (
+          isAuthenticated ? (
+            <div className={styles.userArea} ref={dropdownRef}>
+              <button
+                className={styles.userBtn}
+                onClick={() => setDropdown(v => !v)}
+                aria-expanded={dropdown}
+                aria-haspopup="true"
+              >
+                <div className={styles.avatar}>
+                  {displayName.charAt(0).toUpperCase()}
+                </div>
+                <span className={styles.userName}>{displayName}</span>
+                <ChevronDown
+                  size={14}
+                  className={`${styles.chevron} ${dropdown ? styles.chevronOpen : ''}`}
+                />
+              </button>
+
+              {dropdown && (
+                <div className={styles.dropdown}>
+                  {/* User info */}
+                  <div className={styles.dropdownHeader}>
+                    <p className={styles.dropdownName}>{displayName}</p>
+                    <p className={styles.dropdownEmail}>{user?.email}</p>
+                    {user?.membresia && (
+                      <span className={styles.dropdownBadge}>{user.membresia}</span>
+                    )}
+                  </div>
+
+                  <div className={styles.dropdownDivider} />
+
+                  <Link to="/perfil"  className={styles.dropdownItem} onClick={() => setDropdown(false)}>
+                    <User size={15} /><span>Perfil</span>
+                  </Link>
+
+                  <Link to="/ajustes" className={styles.dropdownItem} onClick={() => setDropdown(false)}>
+                    <Settings size={15} /><span>Ajustes</span>
+                  </Link>
+
+                  <div className={styles.dropdownDivider} />
+
+                  <button
+                    className={`${styles.dropdownItem} ${styles.dropdownLogout}`}
+                    onClick={() => { logout(); setDropdown(false) }}
+                  >
+                    <LogOut size={15} /><span>Cerrar sesión</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link to="/login" className={styles.loginBtn}>Iniciar Sesión</Link>
+          )
+        )}
+
+        {/* Hamburger */}
+        <button className={styles.burger} onClick={() => setOpen(!open)} aria-label="Menú">
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
-      {/* Drawer mobile */}
+      {/* Mobile Drawer */}
       <div className={`${styles.drawer} ${open ? styles.drawerOpen : ''}`}>
         {links.map(l => (
           l.isRoute
-            ? <Link key={l.label} to={l.href} className={styles.drawerLink} onClick={() => setOpen(false)}>
-                {l.label}
-              </Link>
-            : <a key={l.label} href={l.href} className={styles.drawerLink} onClick={() => setOpen(false)}>
-                {l.label}
-              </a>
+            ? <Link key={l.label} to={l.href} className={styles.drawerLink} onClick={() => setOpen(false)}>{l.label}</Link>
+            : <a key={l.label} href={l.href} className={styles.drawerLink} onClick={() => setOpen(false)}>{l.label}</a>
         ))}
         <div className={styles.drawerDivider} />
         {isAuthenticated ? (

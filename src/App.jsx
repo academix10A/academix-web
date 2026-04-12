@@ -14,6 +14,7 @@ import RecursoVerPage from './pages/RecursoVerPage.jsx'
 import Recursos from './pages/Recursos.jsx'
 import RecursosCategorias from './pages/RecursosCategorias.jsx'
 import RecursosDetalle from './pages/RecursosDetalle.jsx'
+import Biblioteca from './pages/Biblioteca'
 
 // Exámenes
 import ExamenesPage from './pages/examenes/ExamenesPage.jsx'
@@ -33,7 +34,9 @@ import NotaDetallePage from './pages/NotaDetallePage'
 import PublicacionesPage    from './pages/PublicacionesPage'
 import PublicacionDetallePage from './pages/PublicacionDetallePage'
 
-import UserDashboard from './pages/UserDashboard.jsx'
+// Usuario
+import PerfilPage from './pages/PerfilPage.jsx'
+import AjustesPage from './pages/AjustesPage.jsx'
 
 // Admin dashboard
 // import AdminDashboard from './pages/admin/Dashboard.jsx'
@@ -53,6 +56,18 @@ export default function App() {
           <Route path="/home" element={
             <ProtectedRoute requireAuth={true}>
               <Home />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/perfil" element={
+            <ProtectedRoute requireAuth={true}>
+              <PerfilPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/ajustes" element={
+            <ProtectedRoute requireAuth={true}>
+              <AjustesPage />
             </ProtectedRoute>
           } />
 
@@ -89,17 +104,17 @@ export default function App() {
               <PublicacionDetallePage />
             </ProtectedRoute>
           } />
-
-          <Route path="/dashboard" element={
-            <ProtectedRoute requireAuth={true}>
-              <UserDashboard />
-            </ProtectedRoute>
-          } />
           
           {/* Recursos */}
           <Route path="/recursos" element={
             <ProtectedRoute requireAuth={true}>
               <Recursos />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/biblioteca" element={
+            <ProtectedRoute requireAuth={true}>
+              <Biblioteca />
             </ProtectedRoute>
           } />
 

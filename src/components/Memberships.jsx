@@ -92,7 +92,7 @@ export default function Memberships() {
                 </ul>
               )}
 
-              <a href="#login" className={`${styles.btn} ${destacado ? styles.btnGold : ''}`}>
+              <a href="/login" className={`${styles.btn} ${destacado ? styles.btnGold : ''}`}>
                 {m.costo === 0 ? 'Empezar Gratis' : 'Obtener Plan'}
               </a>
             </div>
