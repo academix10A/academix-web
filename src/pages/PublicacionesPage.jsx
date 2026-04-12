@@ -39,7 +39,6 @@ function formatRelativa(fechaStr) {
   return formatFecha(fechaStr)
 }
 
-// Estima minutos de lectura (~200 palabras/min)
 function minLectura(texto) {
   if (!texto) return 1
   return Math.max(1, Math.ceil(texto.trim().split(/\s+/).length / 200))
@@ -52,14 +51,12 @@ function PublicacionCard({ pub, onClick }) {
 
   return (
     <article className={styles.card} onClick={onClick}>
-      {/* Indicador de color superior aleatorio pero determinístico */}
       <div
         className={styles.cardAccent}
         style={{ '--hue': (pub.id_publicacion * 47) % 360 }}
       />
 
       <div className={styles.cardBody}>
-        {/* Etiquetas */}
         {pub.etiquetas?.length > 0 && (
           <div className={styles.tags}>
             {pub.etiquetas.slice(0, 3).map(e => (
@@ -107,11 +104,9 @@ export default function PublicacionesPage() {
   const navigate        = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  // Estados de búsqueda — se sincronizan con la URL
-  const [busqueda,  setBusqueda]  = useState(searchParams.get('q') ?? '')
+  const [busqueda,   setBusqueda]   = useState(searchParams.get('q') ?? '')
   const [modoFiltro, setModoFiltro] = useState(searchParams.get('modo') ?? 'titulo')
 
-  // Datos
   const [publicaciones, setPublicaciones] = useState([])
   const [total,         setTotal]         = useState(0)
   const [skip,          setSkip]          = useState(0)
@@ -122,7 +117,6 @@ export default function PublicacionesPage() {
   const LIMIT = 12
   const hayMas = publicaciones.length < total
 
-  // Debounce ref
   const debounceRef = useRef(null)
 
   const cargar = useCallback(async (nuevoBusqueda, nuevoModo, nuevoSkip = 0, acumular = false) => {
@@ -150,7 +144,6 @@ export default function PublicacionesPage() {
     }
   }, [])
 
-  // Carga inicial y cuando cambia la URL
   useEffect(() => {
     const q    = searchParams.get('q') ?? ''
     const modo = searchParams.get('modo') ?? 'titulo'
@@ -159,7 +152,6 @@ export default function PublicacionesPage() {
     cargar(q, modo, 0, false)
   }, [])
 
-  // Debounce de búsqueda
   const handleBusqueda = (valor) => {
     setBusqueda(valor)
     clearTimeout(debounceRef.current)
@@ -188,8 +180,8 @@ export default function PublicacionesPage() {
   const handleVerMas = () => cargar(busqueda, modoFiltro, skip, true)
 
   const modos = [
-    { key: 'titulo',   label: 'Título',  icon: BookOpen },
-    { key: 'usuario',  label: 'Autor',   icon: User },
+    { key: 'titulo',   label: 'Título',   icon: BookOpen },
+    { key: 'usuario',  label: 'Autor',    icon: User },
     { key: 'etiqueta', label: 'Etiqueta', icon: Tag },
   ]
 
@@ -198,25 +190,16 @@ export default function PublicacionesPage() {
       <Navbar />
       <div className={styles.page}>
 
-        {/* ── Hero ──────────────────────────────────────────────── */}
-        <header className={styles.hero}>
-          <div className={styles.heroDecor} />
-          <div className={styles.heroContent}>
-            <div className={styles.heroBadge}>
-              <Feather size={13} />
-              <span>Comunidad</span>
-            </div>
-            <h1 className={styles.heroTitle}>Publicaciones</h1>
-            <p className={styles.heroSub}>
-              Ideas, análisis y reflexiones de nuestra comunidad de lectores
-            </p>
-          </div>
-        </header>
+        {/* ── Hero (igual que Exámenes/Biblioteca) ────────────── */}
+        <div className={styles.hero}>
+          <h1 className={styles.heroTitle}>Publicaciones</h1>
+          <p className={styles.heroSub}>
+            Ideas, análisis y reflexiones de nuestra comunidad de lectores
+          </p>
 
-        {/* ── Barra de búsqueda ─────────────────────────────────── */}
-        <div className={styles.searchSection}>
-          <div className={styles.searchBox}>
-            <Search size={16} className={styles.searchIcon} />
+          {/* Buscador centrado dentro del hero */}
+          <div className={styles.searchWrap}>
+            <Search size={18} className={styles.searchIcon} />
             <input
               type="text"
               className={styles.searchInput}
@@ -235,7 +218,7 @@ export default function PublicacionesPage() {
             )}
           </div>
 
-          {/* Selector de modo */}
+          {/* Selector de modo debajo del buscador */}
           <div className={styles.modoSelector}>
             {modos.map(m => {
               const Icon = m.icon

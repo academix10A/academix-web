@@ -75,8 +75,6 @@ function PagoForm({ membresia, onBack, onSuccess }) {
   const [loadingGratis, setLoadingGratis] = useState(false);
   const [paypalError, setPaypalError] = useState(null);
 
-    
-
   const isGratuito = membresia.costo === 0;
 
   const handleActivarGratis = () => {
@@ -207,28 +205,19 @@ function Exito({ membresia, onReset }) {
 }
 
 export default function PagarMembresia({ membresiaInicial = null }) {
-    const [membresias, setMembresias] = useState([]);
-    const [paso, setPaso] = useState(1);
-    const [seleccionada, setSeleccionada] = useState(null);
+  const [membresias, setMembresias] = useState([]);
+  const [paso, setPaso] = useState(1);
+  const [seleccionada, setSeleccionada] = useState(null);
 
-    // useEffect(() => {
-    //   membresiasService.getAll()
-    //     .then((data) => {
-    //       setMembresias(data);
-    //       setSeleccionada(data[0]);
-    //     })
-    //     .catch((err) => console.error("Error cargando membresías:", err));
-    // }, []);
-    useEffect(() => {
-      membresiasService.getAll()
-        .then((data) => {
-          const membresiasFiltradas = data.filter(m => m.costo > 0);
-
-          setMembresias(membresiasFiltradas);
-          setSeleccionada(membresiasFiltradas[0]);
-        })
-        .catch((err) => console.error("Error cargando membresías:", err));
-    }, []);
+  useEffect(() => {
+    membresiasService.getAll()
+      .then((data) => {
+        const membresiasFiltradas = data.filter(m => m.costo > 0);
+        setMembresias(membresiasFiltradas);
+        setSeleccionada(membresiasFiltradas[0]);
+      })
+      .catch((err) => console.error("Error cargando membresías:", err));
+  }, []);
 
   const handleContinuar = () => {
     if (seleccionada) setPaso(2);
@@ -237,41 +226,43 @@ export default function PagarMembresia({ membresiaInicial = null }) {
   return (
     <>
       <Navbar />
+
+      {/* ── Hero FUERA del container → ancho 100% ── */}
+      {paso !== 3 && (
+        <div className="membership-header">
+          <div className="membership-label">Membresías</div>
+          <h1 className="membership-title">
+            {paso === 1 ? "Elige tu Plan" : "Confirmar pago"}
+          </h1>
+          <p className="membership-subtitle">
+            {paso === 1
+              ? "Accede al conocimiento al nivel que necesitas"
+              : "Revisa los detalles y completa tu suscripción"}
+          </p>
+
+          <div className="membership-stepper">
+            {["Seleccionar plan", "Pago"].map((label, i) => (
+              <div key={i} className="membership-step-wrapper">
+                <div className="membership-step-col">
+                  <div className={`membership-step-circle ${paso >= i + 1 ? "active" : "inactive"}`}>
+                    {i + 1}
+                  </div>
+                  <span className={`membership-step-label ${paso >= i + 1 ? "active" : "inactive"}`}>
+                    {label}
+                  </span>
+                </div>
+                {i < 1 && (
+                  <div className={`membership-step-line ${paso >= 2 ? "active" : "inactive"}`} />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Contenido centrado en su propio container ── */}
       <div className="membership-page">
         <div className="membership-container">
-
-          {/* Header + Stepper */}
-          {paso !== 3 && (
-            <div className="membership-header">
-              <div className="membership-label">Membresías</div>
-              <h1 className="membership-title">
-                {paso === 1 ? "Elige tu Plan" : "Confirmar pago"}
-              </h1>
-              <p className="membership-subtitle">
-                {paso === 1
-                  ? "Accede al conocimiento al nivel que necesitas"
-                  : "Revisa los detalles y completa tu suscripción"}
-              </p>
-
-              <div className="membership-stepper">
-                {["Seleccionar plan", "Pago"].map((label, i) => (
-                  <div key={i} className="membership-step-wrapper">
-                    <div className="membership-step-col">
-                      <div className={`membership-step-circle ${paso >= i + 1 ? "active" : "inactive"}`}>
-                        {i + 1}
-                      </div>
-                      <span className={`membership-step-label ${paso >= i + 1 ? "active" : "inactive"}`}>
-                        {label}
-                      </span>
-                    </div>
-                    {i < 1 && (
-                      <div className={`membership-step-line ${paso >= 2 ? "active" : "inactive"}`} />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Paso 1 */}
           {paso === 1 && (

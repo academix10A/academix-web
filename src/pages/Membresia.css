@@ -2,51 +2,54 @@
    PAGAR MEMBRESIA - Estilos con prefijo membership-
    ============================================= */
 
-/* Layout principal */
-.membership-page {
-  min-height: 100vh;
-  background: #0d1b2a;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 80px 24px 48px; /* 80px top para separar del navbar */
-  font-family: 'Segoe UI', system-ui, sans-serif;
-}
-
-.membership-container {
-  width: 100%;
-  max-width: 960px;
-}
-
 /* =============================================
-   HEADER / STEPPER
+   HERO HEADER — nivel raíz, ancho 100%
+   (está fuera de .membership-page y .membership-container)
    ============================================= */
 .membership-header {
+  width: 100%;
+  background: linear-gradient(135deg, #1e3a5f 0%, #0f2340 100%);
+  border-bottom: 2px solid rgba(212, 175, 55, 0.2);
+  padding: 6rem 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
   text-align: center;
-  margin-bottom: 40px;
+  box-sizing: border-box;
+  /* Asegura que tape el fondo de la página */
+  position: relative;
+  z-index: 1;
 }
 
 .membership-label {
-  display: inline-block;
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  color: #d4af37;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.15em;
-  color: #E8B84B;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  padding: 5px 12px;
+  border-radius: 99px;
 }
 
 .membership-title {
-  font-size: 38px;
-  font-weight: 800;
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 900;
   color: #fff;
-  margin: 0 0 10px;
+  margin: 0;
+  letter-spacing: -0.02em;
+  font-family: var(--font-display, Georgia, serif);
 }
 
 .membership-subtitle {
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.45);
-  margin: 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0 0 0.5rem;
 }
 
 /* Stepper */
@@ -54,7 +57,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 28px;
+  margin-top: 8px;
   gap: 0;
 }
 
@@ -115,16 +118,33 @@
   transition: background 0.3s;
 }
 
-.membership-step-line.active {
-  background: #E8B84B;
+.membership-step-line.active  { background: #E8B84B; }
+.membership-step-line.inactive { background: rgba(255, 255, 255, 0.1); }
+
+/* =============================================
+   PÁGINA — envuelve solo el contenido (no el hero)
+   ============================================= */
+.membership-page {
+  min-height: calc(100vh - 65px); /* descuenta navbar */
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(212, 175, 55, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(99, 179, 237, 0.05) 0%, transparent 50%),
+    #0d1b2a;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 24px 64px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  box-sizing: border-box;
 }
 
-.membership-step-line.inactive {
-  background: rgba(255, 255, 255, 0.1);
+.membership-container {
+  width: 100%;
+  max-width: 960px;
 }
 
 /* =============================================
-   PLAN CARDS - Paso 1
+   PLAN CARDS — Paso 1
    ============================================= */
 .membership-cards-grid {
   display: flex;
@@ -189,13 +209,8 @@
   transition: background 0.2s;
 }
 
-.membership-card-icon.selected {
-  background: rgba(232, 184, 75, 0.2);
-}
-
-.membership-card-icon.default {
-  background: rgba(232, 184, 75, 0.1);
-}
+.membership-card-icon.selected { background: rgba(232, 184, 75, 0.2); }
+.membership-card-icon.default  { background: rgba(232, 184, 75, 0.1); }
 
 .membership-card-name {
   font-size: 17px;
@@ -204,9 +219,7 @@
   margin-bottom: 10px;
 }
 
-.membership-card-price {
-  margin-bottom: 16px;
-}
+.membership-card-price { margin-bottom: 16px; }
 
 .membership-price-amount {
   font-size: 32px;
@@ -249,13 +262,8 @@
   transition: background 0.25s;
 }
 
-.membership-card-indicator.selected {
-  background: #E8B84B;
-}
-
-.membership-card-indicator.default {
-  background: rgba(255, 255, 255, 0.08);
-}
+.membership-card-indicator.selected { background: #E8B84B; }
+.membership-card-indicator.default  { background: rgba(255, 255, 255, 0.08); }
 
 /* Botón continuar */
 .membership-continue-wrap {
@@ -274,7 +282,7 @@
   cursor: pointer;
   font-family: inherit;
   box-shadow: 0 4px 24px rgba(232, 184, 75, 0.25);
-  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .membership-btn-continue:hover {
@@ -283,7 +291,7 @@
 }
 
 /* =============================================
-   PASO 2 - PAGO
+   PASO 2 — PAGO
    ============================================= */
 .membership-pago-layout {
   display: flex;
@@ -292,7 +300,6 @@
   flex-wrap: wrap;
 }
 
-/* Panel resumen */
 .membership-resumen {
   flex: 0 0 280px;
   background: rgba(255, 255, 255, 0.03);
@@ -368,7 +375,6 @@
   margin-top: 4px;
 }
 
-/* Panel pago derecho */
 .membership-pago-panel {
   flex: 1;
   min-width: 260px;
@@ -383,7 +389,6 @@
   margin-bottom: 22px;
 }
 
-/* Gratuito */
 .membership-gratis-box {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.07);
@@ -417,9 +422,7 @@
   transition: background 0.2s;
 }
 
-.membership-btn-back:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
+.membership-btn-back:hover { background: rgba(255, 255, 255, 0.1); }
 
 .membership-btn-activar {
   flex: 1;
@@ -433,17 +436,9 @@
   transition: background 0.2s;
 }
 
-.membership-btn-activar.ready {
-  background: #E8B84B;
-  cursor: pointer;
-}
+.membership-btn-activar.ready   { background: #E8B84B; cursor: pointer; }
+.membership-btn-activar.loading { background: rgba(232, 184, 75, 0.5); cursor: not-allowed; }
 
-.membership-btn-activar.loading {
-  background: rgba(232, 184, 75, 0.5);
-  cursor: not-allowed;
-}
-
-/* PayPal */
 .membership-paypal-badge {
   display: flex;
   align-items: center;
@@ -514,12 +509,10 @@
   transition: background 0.2s;
 }
 
-.membership-btn-back-full:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
+.membership-btn-back-full:hover { background: rgba(255, 255, 255, 0.1); }
 
 /* =============================================
-   PASO 3 - ÉXITO
+   PASO 3 — ÉXITO
    ============================================= */
 .membership-exito {
   text-align: center;
@@ -550,9 +543,7 @@
   margin-bottom: 32px;
 }
 
-.membership-exito-highlight {
-  color: #E8B84B;
-}
+.membership-exito-highlight { color: #E8B84B; }
 
 .membership-btn-exito {
   background: #E8B84B;
@@ -570,4 +561,16 @@
 .membership-btn-exito:hover {
   opacity: 0.9;
   transform: translateY(-1px);
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 640px) {
+  .membership-header      { padding: 4rem 1.25rem 2.5rem; }
+  .membership-title       { font-size: 2.2rem; }
+  .membership-page        { padding: 32px 16px 48px; }
+  .membership-cards-grid  { flex-direction: column; }
+  .membership-pago-layout { flex-direction: column; }
+  .membership-resumen     { flex: none; width: 100%; }
 }
