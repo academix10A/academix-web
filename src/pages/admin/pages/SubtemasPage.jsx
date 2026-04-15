@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X } from 'lucide-react';
-import { subtemasService } from '../../../services/api';
+import ConfirmModal from '../components/ConfirmModal';
 
 const SubtemasPage = () => {
   const [subtemas, setSubtemas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [subtemaToDelete, setSubtemaToDelete] = useState(null);
   const [editingSubtema, setEditingSubtema] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filtroNivel, setFiltroNivel] = useState('Todos');
@@ -25,10 +27,15 @@ const SubtemasPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await subtemasService.getAll()
+      const response = await fetch('http://127.0.0.1:8000/api/subtemas/', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        }
+      });
       
-      if (response) {
-        setSubtemas(Array.isArray(response) ? response : []);
+      if (response.ok) {
+        const data = await response.json();
+        setSubtemas(Array.isArray(data) ? data : []);
       } else {
         throw new Error('Error al cargar subtemas');
       }
@@ -43,9 +50,16 @@ const SubtemasPage = () => {
 
   const createSubtema = async () => {
     try {
-      const response = await subtemasService.postSubtemas(formData)
+      const response = await fetch('http://127.0.0.1:8000/api/subtemas/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        },
+        body: JSON.stringify(formData)
+      });
 
-      if (response) {
+      if (response.ok) {
         await fetchSubtemas();
         closeModal();
       } else {
@@ -59,9 +73,16 @@ const SubtemasPage = () => {
 
   const updateSubtema = async () => {
     try {
-      const response = await subtemasService.putSubtemas(editingSubtema.id_subtema, formData)
+      const response = await fetch(`http://127.0.0.1:8000/api/subtemas/${editingSubtema.id_subtema}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        },
+        body: JSON.stringify(formData)
+      });
 
-      if (response) {
+      if (response.ok) {
         await fetchSubtemas();
         closeModal();
       } else {
@@ -74,12 +95,20 @@ const SubtemasPage = () => {
   };
 
   const deleteSubtema = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este subtema?')) return;
+    setSubtemaToDelete(id);
+    setShowConfirmModal(true);
+  };
 
+  const confirmDelete = async () => {
     try {
-      const response = await subtemasService.deleteSubtemas(id)
+      const response = await fetch(`http://127.0.0.1:8000/api/subtemas/${subtemaToDelete}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        }
+      });
 
-      if (response) {
+      if (response.ok) {
         await fetchSubtemas();
       } else {
         alert('Error al eliminar el subtema');
@@ -397,6 +426,16 @@ const SubtemasPage = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmDelete}
+        title="¿Eliminar Subtema?"
+        message="Esta acción eliminará el subtema y puede afectar los recursos asociados."
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };
