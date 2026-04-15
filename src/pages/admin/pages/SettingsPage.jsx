@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X } from 'lucide-react';
+import { estadoService, tipoService } from '../../../services/api';
 
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState('estados');
@@ -23,15 +24,10 @@ const SettingsPage = () => {
   const fetchEstados = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/estado/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await estadoService.getAll()
       
-      if (response.ok) {
-        const data = await response.json();
-        setEstados(Array.isArray(data) ? data : []);
+      if (response) {
+        setEstados(Array.isArray(response) ? response : []);
       }
     } catch (error) {
       console.error('Error al cargar estados:', error);
@@ -43,15 +39,10 @@ const SettingsPage = () => {
   const fetchTipos = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/tipo/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await tipoService.getAll()
       
-      if (response.ok) {
-        const data = await response.json();
-        setTipos(Array.isArray(data) ? data : []);
+      if (response) {
+        setTipos(Array.isArray(response) ? response : []);
       }
     } catch (error) {
       console.error('Error al cargar tipos:', error);
@@ -63,16 +54,9 @@ const SettingsPage = () => {
 
   const createEstado = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/estado/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await estadoService.getAll()
 
-      if (response.ok) {
+      if (response) {
         await fetchEstados();
         closeModal();
       } else {
@@ -86,16 +70,9 @@ const SettingsPage = () => {
 
   const updateEstado = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/estado/${editingItem.id_estado}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await estadoService.putEstado(editingItem.id_estado, formData)
 
-      if (response.ok) {
+      if (response) {
         await fetchEstados();
         closeModal();
       } else {
@@ -111,14 +88,9 @@ const SettingsPage = () => {
     if (!confirm('¿Estás seguro de eliminar este estado?')) return;
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/estado/${id}/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await estadoService.deleteEstado(id)
 
-      if (response.ok) {
+      if (response) {
         await fetchEstados();
       } else {
         alert('Error al eliminar estado');
@@ -131,16 +103,9 @@ const SettingsPage = () => {
 
   const createTipo = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/tipo/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await tipoService.postTipo(formData)
 
-      if (response.ok) {
+      if (response) {
         await fetchTipos();
         closeModal();
       } else {
@@ -154,16 +119,9 @@ const SettingsPage = () => {
 
   const updateTipo = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/tipo/${editingItem.id_tipo}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await tipoService.putTipo(editingItem.id_tipo, formData)
 
-      if (response.ok) {
+      if (response) {
         await fetchTipos();
         closeModal();
       } else {
@@ -179,14 +137,9 @@ const SettingsPage = () => {
     if (!confirm('¿Estás seguro de eliminar este tipo?')) return;
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/tipo/${id}/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await tipoService.deleteTipo(id)
 
-      if (response.ok) {
+      if (response) {
         await fetchTipos();
       } else {
         alert('Error al eliminar tipo');

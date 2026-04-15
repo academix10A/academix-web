@@ -6,11 +6,15 @@ import ProtectedRoute from './router/ProtectedRoute'
 // Admin / User Apps
 import AdminApp from './pages/admin/AdminApp'
 
+// Membresia
+import PagarMembresia from './pages/Membresia.jsx'
+
 // Recursos
 import RecursoVerPage from './pages/RecursoVerPage.jsx'
 import Recursos from './pages/Recursos.jsx'
 import RecursosCategorias from './pages/RecursosCategorias.jsx'
 import RecursosDetalle from './pages/RecursosDetalle.jsx'
+import Biblioteca from './pages/Biblioteca'
 
 // Exámenes
 import ExamenesPage from './pages/examenes/ExamenesPage.jsx'
@@ -23,14 +27,21 @@ import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import Registro from './pages/Registro.jsx'
 
+// Notas
+import NotaDetallePage from './pages/NotaDetallePage'
+
+// Publicacion
+import PublicacionesPage    from './pages/PublicacionesPage'
+import PublicacionDetallePage from './pages/PublicacionDetallePage'
+
+// Usuario
+import PerfilPage from './pages/PerfilPage.jsx'
+import AjustesPage from './pages/AjustesPage.jsx'
+
 // Admin dashboard
 // import AdminDashboard from './pages/admin/Dashboard.jsx'
 
 export default function App() {
-
-  const userRole = localStorage.getItem('user_role')
-  const hasToken = !!localStorage.getItem('auth_token')
-
   return (
     <AuthProvider>
       <BrowserRouter>
@@ -48,6 +59,18 @@ export default function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/perfil" element={
+            <ProtectedRoute requireAuth={true}>
+              <PerfilPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/ajustes" element={
+            <ProtectedRoute requireAuth={true}>
+              <AjustesPage />
+            </ProtectedRoute>
+          } />
+
           {/* Admin */}
           <Route path="/admin/*" element={
             <ProtectedRoute requireAuth={true} requireRole="admin">
@@ -57,9 +80,41 @@ export default function App() {
           } />
 
           {/* Recursos */}
+          <Route path="/membresias" element={
+            <ProtectedRoute requireAuth={true}>
+              <PagarMembresia />
+            </ProtectedRoute>
+          } />
+
+          {/* Notas */}
+          <Route path="/notas/:idNota" element={
+            <ProtectedRoute requireAuth={true}>
+              <NotaDetallePage />
+            </ProtectedRoute> 
+          } />
+
+          {/* Publicaciones */}
+          <Route path="/publicaciones" element={
+            <ProtectedRoute requireAuth={true}>
+              <PublicacionesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/publicaciones/:idPublicacion" element={
+            <ProtectedRoute requireAuth={true}>
+              <PublicacionDetallePage />
+            </ProtectedRoute>
+          } />
+          
+          {/* Recursos */}
           <Route path="/recursos" element={
             <ProtectedRoute requireAuth={true}>
               <Recursos />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/biblioteca" element={
+            <ProtectedRoute requireAuth={true}>
+              <Biblioteca />
             </ProtectedRoute>
           } />
 

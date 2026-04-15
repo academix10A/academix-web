@@ -1,4 +1,3 @@
-// src/components/recursos/RecursosList.jsx
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Loader, BookOpen, ExternalLink, AlertCircle } from 'lucide-react'

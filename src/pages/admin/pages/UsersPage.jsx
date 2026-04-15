@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
+import { estadoService, rolService, usuariosService } from '../../../services/api';
 
 const UsersPage = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -21,15 +22,9 @@ const UsersPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/usuarios/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setUsuarios(Array.isArray(data) ? data : []);
+      const response = await usuariosService.getAll()
+      if (response) {
+        setUsuarios(Array.isArray(response) ? response : []);
       } else {
         throw new Error('Error al cargar usuarios');
       }
@@ -44,15 +39,10 @@ const UsersPage = () => {
 
   const fetchRoles = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/rol/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await rolService.getAll()
       
-      if (response.ok) {
-        const data = await response.json();
-        setRoles(Array.isArray(data) ? data : []);
+      if (response) {
+        setRoles(Array.isArray(response) ? response : []);
       }
     } catch (error) {
       console.error('Error al cargar roles:', error);
@@ -61,15 +51,10 @@ const UsersPage = () => {
 
   const fetchEstados = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/estado/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
+      const response = await estadoService.getAll()
       
-      if (response.ok) {
-        const data = await response.json();
-        setEstados(Array.isArray(data) ? data : []);
+      if (response) {
+        setEstados(Array.isArray(response) ? response : []);
       }
     } catch (error) {
       console.error('Error al cargar estados:', error);
@@ -89,19 +74,9 @@ const UsersPage = () => {
     const nuevoEstado = usuario.id_estado === 1 ? 2 : 1;
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/usuarios/${usuario.id_usuario}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify({
-          ...usuario,
-          id_estado: nuevoEstado
-        })
-      });
+      const response = await usuariosService.putUser(usuario.id_usuario, {...usuario,id_estado: nuevoEstado})
 
-      if (response.ok) {
+      if (response) {
         await fetchUsuarios();
         closeConfirmModal();
       } else {

@@ -17,6 +17,9 @@
   flex-direction: column;
   gap: 1.25rem;
   overflow-y: auto;
+  position: sticky;
+  top: 65px;
+  height: calc(100vh - 65px);
 }
 
 .cover {
@@ -88,6 +91,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: calc(100vh - 65px);
+  max-height: calc(100vh - 65px);
   overflow: hidden;
 }
 
@@ -164,6 +169,16 @@
   gap: 1rem;
   color: rgba(255,255,255,0.4);
 }
+
+.proxyContent {
+  padding: 2rem 3rem;
+  color: #1a1a1a;
+  background: #fff;
+  height: 100%;
+  overflow-y: auto;
+  font-size: 1rem;
+  line-height: 1.8;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
 .spinner { animation: spin 0.8s linear infinite; color: var(--gold); }
 .errorMsg { font-size: 0.78rem; color: #fc8181; }
@@ -179,4 +194,308 @@
   }
   .cover { max-width: 160px; margin: 0 auto; }
   .iframe { min-height: 60vh; }
+}
+
+/* ── Agregar al final de RecursoViewer.module.css ── */
+
+/* Visor de contenido textual */
+.textContent {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 2rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.textBody {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+/* Agregar al final de RecursoViewer.module.css */
+
+/* Badge "Modo offline" */
+.offlineBadge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(246, 173, 85, 0.15);
+  border: 1px solid rgba(246, 173, 85, 0.35);
+  color: #f6ad55;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+  width: fit-content;
+}
+
+/* Visor de contenido textual */
+.textContent {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 2rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.textBody {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+/* ── Agregar al final de RecursoViewer.module.css ── */
+
+/* Progreso de lectura */
+.progresoWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.progresoBar {
+  width: 100%;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progresoFill {
+  height: 100%;
+  background: #00CED1;
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+
+.progresoPct {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Aviso para recursos iframe (caja negra) */
+.progresoAviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.progresoAviso svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  opacity: 0.5;
+}
+
+/* Botón marcar como leído */
+.btnCompletado {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+
+.btnCompletado:hover {
+  background: rgba(72, 187, 120, 0.15);
+  border-color: rgba(72, 187, 120, 0.3);
+  color: #48bb78;
+}
+
+/* Badge completado */
+.completadoBadge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #48bb78;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+/* Badge modo offline */
+.offlineBadge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(246, 173, 85, 0.15);
+  border: 1px solid rgba(246, 173, 85, 0.35);
+  color: #f6ad55;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+  width: fit-content;
+}
+
+/* Visor de contenido textual */
+.textContent {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 2rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.textBody {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.notasBtn {
+  display: flex; align-items: center; gap: 0.4rem;
+  color: rgba(255,255,255,0.55);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+
+.notasBtn:hover {
+  background: rgba(212,175,55,0.1);
+  border-color: rgba(212,175,55,0.3);
+  color: var(--gold);
+}
+.pdfToolbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(8, 18, 43, 0.95);
+  backdrop-filter: blur(6px);
+}
+
+.pdfNavBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #d4af37;
+  color: #0a1833;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pdfNavBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+
+.pdfCounter {
+  color: #fff;
+  font-weight: 600;
+}
+
+.pdfDocumentWrap {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100%;
+}
+
+.pdfLoading,
+.pdfError {
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 40px;
+}
+
+
+.pdfDocumentWrap :global(.react-pdf__Page) {
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+.pdfDocumentWrap :global(.react-pdf__Page__canvas) {
+  max-width: 100%;
+  height: auto !important;
+}
+
+.pdfDocumentWrap :global(.react-pdf__Page__textContent) {
+  user-select: text;
+  cursor: text;
+}
+
+.pdfWrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pdfScrollArea {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #1e1e1e;
+  overscroll-behavior: contain;
+}
+
+.pdfToolbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(8, 18, 43, 0.95);
+  backdrop-filter: blur(6px);
+}
+
+.pdfDocumentWrap {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
