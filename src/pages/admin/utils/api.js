@@ -1,10 +1,11 @@
 // Configuración de la API
-
+import { authStorage } from "../../../services/authStorage";
 // URL base de la API - cambiar según tu entorno
 export const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-export const getAuthToken = () => {
-  return localStorage.getItem('auth_token') || '';
+export const getAuthToken = async () => {
+  const token = await authStorage.getToken();
+  return token
 };
 
 // Función para guardar el token

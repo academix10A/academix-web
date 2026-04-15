@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X } from 'lucide-react';
-import { subtemasService } from '../../../services/api';
+import ConfirmModal from '../components/ConfirmModal';
+import { authStorage } from '../../../services/authStorage';
 
 const SubtemasPage = () => {
   const [subtemas, setSubtemas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [subtemaToDelete, setSubtemaToDelete] = useState(null);
   const [editingSubtema, setEditingSubtema] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filtroNivel, setFiltroNivel] = useState('Todos');
@@ -25,10 +28,16 @@ const SubtemasPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await subtemasService.getAll()
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/subtemas/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      if (response) {
-        setSubtemas(Array.isArray(response) ? response : []);
+      if (response.ok) {
+        const data = await response.json();
+        setSubtemas(Array.isArray(data) ? data : []);
       } else {
         throw new Error('Error al cargar subtemas');
       }
@@ -43,9 +52,17 @@ const SubtemasPage = () => {
 
   const createSubtema = async () => {
     try {
-      const response = await subtemasService.postSubtemas(formData)
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/subtemas/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
 
-      if (response) {
+      if (response.ok) {
         await fetchSubtemas();
         closeModal();
       } else {
@@ -59,9 +76,17 @@ const SubtemasPage = () => {
 
   const updateSubtema = async () => {
     try {
-      const response = await subtemasService.putSubtemas(editingSubtema.id_subtema, formData)
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/subtemas/${editingSubtema.id_subtema}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
 
-      if (response) {
+      if (response.ok) {
         await fetchSubtemas();
         closeModal();
       } else {
@@ -74,12 +99,21 @@ const SubtemasPage = () => {
   };
 
   const deleteSubtema = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este subtema?')) return;
+    setSubtemaToDelete(id);
+    setShowConfirmModal(true);
+  };
 
+  const confirmDelete = async () => {
     try {
-      const response = await subtemasService.deleteSubtemas(id)
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/subtemas/${subtemaToDelete}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
-      if (response) {
+      if (response.ok) {
         await fetchSubtemas();
       } else {
         alert('Error al eliminar el subtema');
@@ -397,6 +431,16 @@ const SubtemasPage = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmDelete}
+        title="¿Eliminar Subtema?"
+        message="Esta acción eliminará el subtema y puede afectar los recursos asociados."
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };

@@ -29,6 +29,7 @@ import Registro from './pages/Registro.jsx'
 
 // Notas
 import NotaDetallePage from './pages/NotaDetallePage'
+import NotasCompartidasPage from './pages/NotasCompartidasPage.jsx'
 
 // Publicacion
 import PublicacionesPage    from './pages/PublicacionesPage'
@@ -93,12 +94,19 @@ export default function App() {
             </ProtectedRoute> 
           } />
 
+          <Route path="/notas" element={
+            <ProtectedRoute requireAuth={true}>
+              <NotasCompartidasPage />
+            </ProtectedRoute> 
+          } />
+
           {/* Publicaciones */}
           <Route path="/publicaciones" element={
             <ProtectedRoute requireAuth={true}>
               <PublicacionesPage />
             </ProtectedRoute>
           } />
+
           <Route path="/publicaciones/:idPublicacion" element={
             <ProtectedRoute requireAuth={true}>
               <PublicacionDetallePage />

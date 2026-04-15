@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X, Link as LinkIcon } from 'lucide-react';
-import { estadoService, recursosService, subtemasService, tipoService } from '../../../services/api';
+import ConfirmModal from '../components/ConfirmModal';
+import { authStorage } from '../../../services/authStorage';
 
 const RecursosPage = () => {
   const [recursos, setRecursos] = useState([]);
@@ -9,6 +10,8 @@ const RecursosPage = () => {
   const [tipos, setTipos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [recursoToDelete, setRecursoToDelete] = useState(null);
   const [editingRecurso, setEditingRecurso] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
@@ -35,10 +38,16 @@ const RecursosPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await recursosService.getAll()
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/recurso/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      if (response) {
-        setRecursos(Array.isArray(response) ? response : []);
+      if (response.ok) {
+        const data = await response.json();
+        setRecursos(Array.isArray(data) ? data : []);
       } else {
         throw new Error('Error al cargar recursos');
       }
@@ -53,10 +62,16 @@ const RecursosPage = () => {
 
   const fetchSubtemas = async () => {
     try {
-      const response = await subtemasService.getAll()
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/subtemas/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      if (response) {
-        setSubtemas(Array.isArray(response) ? response : []);
+      if (response.ok) {
+        const data = await response.json();
+        setSubtemas(Array.isArray(data) ? data : []);
       }
     } catch (error) {
       console.error('Error al cargar subtemas:', error);
@@ -65,10 +80,16 @@ const RecursosPage = () => {
 
   const fetchEstados = async () => {
     try {
-      const response = await estadoService.getAll()
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/estado/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      if (response) {
-        setEstados(Array.isArray(response) ? response : []);
+      if (response.ok) {
+        const data = await response.json();
+        setEstados(Array.isArray(data) ? data : []);
       }
     } catch (error) {
       console.error('Error al cargar estados:', error);
@@ -77,10 +98,16 @@ const RecursosPage = () => {
 
   const fetchTipos = async () => {
     try {
-      const response = await tipoService.getAll()
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tipo/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      if (response) {
-        setTipos(Array.isArray(response) ? response : []);
+      if (response.ok) {
+        const data = await response.json();
+        setTipos(Array.isArray(data) ? data : []);
       }
     } catch (error) {
       console.error('Error al cargar tipos:', error);
@@ -89,9 +116,17 @@ const RecursosPage = () => {
 
   const createRecurso = async () => {
     try {
-      const response = await recursosService.postRecurso(formData)
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/recurso/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
 
-      if (response) {
+      if (response.ok) {
         await fetchRecursos();
         closeModal();
       } else {
@@ -106,9 +141,17 @@ const RecursosPage = () => {
 
   const updateRecurso = async () => {
     try {
-      const response = await recursosService.putRecurso(editingRecurso.id_recurso, formData)
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/recurso/${editingRecurso.id_recurso}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
 
-      if (response) {
+      if (response.ok) {
         await fetchRecursos();
         closeModal();
       } else {
@@ -122,12 +165,21 @@ const RecursosPage = () => {
   };
 
   const deleteRecurso = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este recurso?')) return;
+    setRecursoToDelete(id);
+    setShowConfirmModal(true);
+  };
 
+  const confirmDelete = async () => {
     try {
-      const response = await recursosService.deleteRecurso(id)
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/recurso/${recursoToDelete}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
-      if (response) {
+      if (response.ok) {
         await fetchRecursos();
       } else {
         alert('Error al eliminar el recurso');
@@ -516,6 +568,18 @@ const RecursosPage = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de Confirmación */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmDelete}
+        title="¿Eliminar Recurso?"
+        message="Esta acción no se puede deshacer. El recurso será eliminado permanentemente."
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        type="danger"
+      />
     </div>
   );
 };

@@ -15,11 +15,14 @@ import SettingsPage from './pages/SettingsPage';
 import ExamenesPage from './pages/ExamenesPage';
 import ExamenCreator from './pages/ExamenCreator';
 import { getAuthToken, removeAuthToken } from './utils/api';
+import { authStorage } from '../../services/authStorage';
+import { useAuth } from '../../hooks/useAuth'
 
 const AdminApp = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeMenu, setActiveMenu] = useState('dashboard');
+  const { logout } = useAuth();
 
   // Handle legacy hash support on mount
   useEffect(() => {
@@ -52,9 +55,8 @@ const AdminApp = () => {
   }, [location.pathname]);
 
   // Manejar logout
-  const handleLogout = () => {
-    removeAuthToken();
-    localStorage.removeItem('user_role');
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 

@@ -1,9 +1,11 @@
 import { PayPalButtons } from "@paypal/react-paypal-js";
 import { paypalService } from "../services/api";
 import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function PaypalButton({ idMembresia }) {
-    const { token } = useAuth();
+    const { token, refreshUser } = useAuth();
+    const navigate = useNavigate();
 
     const createOrder = async () => {
         const data = await paypalService.createOrder(idMembresia, token);
@@ -11,17 +13,22 @@ export default function PaypalButton({ idMembresia }) {
     };
 
     const onApprove = async (data) => {
-        const result = await paypalService.captureOrder(
-            data.orderID,
-            idMembresia,
-            token
-        );
+        try {
+            const result = await paypalService.captureOrder(
+                data.orderID,
+                idMembresia,
+                token
+            );
 
-        if (result.success) {
-            alert("Pago completado");
-        } else {
-            console.log(result);
-            alert("Error en el pago");
+            if (result.success) {
+                await refreshUser();
+                // Redirigir sin alerts
+                navigate("/biblioteca", { replace: true });
+            } else {
+                console.error("Error en el pago:", result);
+            }
+        } catch (error) {
+            console.error("Error inesperado:", error);
         }
     };
 

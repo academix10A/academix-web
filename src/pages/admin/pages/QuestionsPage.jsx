@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Filter, X } from 'lucide-react';
-import { preguntaService } from '../../../services/api';
+import Table from '../components/Table';
+import ConfirmModal from '../components/ConfirmModal';
+import { examenesService, preguntaService } from '../../../services/api';
 
 const QuestionsPage = () => {
   const [questions, setQuestions] = useState([]);
+  const [exams, setExams] = useState([]); // 🔥 Nuevo estado para exámenes
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -16,9 +21,10 @@ const QuestionsPage = () => {
     id_examen: 0
   });
 
-  // Cargar preguntas al montar el componente
+  // Cargar preguntas y exámenes al montar el componente
   useEffect(() => {
     fetchQuestions();
+    fetchExams(); // 🔥 Cargar lista de exámenes
   }, []);
 
   // Obtener todas las preguntas
@@ -37,8 +43,23 @@ const QuestionsPage = () => {
     }
   };
 
+  // 🔥 Obtener todos los exámenes
+  const fetchExams = async () => {
+    try {
+      const data = await examenesService.getAll();
+      setExams(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error al cargar exámenes:', error);
+      setExams([]);
+    }
+  };
+
   // Crear nueva pregunta
   const createQuestion = async () => {
+    if (!formData.id_examen || formData.id_examen === 0) {
+      alert('Por favor selecciona un examen');
+      return;
+    }
     try {
       await preguntaService.postPregunta(formData);
       await fetchQuestions();
@@ -51,6 +72,10 @@ const QuestionsPage = () => {
 
   // Actualizar pregunta existente
   const updateQuestion = async () => {
+    if (!formData.id_examen || formData.id_examen === 0) {
+      alert('Por favor selecciona un examen');
+      return;
+    }
     try {
       await preguntaService.putPregunta(editingQuestion.id_pregunta, formData);
       await fetchQuestions();
@@ -62,15 +87,21 @@ const QuestionsPage = () => {
   };
 
   // Eliminar pregunta
-  const deleteQuestion = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar esta pregunta?')) return;
+  const deleteItem = async (id) => {
+    setItemToDelete(id);
+    setShowConfirmModal(true);
+  };
 
+  const confirmDelete = async () => {
     try {
-      await preguntaService.deletePregunta(id);
+      await preguntaService.deletePregunta(itemToDelete);
       await fetchQuestions();
     } catch (error) {
       console.error('Error al eliminar pregunta:', error);
-      alert('Error al eliminar la pregunta. Por favor intenta de nuevo.');
+      alert('Error al eliminar la pregunta');
+    } finally {
+      setShowConfirmModal(false);
+      setItemToDelete(null);
     }
   };
 
@@ -79,7 +110,7 @@ const QuestionsPage = () => {
     setEditingQuestion(null);
     setFormData({
       contenido: '',
-      id_examen: 0
+      id_examen: exams.length > 0 ? exams[0].id_examen : 0 // 🔥 Seleccionar primer examen por defecto
     });
     setShowModal(true);
   };
@@ -119,6 +150,12 @@ const QuestionsPage = () => {
     q.contenido?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // 🔥 Función para obtener el nombre del examen por ID
+  const getExamenNombre = (idExamen) => {
+    const examen = exams.find(e => e.id_examen === idExamen);
+    return examen ? examen.titulo : `ID: ${idExamen}`;
+  };
+
   // Definir columnas de la tabla
   const columns = [
     { 
@@ -136,9 +173,11 @@ const QuestionsPage = () => {
     },
     { 
       key: 'id_examen', 
-      header: 'ID Examen',
+      header: 'Examen', // 🔥 Cambiado de "ID Examen" a "Examen"
       render: (value) => (
-        <span className="badge badge-category">{value}</span>
+        <span className="badge badge-category" title={`ID: ${value}`}>
+          {getExamenNombre(value)} {/* 🔥 Mostrar nombre en lugar de ID */}
+        </span>
       )
     }
   ];
@@ -164,6 +203,13 @@ const QuestionsPage = () => {
           <div className="stat-content">
             <p className="stat-label">Total Preguntas</p>
             <p className="stat-value">{questions.length}</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon products">📚</div>
+          <div className="stat-content">
+            <p className="stat-label">Total Exámenes</p>
+            <p className="stat-value">{exams.length}</p>
           </div>
         </div>
       </div>
@@ -234,7 +280,7 @@ const QuestionsPage = () => {
                         <button 
                           className="action-btn delete"
                           title="Eliminar"
-                          onClick={() => deleteQuestion(question.id_pregunta)}
+                          onClick={() => deleteItem(question.id_pregunta)}
                         >
                           🗑️
                         </button>
@@ -248,7 +294,7 @@ const QuestionsPage = () => {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modal - FORMULARIO MODIFICADO */}
       {showModal && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -272,23 +318,36 @@ const QuestionsPage = () => {
                 />
               </div>
 
+              {/* 🔥 SELECTOR DE EXÁMENES en lugar de input numérico */}
               <div className="form-group">
-                <label>ID Examen *</label>
-                <input
-                  type="number"
+                <label>Examen *</label>
+                <select
                   className="form-input"
                   value={formData.id_examen}
-                  onChange={(e) => setFormData({...formData, id_examen: parseInt(e.target.value) || 0})}
-                  min="0"
+                  onChange={(e) => setFormData({...formData, id_examen: parseInt(e.target.value)})}
                   required
-                />
+                >
+                  <option value={0}>Selecciona un examen...</option>
+                  {exams.map((examen) => (
+                    <option key={examen.id_examen} value={examen.id_examen}>
+                      {examen.titulo} {examen.descripcion ? `- ${examen.descripcion.substring(0, 50)}` : ''}
+                    </option>
+                  ))}
+                </select>
+                <small className="form-hint">
+                  {exams.length === 0 && "No hay exámenes disponibles. Crea un examen primero."}
+                </small>
               </div>
 
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={closeModal}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn-primary">
+                <button 
+                  type="submit" 
+                  className="btn-primary"
+                  disabled={!formData.id_examen || formData.id_examen === 0}
+                >
                   {editingQuestion ? 'Actualizar' : 'Crear'}
                 </button>
               </div>
@@ -296,6 +355,16 @@ const QuestionsPage = () => {
           </div>
         </div>
       )}
+      
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmDelete}
+        title="¿Eliminar Pregunta?"
+        message="Esta acción eliminará la pregunta y todas sus opciones de respuesta."
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };

@@ -1701,3 +1701,16 @@ textarea.form-input {
     height: 64px;
   }
 }
+.info-message {
+  background: #e3f2fd;
+  border-left: 4px solid #2196f3;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.info-message p {
+  margin: 0.25rem 0;
+  color: #1976d2;
+}

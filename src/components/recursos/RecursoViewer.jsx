@@ -25,7 +25,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css'
 
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
 
-const PROXY = 'http://127.0.0.1:8000/api'
+const PROXY = `${import.meta.env.VITE_API_URL}`
 
 const extractDriveFileId = (url) => {
   if (!url) return null

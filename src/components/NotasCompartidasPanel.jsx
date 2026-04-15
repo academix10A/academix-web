@@ -27,6 +27,7 @@ function formatFecha(fechaStr) {
 }
 
 function NotaCard({ nota, onNavigate }) {
+  console.log(nota)
   const PREVIEW_LIMIT = 180
   const esLarga = nota.contenido?.length > PREVIEW_LIMIT
   const preview = esLarga
@@ -52,7 +53,7 @@ function NotaCard({ nota, onNavigate }) {
       <div className={styles.cardFooter}>
         <span className={styles.metaItem}>
           <User size={11} />
-          Usuario #{nota.id_usuario}
+          Usuario #{nota.usuario.nombre}
         </span>
         <span className={styles.metaItem}>
           <Calendar size={11} />

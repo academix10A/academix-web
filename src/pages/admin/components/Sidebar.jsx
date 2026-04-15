@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -211,7 +211,8 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
               <LayoutDashboard size={24} />
             </div>
             <div className="logo-text">
-              <h2>Academix</h2>
+              <Link to="/biblioteca">ACADEMIX</Link>
+              <h2></h2>
               <span>Admin Panel</span>
             </div>
           </div>

@@ -145,6 +145,24 @@ export function AuthProvider({ children }) {
   //     return { ok: false, message: 'No se pudo conectar con el servidor.' }
   //   }
   // }
+  const refreshUser = async () => {
+    try {
+      const data = await usuariosService.getMe()
+
+      const updatedUser = {
+        id_usuario: data.id_usuario,
+        email: data.email,
+        rol: data.rol,
+        membresia: data.membresia,
+      }
+
+      await authStorage.setUser(updatedUser)
+      setUser(updatedUser)
+    } catch (err) {
+      console.error("Error refrescando usuario", err)
+    }
+  }
+
   const login = async (email, password) => {
     try {
       const data = await loginService.login(email, password)
@@ -186,7 +204,7 @@ export function AuthProvider({ children }) {
   const isAuthenticated = !!token && !isTokenExpired(token)
 
   return (
-    <AuthContext.Provider value={{ token, user, loading, isAuthenticated, login, logout, registro }}>
+    <AuthContext.Provider value={{ token, user, loading, isAuthenticated, login, logout, registro, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

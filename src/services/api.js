@@ -1,7 +1,7 @@
 // src/services/api.js
 // Centraliza todas las llamadas al backend
 
-const BASE_URL = import.meta.env.VITE_API_URL
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
 const API_KEY = import.meta.env.VITE_API_KEY
 
 // Token en memoria — se setea desde AuthContext al iniciar/loguear
@@ -80,7 +80,8 @@ export const recursosService = {
 
 export const notasService = {
   getById: (id) => apiFetch(`/notas/${id}`),
-  getNotaCompartida: (id) => apiFetch(`/notas/recurso/${id}/compartidas`)
+  getNotaCompartida: (id) => apiFetch(`/notas/recurso/${id}/compartidas`),
+  getNotasCompartidas: () => apiFetch('/notas/compartidas/'),
 }
 
 // Tipos
@@ -129,8 +130,12 @@ export const examenesService = {
 // Publicaciones
 export const publicacionesService = {
   getAll:  () => apiFetch('/publicacion/'),
-  getAllWithFilters:  (params) => apiFetch(`/publicacion/?${params}`),
+  getAllWithFilters:  (params) => apiFetch(`/publicacion/filtros/?${params}`),
   getById: (id) => apiFetch(`/publicacion/${id}`),
+  getMisPublicaciones: () => apiFetch('/publicacion/usuario'),
+  createPublicacion: (data) => apiFetch('/publicacion/', { method: 'POST', body: JSON.stringify(data) }),
+  updatePublicacion: (id, data) => apiFetch(`/publicacion/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deletePublicacion: (id) => apiFetch(`/publicacion/${id}`, { method: 'DELETE' }),
 }
 
 // Membresías (pública, sin token)
@@ -158,8 +163,11 @@ export const paypalService = {
     }),
 
   captureOrder: (orderID, idMembresia) =>
-    apiFetch(`/paypal/capture/${orderID}?id_membresia=${idMembresia}`, {
+    apiFetch(`/paypal/capture/${orderID}`, {
       method: 'POST',
+      body: JSON.stringify({
+        id_membresia: idMembresia,
+      }),
     }),
 }
 
@@ -170,6 +178,7 @@ export const usuarioMembresiaService = {
 
 export const usuariosService = {
   getAll: () => apiFetch('/usuarios/'),
+  getMe: () => apiFetch('/usuarios/refresh'),
   getById: (id) => apiFetch(`/usuarios/${id}/`),
   putUserEmail: (id, data) => apiFetch(`/usuarios/${id}/`, {
     method: 'PUT',
@@ -267,10 +276,6 @@ export const offlineService = {
   postOffline: (id) => apiFetch(`/offline/${id}`, {
     method: 'POST',
   }),
-  // putOffline: (id, data) => apiFetch(`/offline/${id}`, {
-  //   method: 'PUT',
-  //   body: JSON.stringify(data)
-  // }),
   deleteOffline: (id) => apiFetch(`/offline/${id}`, {
     method: 'DELETE',
   }),
@@ -282,15 +287,5 @@ export const progresoService = {
     method: 'PATCH',
     body: JSON.stringify(data)
   }),
-  // postOffline: (id) => apiFetch(`/offline/${id}`, {
-  //   method: 'POST',
-  // }),
-  // putOffline: (id, data) => apiFetch(`/offline/${id}`, {
-  //   method: 'PUT',
-  //   body: JSON.stringify(data)
-  // }),
-  // deleteOffline: (id) => apiFetch(`/offline/${id}`, {
-  //   method: 'DELETE',
-  // }),
 }
 

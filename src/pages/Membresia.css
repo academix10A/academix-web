@@ -563,6 +563,12 @@
   transform: translateY(-1px);
 }
 
+.membership-card.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 /* =============================================
    RESPONSIVE
    ============================================= */

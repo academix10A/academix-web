@@ -8,7 +8,7 @@ import { recursosService, subtemasService } from '../services/api'
 import styles from './Biblioteca.module.css'
 
 const TIPO_LIBRO = 1
-const PROXY = 'http://127.0.0.1:8000/api'
+const PROXY = `${import.meta.env.VITE_API_URL}`
 
 const isOpenLibraryWorkId = (value) => /^OL.*W$/i.test(value || '')
 const coverCache = new Map()
