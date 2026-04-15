@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 
 const SubtemasPage = () => {
   const [subtemas, setSubtemas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [subtemaToDelete, setSubtemaToDelete] = useState(null);
   const [editingSubtema, setEditingSubtema] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filtroNivel, setFiltroNivel] = useState('Todos');
@@ -92,10 +95,13 @@ const SubtemasPage = () => {
   };
 
   const deleteSubtema = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este subtema?')) return;
+    setSubtemaToDelete(id);
+    setShowConfirmModal(true);
+  };
 
+  const confirmDelete = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/subtemas/${id}/`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/subtemas/${subtemaToDelete}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -420,6 +426,16 @@ const SubtemasPage = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmDelete}
+        title="¿Eliminar Subtema?"
+        message="Esta acción eliminará el subtema y puede afectar los recursos asociados."
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };

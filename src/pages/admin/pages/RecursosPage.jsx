@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X, Link as LinkIcon } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 
 const RecursosPage = () => {
   const [recursos, setRecursos] = useState([]);
@@ -8,6 +9,8 @@ const RecursosPage = () => {
   const [tipos, setTipos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [recursoToDelete, setRecursoToDelete] = useState(null);
   const [editingRecurso, setEditingRecurso] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
@@ -155,10 +158,13 @@ const RecursosPage = () => {
   };
 
   const deleteRecurso = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este recurso?')) return;
+    setRecursoToDelete(id);
+    setShowConfirmModal(true);
+  };
 
+  const confirmDelete = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/recurso/${id}/`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/recurso/${recursoToDelete}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -554,6 +560,18 @@ const RecursosPage = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de Confirmación */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmDelete}
+        title="¿Eliminar Recurso?"
+        message="Esta acción no se puede deshacer. El recurso será eliminado permanentemente."
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        type="danger"
+      />
     </div>
   );
 };

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, FileText, Users, Calendar } from 'lucide-react';
 import { examenesAPI } from '../utils/api';
+import ConfirmModal from '../components/ConfirmModal';
+import { useNavigate } from 'react-router-dom';
 
 const ExamenesPage = () => {
   const [examenes, setExamenes] = useState([]);
@@ -8,7 +10,9 @@ const ExamenesPage = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
-
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const navigate = useNavigate();
   useEffect(() => {
     fetchExamenes();
     fetchSubtemas();
@@ -45,17 +49,23 @@ const ExamenesPage = () => {
     }
   };
 
-  const deleteExamen = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este examen?')) return;
+    const deleteExamen = (id) => {
+      setItemToDelete(id);
+      setShowConfirmModal(true);
+    };
 
-    try {
-      await examenesAPI.delete(id);
-      await fetchExamenes();
-    } catch (error) {
-      console.error('Error al eliminar examen:', error);
-      alert('Error al eliminar el examen.');
-    }
-  };
+    const confirmDelete = async () => {
+      try {
+        await examenesAPI.delete(itemToDelete);
+        await fetchExamenes();
+      } catch (error) {
+        console.error('Error al eliminar examen:', error);
+        alert('Error al eliminar el examen.');
+      } finally {
+        setShowConfirmModal(false);
+        setItemToDelete(null);
+      }
+    };
 
   const filteredExamenes = examenes.filter(e => 
     e.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -71,7 +81,7 @@ const ExamenesPage = () => {
         </div>
         <button 
           className="btn-primary" 
-          onClick={() => window.location.hash = '#crear-examen'}
+          onClick={() => navigate('/admin/crear-examen')}
         >
           <Plus size={20} />
           <span>Crear Examen</span>
@@ -157,7 +167,7 @@ const ExamenesPage = () => {
                 <div className="examen-actions">
                   <button 
                     className="btn-secondary"
-                    onClick={() => window.location.hash = `#editar-examen/${examen.id_examen}`}
+                    onClick={() => navigate(`/admin/editar-examen/${examen.id_examen}`)}
                   >
                     Editar
                   </button>
@@ -174,6 +184,18 @@ const ExamenesPage = () => {
           )}
         </div>
       )}
+          <ConfirmModal
+          isOpen={showConfirmModal}
+          onClose={() => {
+            setShowConfirmModal(false);
+            setItemToDelete(null);
+          }}
+          onConfirm={confirmDelete}
+          title="¿Eliminar Examen?"
+          message="Esta acción eliminará el examen y todas sus preguntas asociadas permanentemente."
+          confirmText="Sí, eliminar"
+          cancelText="Cancelar"
+        />
     </div>
   );
 };
