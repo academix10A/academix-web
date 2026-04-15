@@ -23,7 +23,7 @@ import NotasCompartidasPanel from '../NotasCompartidasPanel'
 import 'react-pdf/dist/Page/TextLayer.css'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
 
 const PROXY = `${import.meta.env.VITE_API_URL}`
 
