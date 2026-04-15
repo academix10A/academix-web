@@ -1,7 +1,7 @@
 // src/services/api.js
 // Centraliza todas las llamadas al backend
 
-const BASE_URL = import.meta.env.VITE_API_URL
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
 const API_KEY = import.meta.env.VITE_API_KEY
 
 // Token en memoria — se setea desde AuthContext al iniciar/loguear
