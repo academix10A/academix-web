@@ -9,6 +9,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'logo-192.png', 'logo-512.png'],
+
       manifest: {
         name: 'Academix - Plataforma Educativa',
         short_name: 'Academix',
@@ -24,17 +25,21 @@ export default defineConfig({
             src: 'logo-192.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any maskable',
           },
           {
             src: 'logo-512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ]
+            purpose: 'any maskable',
+          },
+        ],
       },
+
       workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        navigateFallback: '/index.html',
+        navigateFallbackAllowlist: [/^\//],
         navigateFallbackDenylist: [
           /^\/api/,
           /^\/docs/,
@@ -53,31 +58,32 @@ export default defineConfig({
                 maxEntries: 50,
                 maxAgeSeconds: 60 * 60 * 24,
               },
-              cacheableResponse: { statuses: [0, 200] },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
             },
           },
 
-          // ── 2. Solo archivos de recursos offline ──────────────────
-          // Condiciones TODAS deben cumplirse:
-          //   a) URL externa (distinto origen que la app)
-          //   b) Extensión de archivo multimedia/documento
-          //   c) No es Drive, YouTube ni Google Fonts
+          // ── 2. Recursos offline (PDF, audio, video, etc.) ─────────
           {
             urlPattern: ({ url }) => {
               const mismoOrigen = url.origin === self.location.origin
 
-              // Archivos del mismo servidor con extensión real
-              // Ejemplo: /academix/documentos/genetica.pdf
+              // Archivos del mismo servidor
               const esArchivoLocal =
                 mismoOrigen &&
-                /\.(pdf|html|htm|mp3|mp4|webm|wav|ogg|aac|m4a|mov)$/i.test(url.pathname)
+                /\.(pdf|html|htm|mp3|mp4|webm|wav|ogg|aac|m4a|mov)$/i.test(
+                  url.pathname
+                )
 
-              // Archivos externos (otro dominio) con extensión real
+              // Archivos externos
               const esArchivoExterno =
                 !mismoOrigen &&
-                /\.(pdf|html|htm|mp3|mp4|webm|wav|ogg|aac|m4a|mov)$/i.test(url.pathname)
+                /\.(pdf|html|htm|mp3|mp4|webm|wav|ogg|aac|m4a|mov)$/i.test(
+                  url.pathname
+                )
 
-              // Excluir servicios que no se pueden cachear
+              // Excluir servicios no cacheables
               const esExcluido =
                 url.hostname.includes('drive.google.com') ||
                 url.hostname.includes('youtube.com') ||
@@ -96,13 +102,17 @@ export default defineConfig({
                 maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 30,
               },
-              cacheableResponse: { statuses: [0, 200] },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
             },
           },
         ],
       },
 
-      devOptions: { enabled: true },
+      devOptions: {
+        enabled: true,
+      },
     }),
   ],
 })
