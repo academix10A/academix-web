@@ -33,7 +33,7 @@ export default function ProtectedRoute({
     }
     // Si está autenticado pero no tiene el rol requerido → al home
     if (user?.rol !== requireRole) {
-      return <Navigate to="/home" replace />
+      return <Navigate to="/biblioteca" replace />
     }
   }
 
