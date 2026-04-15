@@ -13,7 +13,7 @@ export default defineConfig({
         name: 'Academix - Plataforma Educativa',
         short_name: 'Academix',
         description: 'Plataforma de biblioteca virtual y hub de estudio colaborativo',
-        theme_color: '#00CED1',
+        theme_color: '#0F2340',
         background_color: '#181935',
         display: 'standalone',
         orientation: 'portrait',

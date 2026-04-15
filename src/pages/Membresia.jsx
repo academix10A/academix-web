@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar.jsx';
 import './Membresia.css';
 import PaypalButton from "../components/PaypalButton.jsx";
 import { membresiasService } from "../services/api.js";
+import { useAuth } from "../hooks/useAuth.jsx";
 
 const ICON_TIPO = {
   mensual: (
@@ -23,17 +24,18 @@ const CheckIcon = ({ size = 15, stroke = "#E8B84B", strokeWidth = 2 }) => (
   </svg>
 );
 
-function PlanCard({ membresia, selected, onSelect }) {
+function PlanCard({ membresia, selected, onSelect, disabled }) {
   const isPopular = membresia.tipo === "mensual";
   const isGratuito = membresia.costo === 0;
 
   const cardClass = [
     "membership-card",
     selected ? "selected" : isPopular ? "popular" : "default",
+    disabled ? "disabled" : ""
   ].join(" ");
 
   return (
-    <div className={cardClass} onClick={() => onSelect(membresia)}>
+    <div className={cardClass} onClick={() => !disabled && onSelect(membresia)}>
       {isPopular && (
         <div className="membership-card-badge">Más popular</div>
       )}
@@ -41,6 +43,12 @@ function PlanCard({ membresia, selected, onSelect }) {
       <div className={`membership-card-icon ${selected ? "selected" : "default"}`}>
         {ICON_TIPO[membresia.tipo]}
       </div>
+
+      {disabled && (
+        <div className="membership-card-badge">
+          Plan actual
+        </div>
+      )}
 
       <div className="membership-card-name">{membresia.nombre}</div>
 
@@ -208,16 +216,30 @@ export default function PagarMembresia({ membresiaInicial = null }) {
   const [membresias, setMembresias] = useState([]);
   const [paso, setPaso] = useState(1);
   const [seleccionada, setSeleccionada] = useState(null);
+  const { user } = useAuth();
 
+  // useEffect(() => {
+  //   membresiasService.getAll()
+  //     .then((data) => {
+  //       const membresiasFiltradas = data.filter(m => m.costo > 0);
+  //       setMembresias(membresiasFiltradas);
+  //       setSeleccionada(membresiasFiltradas[0]);
+  //     })
+  //     .catch((err) => console.error("Error cargando membresías:", err));
+  // }, []);
   useEffect(() => {
     membresiasService.getAll()
       .then((data) => {
         const membresiasFiltradas = data.filter(m => m.costo > 0);
         setMembresias(membresiasFiltradas);
-        setSeleccionada(membresiasFiltradas[0]);
-      })
-      .catch((err) => console.error("Error cargando membresías:", err));
-  }, []);
+
+        const disponible = membresiasFiltradas.find(
+          m => m.nombre !== user?.membresia
+        );
+
+        setSeleccionada(disponible || null);
+      });
+  }, [user]);
 
   const handleContinuar = () => {
     if (seleccionada) setPaso(2);
@@ -268,14 +290,19 @@ export default function PagarMembresia({ membresiaInicial = null }) {
           {paso === 1 && (
             <>
               <div className="membership-cards-grid">
-                {membresias.map((m) => (
-                  <PlanCard
-                    key={m.id_membresia}
-                    membresia={m}
-                    selected={seleccionada?.id_membresia === m.id_membresia}
-                    onSelect={setSeleccionada}
-                  />
-                ))}
+                {membresias.map((m) => {
+                  const isActive = user?.membresia === m.nombre;
+
+                  return (
+                    <PlanCard
+                      key={m.id_membresia}
+                      membresia={m}
+                      selected={seleccionada?.id_membresia === m.id_membresia}
+                      onSelect={setSeleccionada}
+                      disabled={isActive}
+                    />
+                  );
+                })}
               </div>
               <div className="membership-continue-wrap">
                 <button className="membership-btn-continue" onClick={handleContinuar}>

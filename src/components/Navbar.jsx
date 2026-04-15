@@ -25,10 +25,10 @@ const publicLinks = [
 // Links shown when logged in
 const authLinks = [
   { label: 'Biblioteca',    href: '/biblioteca',     isRoute: true  },
-  { label: 'Membresías',    href: '/membresias',     isRoute: true  },
   { label: 'Publicaciones', href: '/publicaciones',  isRoute: true  },
-  { label: 'Exámenes',      href: '/examenes',       isRoute: true  },
   { label: 'Notas',         href: '/notas',          isRoute: true  },
+  { label: 'Exámenes',      href: '/examenes',       isRoute: true  },
+  { label: 'Membresías',    href: '/membresias',     isRoute: true  },
 ]
 
 export default function Navbar() {
@@ -58,7 +58,6 @@ export default function Navbar() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
   const displayName = user?.nombre || user?.email?.split('@')[0] || 'Usuario'
 
   return (
