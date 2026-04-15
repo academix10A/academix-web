@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
+import { authStorage } from '../../../services/authStorage';
 
 const SubtemasPage = () => {
   const [subtemas, setSubtemas] = useState([]);
@@ -27,9 +28,10 @@ const SubtemasPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/subtemas/', {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/subtemas/`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
@@ -50,11 +52,12 @@ const SubtemasPage = () => {
 
   const createSubtema = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/subtemas/', {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/subtemas/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });
@@ -73,11 +76,12 @@ const SubtemasPage = () => {
 
   const updateSubtema = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/subtemas/${editingSubtema.id_subtema}/`, {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/subtemas/${editingSubtema.id_subtema}/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });
@@ -101,10 +105,11 @@ const SubtemasPage = () => {
 
   const confirmDelete = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/subtemas/${subtemaToDelete}/`, {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/subtemas/${subtemaToDelete}/`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
 

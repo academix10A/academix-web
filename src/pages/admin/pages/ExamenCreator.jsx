@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Check } from 'lucide-react';
-import { examenesAPI, preguntasAPI, opcionesAPI } from '../utils/api';
+import { authStorage } from '../../../services/authStorage';
+import { examenesService, opcionService, preguntaService } from '../../../services/api';
 
 const ExamenCreator = () => {
   const navigate = useNavigate();
@@ -38,9 +39,10 @@ const ExamenCreator = () => {
 
   const fetchSubtemas = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/subtemas/', {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/subtemas/`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       if (response.ok) {
@@ -66,23 +68,23 @@ const ExamenCreator = () => {
     setLoading(true);
     try {
       // 1. Cargar datos del examen
-      const examen = await examenesAPI.getById(examenId);
+      const examen = await examenesService.getById(examenId);
       setExamenData({
         titulo: examen.titulo,
         descripcion: examen.descripcion,
         id_subtema: examen.id_subtema
       });
-
+      const token = await authStorage.getToken();
       // 2. Cargar preguntas y opciones en paralelo
       const [pregRes, opcRes] = await Promise.all([
-        fetch('http://127.0.0.1:8000/api/pregunta/', {
+        fetch(`${import.meta.env.VITE_API_URL}/pregunta/`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+            'Authorization': `Bearer ${token}`
           }
         }),
-        fetch('http://127.0.0.1:8000/api/opcion/', {
+        fetch(`${import.meta.env.VITE_API_URL}/opcion/`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+            'Authorization': `Bearer ${token}`
           }
         })
       ]);
@@ -205,26 +207,27 @@ const ExamenCreator = () => {
       let idExamen;
 
       if (isEditMode) {
-        await examenesAPI.update(examenId, {
+        await examenesService.putExamen(examenId, {
           ...examenData,
           cantidad_preguntas: preguntas.length
         });
         idExamen = examenId;
 
         // Obtener y eliminar preguntas viejas
-        const res = await fetch('http://127.0.0.1:8000/api/pregunta/', {
+        const token = await authStorage.getToken();
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/pregunta/`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+            'Authorization': `Bearer ${token}`
           }
         });
         const data = await res.json();
         const preguntasViejas = data.filter(p => p.id_examen === idExamen);
 
         for (const p of preguntasViejas) {
-          await preguntasAPI.delete(p.id_pregunta);
+          await preguntaService.deletePregunta(p.id_pregunta);
         }
       } else {
-        const nuevo = await examenesAPI.create({
+        const nuevo = await examenesService.postExamen({
           ...examenData,
           cantidad_preguntas: preguntas.length
         });
@@ -233,13 +236,13 @@ const ExamenCreator = () => {
 
       // Crear preguntas y opciones nuevas
       for (const pregunta of preguntas) {
-        const pCreada = await preguntasAPI.create({
+        const pCreada = await preguntaService.postPregunta({
           contenido: pregunta.contenido,
           id_examen: idExamen
         });
 
         for (const opcion of pregunta.opciones) {
-          await opcionesAPI.create({
+          await opcionService.postOpcion({
             respuesta: opcion.respuesta,
             es_correcta: opcion.es_correcta,
             id_pregunta: pCreada.id_pregunta

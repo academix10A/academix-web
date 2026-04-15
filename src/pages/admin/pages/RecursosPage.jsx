@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X, Link as LinkIcon } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
+import { authStorage } from '../../../services/authStorage';
 
 const RecursosPage = () => {
   const [recursos, setRecursos] = useState([]);
@@ -37,9 +38,10 @@ const RecursosPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/recurso/', {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/recurso/`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
@@ -60,9 +62,10 @@ const RecursosPage = () => {
 
   const fetchSubtemas = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/subtemas/', {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/subtemas/`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
@@ -77,9 +80,10 @@ const RecursosPage = () => {
 
   const fetchEstados = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/estado/', {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/estado/`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
@@ -94,9 +98,10 @@ const RecursosPage = () => {
 
   const fetchTipos = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/tipo/', {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tipo/`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
@@ -111,11 +116,12 @@ const RecursosPage = () => {
 
   const createRecurso = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/recurso/', {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/recurso/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });
@@ -135,11 +141,12 @@ const RecursosPage = () => {
 
   const updateRecurso = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/recurso/${editingRecurso.id_recurso}/`, {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/recurso/${editingRecurso.id_recurso}/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });
@@ -164,10 +171,11 @@ const RecursosPage = () => {
 
   const confirmDelete = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/recurso/${recursoToDelete}/`, {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/recurso/${recursoToDelete}/`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
 

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, FileText, Users, Calendar } from 'lucide-react';
-import { examenesAPI } from '../utils/api';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate } from 'react-router-dom';
+import { authStorage } from '../../../services/authStorage';
+import { examenesService } from '../../../services/api';
 
 const ExamenesPage = () => {
   const [examenes, setExamenes] = useState([]);
@@ -20,9 +21,10 @@ const ExamenesPage = () => {
 
   const fetchSubtemas = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/subtemas/', {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/subtemas/`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       if (response.ok) {
@@ -38,7 +40,7 @@ const ExamenesPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await examenesAPI.getAll();
+      const data = await examenesService.getAll();
       setExamenes(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error al cargar exámenes:', error);
@@ -56,7 +58,7 @@ const ExamenesPage = () => {
 
     const confirmDelete = async () => {
       try {
-        await examenesAPI.delete(itemToDelete);
+        await examenesService.deleteExamen(itemToDelete);
         await fetchExamenes();
       } catch (error) {
         console.error('Error al eliminar examen:', error);

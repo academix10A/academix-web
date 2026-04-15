@@ -161,7 +161,7 @@ export default function NotaDetallePage() {
             <div className={styles.metaRow}>
               <span className={styles.metaItem}>
                 <User size={13} />
-                Usuario #{nota.usuario.nombre}
+                Usuario #{nota.id_usuario}
               </span>
               <span className={styles.metaDot} />
               <span className={styles.metaItem}>

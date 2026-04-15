@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Filter, X } from 'lucide-react';
 import Table from '../components/Table';
-import { preguntasAPI, examenesAPI } from '../utils/api';
 import ConfirmModal from '../components/ConfirmModal';
+import { examenesService, preguntaService } from '../../../services/api';
 
 const QuestionsPage = () => {
   const [questions, setQuestions] = useState([]);
@@ -32,7 +32,7 @@ const QuestionsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await preguntasAPI.getAll();
+      const data = await preguntaService.getAll();
       setQuestions(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error al cargar preguntas:', error);
@@ -46,7 +46,7 @@ const QuestionsPage = () => {
   // 🔥 Obtener todos los exámenes
   const fetchExams = async () => {
     try {
-      const data = await examenesAPI.getAll();
+      const data = await examenesService.getAll();
       setExams(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error al cargar exámenes:', error);
@@ -61,7 +61,7 @@ const QuestionsPage = () => {
       return;
     }
     try {
-      await preguntasAPI.create(formData);
+      await preguntaService.postPregunta(formData);
       await fetchQuestions();
       closeModal();
     } catch (error) {
@@ -77,7 +77,7 @@ const QuestionsPage = () => {
       return;
     }
     try {
-      await preguntasAPI.update(editingQuestion.id_pregunta, formData);
+      await preguntaService.putPregunta(editingQuestion.id_pregunta, formData);
       await fetchQuestions();
       closeModal();
     } catch (error) {
@@ -94,7 +94,7 @@ const QuestionsPage = () => {
 
   const confirmDelete = async () => {
     try {
-      await preguntasAPI.delete(itemToDelete);
+      await preguntaService.deletePregunta(itemToDelete);
       await fetchQuestions();
     } catch (error) {
       console.error('Error al eliminar pregunta:', error);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
+import { authStorage } from '../../../services/authStorage';
 
 const BeneficiosPage = () => {
   const [beneficios, setBeneficios] = useState([]);
@@ -25,9 +26,10 @@ const BeneficiosPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/beneficios/', {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/beneficios/`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
@@ -48,11 +50,12 @@ const BeneficiosPage = () => {
 
   const createBeneficio = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/beneficios/', {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/beneficios/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });
@@ -72,11 +75,12 @@ const BeneficiosPage = () => {
 
   const updateBeneficio = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/beneficios/${editingBeneficio.id_beneficio}/`, {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/beneficios/${editingBeneficio.id_beneficio}/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });
@@ -101,10 +105,11 @@ const BeneficiosPage = () => {
 
   const confirmDelete = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/beneficios/${beneficioToDelete}/`, {
+      const token = await authStorage.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/beneficios/${beneficioToDelete}/`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
 
