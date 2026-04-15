@@ -492,14 +492,14 @@ function ViewerContent({
     )
   }
 
-  if (esOffline && (urlType === URL_TYPE.DRIVE || urlType === URL_TYPE.YOUTUBE)) {
-    return (
-      <div className={styles.unknownWrap}>
-        <WifiOff size={48} style={{ color: 'rgba(255,255,255,0.2)' }} />
-        <p>Este tipo de recurso requiere conexión a internet.</p>
-      </div>
-    )
-  }
+  // if (esOffline && (urlType === URL_TYPE.DRIVE || urlType === URL_TYPE.YOUTUBE)) {
+  //   return (
+  //     <div className={styles.unknownWrap}>
+  //       <WifiOff size={48} style={{ color: 'rgba(255,255,255,0.2)' }} />
+  //       <p>Este tipo de recurso requiere conexión a internet.</p>
+  //     </div>
+  //   )
+  // }
 
   switch (urlType) {
     case URL_TYPE.DRIVE:
