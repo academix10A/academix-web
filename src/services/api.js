@@ -276,10 +276,6 @@ export const offlineService = {
   postOffline: (id) => apiFetch(`/offline/${id}`, {
     method: 'POST',
   }),
-  // putOffline: (id, data) => apiFetch(`/offline/${id}`, {
-  //   method: 'PUT',
-  //   body: JSON.stringify(data)
-  // }),
   deleteOffline: (id) => apiFetch(`/offline/${id}`, {
     method: 'DELETE',
   }),
@@ -291,15 +287,5 @@ export const progresoService = {
     method: 'PATCH',
     body: JSON.stringify(data)
   }),
-  // postOffline: (id) => apiFetch(`/offline/${id}`, {
-  //   method: 'POST',
-  // }),
-  // putOffline: (id, data) => apiFetch(`/offline/${id}`, {
-  //   method: 'PUT',
-  //   body: JSON.stringify(data)
-  // }),
-  // deleteOffline: (id) => apiFetch(`/offline/${id}`, {
-  //   method: 'DELETE',
-  // }),
 }
 
