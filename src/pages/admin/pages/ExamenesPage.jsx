@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, FileText, Users, Calendar } from 'lucide-react';
-import { examenesService, subtemasService } from "../../../services/api";
+import { examenesAPI } from '../utils/api';
+import ConfirmModal from '../components/ConfirmModal';
+import { useNavigate } from 'react-router-dom';
 
 const ExamenesPage = () => {
   const [examenes, setExamenes] = useState([]);
@@ -8,7 +10,9 @@ const ExamenesPage = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
-
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const navigate = useNavigate();
   useEffect(() => {
     fetchExamenes();
     fetchSubtemas();
@@ -16,9 +20,14 @@ const ExamenesPage = () => {
 
   const fetchSubtemas = async () => {
     try {
-      const response = await subtemasService.getAll()
-      if (response) {
-        setSubtemas(response);
+      const response = await fetch('http://127.0.0.1:8000/api/subtemas/', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setSubtemas(data);
       }
     } catch (error) {
       console.error('Error al cargar subtemas:', error);
@@ -29,7 +38,7 @@ const ExamenesPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await examenesService.getAll();
+      const data = await examenesAPI.getAll();
       setExamenes(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error al cargar exámenes:', error);
@@ -40,17 +49,23 @@ const ExamenesPage = () => {
     }
   };
 
-  const deleteExamen = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este examen?')) return;
+    const deleteExamen = (id) => {
+      setItemToDelete(id);
+      setShowConfirmModal(true);
+    };
 
-    try {
-      await examenesService.deleteExamen(id);
-      await fetchExamenes();
-    } catch (error) {
-      console.error('Error al eliminar examen:', error);
-      alert('Error al eliminar el examen.');
-    }
-  };
+    const confirmDelete = async () => {
+      try {
+        await examenesAPI.delete(itemToDelete);
+        await fetchExamenes();
+      } catch (error) {
+        console.error('Error al eliminar examen:', error);
+        alert('Error al eliminar el examen.');
+      } finally {
+        setShowConfirmModal(false);
+        setItemToDelete(null);
+      }
+    };
 
   const filteredExamenes = examenes.filter(e => 
     e.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -66,7 +81,7 @@ const ExamenesPage = () => {
         </div>
         <button 
           className="btn-primary" 
-          onClick={() => window.location.hash = '#crear-examen'}
+          onClick={() => navigate('/admin/crear-examen')}
         >
           <Plus size={20} />
           <span>Crear Examen</span>
@@ -152,7 +167,7 @@ const ExamenesPage = () => {
                 <div className="examen-actions">
                   <button 
                     className="btn-secondary"
-                    onClick={() => window.location.hash = `#editar-examen/${examen.id_examen}`}
+                    onClick={() => navigate(`/admin/editar-examen/${examen.id_examen}`)}
                   >
                     Editar
                   </button>
@@ -169,6 +184,18 @@ const ExamenesPage = () => {
           )}
         </div>
       )}
+          <ConfirmModal
+          isOpen={showConfirmModal}
+          onClose={() => {
+            setShowConfirmModal(false);
+            setItemToDelete(null);
+          }}
+          onConfirm={confirmDelete}
+          title="¿Eliminar Examen?"
+          message="Esta acción eliminará el examen y todas sus preguntas asociadas permanentemente."
+          confirmText="Sí, eliminar"
+          cancelText="Cancelar"
+        />
     </div>
   );
 };

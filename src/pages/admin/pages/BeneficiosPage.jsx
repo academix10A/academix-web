@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, X } from 'lucide-react';
-import { beneficiosService } from "../../../services/api";
+import ConfirmModal from '../components/ConfirmModal';
 
 const BeneficiosPage = () => {
   const [beneficios, setBeneficios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [beneficioToDelete, setBeneficioToDelete] = useState(null);
   const [editingBeneficio, setEditingBeneficio] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
@@ -23,10 +25,15 @@ const BeneficiosPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await beneficiosService.getAll()
+      const response = await fetch('http://127.0.0.1:8000/api/beneficios/', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        }
+      });
       
-      if (response) {
-        setBeneficios(Array.isArray(response) ? response : []);
+      if (response.ok) {
+        const data = await response.json();
+        setBeneficios(Array.isArray(data) ? data : []);
       } else {
         throw new Error('Error al cargar beneficios');
       }
@@ -41,9 +48,16 @@ const BeneficiosPage = () => {
 
   const createBeneficio = async () => {
     try {
-      const response = await beneficiosService.postBeneficio(formData)
+      const response = await fetch('http://127.0.0.1:8000/api/beneficios/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        },
+        body: JSON.stringify(formData)
+      });
 
-      if (response) {
+      if (response.ok) {
         await fetchBeneficios();
         closeModal();
       } else {
@@ -58,9 +72,16 @@ const BeneficiosPage = () => {
 
   const updateBeneficio = async () => {
     try {
-      const response = await beneficiosService.putBeneficio(editingBeneficio.id_beneficio, formData)
+      const response = await fetch(`http://127.0.0.1:8000/api/beneficios/${editingBeneficio.id_beneficio}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        },
+        body: JSON.stringify(formData)
+      });
 
-      if (response) {
+      if (response.ok) {
         await fetchBeneficios();
         closeModal();
       } else {
@@ -74,12 +95,20 @@ const BeneficiosPage = () => {
   };
 
   const deleteBeneficio = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este beneficio?')) return;
+    setBeneficioToDelete(id);
+    setShowConfirmModal(true);
+  };
 
+  const confirmDelete = async () => {
     try {
-      const response = await beneficiosService.deleteBeneficio(id)
+      const response = await fetch(`http://127.0.0.1:8000/api/beneficios/${beneficioToDelete}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        }
+      });
 
-      if (response) {
+      if (response.ok) {
         await fetchBeneficios();
       } else {
         alert('Error al eliminar el beneficio');
@@ -300,6 +329,16 @@ const BeneficiosPage = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmDelete}
+        title="¿Eliminar Beneficio?"
+        message="Esta acción eliminará permanentemente este beneficio de todas las membresías asociadas."
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };
