@@ -13,13 +13,15 @@ import styles from './Notewidget.module.css'
 import { recursosService } from '../services/api'
 
 export default function NoteWidget({ recursoPreseleccionado = null }) {
-  const { user, isAuthenticated } = useAuth()
+  const { user, token, isAuthenticated } = useAuth()
   const { notes, addNote, deleteNote, retryPending, pendingCount } = useNotes({
+    token,
     id_usuario: user?.id_usuario,
   })
   const { isFavoriteNota, toggleFavoriteNota } = useFavorites()
 
   const [open, setOpen]               = useState(false)
+  const [titulo, setTitulo]           = useState('')
   const [text, setText]               = useState('')
   const [compartida, setCompartida]   = useState(false)
   const [saving, setSaving]           = useState(false)
@@ -77,6 +79,10 @@ export default function NoteWidget({ recursoPreseleccionado = null }) {
   }
 
   const handleSave = async () => {
+    if (!titulo.trim()) {
+      showToast('El título de la nota no puede estar vacío.', 'warn')
+      return
+    }
     if (!text.trim()) return
     if (!recursoFound) {
       showToast('Escribe el título del recurso para asociar la nota.', 'warn')
@@ -85,10 +91,12 @@ export default function NoteWidget({ recursoPreseleccionado = null }) {
 
     setSaving(true)
     const { syncError, syncErrorType } = await addNote({
+      titulo:        titulo.trim(),
       contenido:     text.trim(),
       es_compartida: compartida,
       id_recurso:    recursoFound.id_recurso,
     })
+    setTitulo('')
     setText('')
     setCompartida(false)
     clearRecurso()
@@ -174,6 +182,7 @@ export default function NoteWidget({ recursoPreseleccionado = null }) {
         ) : (
           <>
             <div className={styles.inputArea}>
+              {/* Recurso asociado */}
               <div className={styles.recursoSearch}>
                 <label className={styles.recursoLabel}>Recurso asociado</label>
                 {recursoFound ? (
@@ -198,6 +207,22 @@ export default function NoteWidget({ recursoPreseleccionado = null }) {
                   </div>
                 )}
                 {searchError && <p className={styles.recursoError}>{searchError}</p>}
+              </div>
+
+              {/* Título de la nota */}
+              <div className={styles.notaTituloWrap}>
+                <label className={styles.recursoLabel}>Título de la nota</label>
+                <input
+                  className={styles.notaTituloInput}
+                  type="text"
+                  placeholder="Ej: Conceptos clave del capítulo 3…"
+                  maxLength={50}
+                  value={titulo}
+                  onChange={e => setTitulo(e.target.value)}
+                />
+                <span className={`${styles.charCount} ${titulo.length >= 25 ? styles.charCountMax : ''}`}>
+                  {titulo.length}/50
+                </span>
               </div>
 
               <textarea
@@ -227,7 +252,7 @@ export default function NoteWidget({ recursoPreseleccionado = null }) {
                 <button
                   className={styles.saveBtn}
                   onClick={handleSave}
-                  disabled={saving || !text.trim() || !recursoFound}
+                  disabled={saving || !text.trim() || !titulo.trim() || !recursoFound}
                 >
                   {saving ? 'Guardando…' : 'Guardar'}
                 </button>
@@ -250,10 +275,13 @@ export default function NoteWidget({ recursoPreseleccionado = null }) {
                       ${esFav ? styles.noteItemFavorita : ''}
                     `}
                   >
-                    {/* Línea dorada arriba si es favorita — visible en el CSS */}
                     <div className={styles.noteTopRow}>
-                      <p className={styles.noteText}>{n.contenido}</p>
-                      {/* Estrella en esquina superior derecha */}
+                      <div className={styles.noteContent}>
+                        {n.titulo && (
+                          <p className={styles.noteTitulo}>{n.titulo}</p>
+                        )}
+                        <p className={styles.noteText}>{n.contenido}</p>
+                      </div>
                       <StarButton
                         active={esFav}
                         onToggle={() => toggleFavoriteNota(n.id)}

@@ -1,46 +1,104 @@
 import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import {
   BookOpen, Star, Award, FileText, BarChart3,
-  ChevronRight, TrendingUp, Clock, Target, Zap,
-  Settings, LogOut, Shield, Calendar, BookMarked,
+  ChevronRight, TrendingUp, Clock, Zap,
+  Shield, Calendar, BookMarked, Inbox,
 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth.jsx'
 import Navbar from '../components/Navbar.jsx'
 import styles from './PerfilPage.module.css'
+import { homeService} from '../services/api.js'
+import { recursosService } from '../services/api.js'
+import { usuariosService } from '../services/api.js'
 
-const mockRecentExams = [
-  { id: 1, title: 'Matemáticas Básicas I', subtema: 'Álgebra',    questions: 25, score: 88, date: 'Hace 2 días' },
-  { id: 2, title: 'Historia Universal',    subtema: 'Edad Media', questions: 30, score: 72, date: 'Hace 5 días' },
-  { id: 3, title: 'Biología Celular',      subtema: 'Mitosis',    questions: 20, score: 95, date: 'Hace 1 semana' },
-]
+// Helper: convierte fecha ISO a texto relativo
+function timeAgo(dateStr) {
+  const diff  = Date.now() - new Date(dateStr).getTime()
+  const mins  = Math.floor(diff / 60000)
+  const hours = Math.floor(diff / 3600000)
+  const days  = Math.floor(diff / 86400000)
+  if (days >= 7)  return `Hace ${Math.floor(days / 7)} semana${Math.floor(days / 7) > 1 ? 's' : ''}`
+  if (days >= 1)  return `Hace ${days} día${days > 1 ? 's' : ''}`
+  if (hours >= 1) return `Hace ${hours} hora${hours > 1 ? 's' : ''}`
+  return `Hace ${mins} min`
+}
 
-const mockActivity = [
-  { icon: BookOpen, label: 'Completaste el examen de Álgebra',          time: 'Hace 2 días',   color: 'blue'   },
-  { icon: Star,     label: 'Guardaste "Historia del Arte Moderno"',      time: 'Hace 3 días',   color: 'gold'   },
-  { icon: FileText, label: 'Accediste a recursos de Biología',           time: 'Hace 5 días',   color: 'green'  },
-  { icon: Award,    label: 'Obtuviste 95% en Biología Celular',          time: 'Hace 1 semana', color: 'purple' },
-]
+// Icono según tipo de item reciente
+function iconForTipo(tipo) {
+  if (tipo === 'recurso') return { Icon: BookOpen, color: 'green' }
+  if (tipo === 'examen')  return { Icon: FileText,  color: 'blue'  }
+  return { Icon: Star, color: 'gold' }
+}
 
-const mockProgress = [
-  { subject: 'Matemáticas', percent: 78, color: '#4A90D9' },
-  { subject: 'Historia',    percent: 62, color: '#D4AF37' },
-  { subject: 'Biología',    percent: 91, color: '#48BB78' },
-  { subject: 'Química',     percent: 45, color: '#E8834A' },
-]
+// Estado vacío reutilizable
+function EmptyState({ label }) {
+  return (
+    <div className={styles.emptyState}>
+      <Inbox size={26} className={styles.emptyIcon} />
+      <span>{label}</span>
+    </div>
+  )
+}
+
+async function getUserId() {
+  const usuario_data = await usuariosService.me()
+  const id_usuario = usuario_data.id_usuario
+  return id_usuario
+}
 
 export default function PerfilPage() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
 
-  const displayName  = user ? `${user.nombre ?? ''} ${user.apellido_paterno ?? ''}`.trim() : 'Usuario'
-  const initials     = displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
-  const email        = user?.email ?? ''
-  const membresia    = user?.membresia ?? 'Plan Free'
-  const rol          = user?.rol ?? 'Estudiante'
-  const esPremium    = rol === 'premium' || rol === 'admin'
+  const [progresoExamenes, setProgresoExamenes] = useState(null)
+  const [recientes,        setRecientes]        = useState([])
+  const [recursosLeidos,   setRecursosLeidos]   = useState([])
+  const [favoritos,        setFavoritos]        = useState([])
+  const [loading,          setLoading]          = useState(true)
 
-  const memberSince  = user?.fecha_registro
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+
+        const userId = await getUserId()
+
+        const [progreso, rec, recursos, favs] = await Promise.all([
+          homeService.getProgresoExamenes(),
+          homeService.getRecientes(),
+          homeService.getRecursosLeidos(),
+          userId ? recursosService.getFavoritos(userId) : Promise.resolve([]),
+        ])
+
+        setProgresoExamenes(progreso)
+        setRecientes(rec ?? [])
+        setRecursosLeidos(recursos ?? [])
+        setFavoritos(favs ?? [])
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [user])
+
+  const displayName = user ? `${user.nombre ?? ''} ${user.apellido_paterno ?? ''}`.trim() : 'Usuario'
+  const initials    = displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+  const email       = user?.email ?? ''
+  const membresia   = user?.membresia ?? 'Plan Free'
+  const rol         = user?.rol ?? 'Estudiante'
+  const esPremium   = rol === 'premium' || rol === 'admin'
+
+  const memberSince = user?.fecha_registro
     ? new Date(user.fecha_registro).toLocaleDateString('es-MX', { year: 'numeric', month: 'long' })
     : 'Hace 1 mes'
+
+  // Datos derivados de la API
+  const totalExamenes = progresoExamenes?.total_examenes_realizados ?? 0
+  const promedio      = progresoExamenes?.promedio_calificacion     ?? 0
+  const examenesLista = progresoExamenes?.examenes                  ?? []
 
   return (
     <>
@@ -48,19 +106,15 @@ export default function PerfilPage() {
       <div className={styles.page}>
         <div className={styles.inner}>
 
-          {/* ── Hero / Profile Header ── */}
+          {/* ── Hero ── */}
           <header className={styles.hero}>
             <div className={styles.heroDecor} />
             <div className={styles.heroDecor2} />
-
             <div className={styles.heroContent}>
-              {/* Avatar */}
               <div className={styles.avatarWrap}>
                 <div className={styles.avatar}>{initials}</div>
                 <div className={styles.avatarRing} />
               </div>
-
-              {/* Info */}
               <div className={styles.heroInfo}>
                 <div className={styles.heroBadge}>
                   <Shield size={12} />
@@ -68,7 +122,6 @@ export default function PerfilPage() {
                 </div>
                 <h1 className={styles.heroTitle}>{displayName}</h1>
                 <p className={styles.heroEmail}>{email}</p>
-
                 <div className={styles.heroMeta}>
                   <span className={styles.heroMetaItem}>
                     <Calendar size={13} />
@@ -79,18 +132,6 @@ export default function PerfilPage() {
                   </span>
                 </div>
               </div>
-
-              {/* Quick actions */}
-              {/* <div className={styles.heroActions}>
-                <Link to="/ajustes" className={styles.actionBtn}>
-                  <Settings size={16} />
-                  <span>Ajustes</span>
-                </Link>
-                <button className={styles.actionBtnDanger} onClick={logout}>
-                  <LogOut size={16} />
-                  <span>Cerrar sesión</span>
-                </button>
-              </div> */}
             </div>
           </header>
 
@@ -99,29 +140,29 @@ export default function PerfilPage() {
             <div className={styles.statCard}>
               <div className={styles.statIcon} data-color="blue"><BarChart3 size={20} /></div>
               <div>
-                <span className={styles.statNumber}>12</span>
+                <span className={styles.statNumber}>{loading ? '–' : totalExamenes}</span>
                 <span className={styles.statLabel}>Exámenes realizados</span>
               </div>
             </div>
             <div className={styles.statCard}>
               <div className={styles.statIcon} data-color="gold"><Star size={20} /></div>
               <div>
-                <span className={styles.statNumber}>5</span>
+                <span className={styles.statNumber}>{loading ? '–' : favoritos.length}</span>
                 <span className={styles.statLabel}>Favoritos</span>
               </div>
             </div>
             <div className={styles.statCard}>
               <div className={styles.statIcon} data-color="green"><TrendingUp size={20} /></div>
               <div>
-                <span className={styles.statNumber}>85%</span>
+                <span className={styles.statNumber}>{loading ? '–' : `${promedio}/10`}</span>
                 <span className={styles.statLabel}>Promedio general</span>
               </div>
             </div>
             <div className={styles.statCard}>
               <div className={styles.statIcon} data-color="teal"><BookMarked size={20} /></div>
               <div>
-                <span className={styles.statNumber}>0</span>
-                <span className={styles.statLabel}>Recursos guardados</span>
+                <span className={styles.statNumber}>{loading ? '–' : recursosLeidos.length}</span>
+                <span className={styles.statLabel}>Recursos leídos</span>
               </div>
             </div>
           </div>
@@ -132,45 +173,63 @@ export default function PerfilPage() {
             {/* LEFT */}
             <div className={styles.leftCol}>
 
-              {/* Recent Exams */}
+              {/* Exámenes recientes */}
               <section className={styles.section}>
                 <div className={styles.sectionHeader}>
                   <h2 className={styles.sectionTitle}>Exámenes recientes</h2>
-                  <Link to="/examenes" className={styles.seeAll}>Ver todos <ChevronRight size={14} /></Link>
+                  <Link to="/examenes" className={styles.seeAll}>
+                    Ver todos <ChevronRight size={14} />
+                  </Link>
                 </div>
                 <div className={styles.examList}>
-                  {mockRecentExams.map(exam => (
-                    <Link key={exam.id} to={`/examenes/${exam.id}`} className={styles.examRow}>
+                  {loading ? (
+                    <p className={styles.loadingText}>Cargando...</p>
+                  ) : examenesLista.length === 0 ? (
+                    <EmptyState label="Aún no has realizado ningún examen." />
+                  ) : examenesLista.map(exam => (
+                    <div key={exam.id_examen} className={styles.examRow}>
                       <div className={styles.examRowLeft}>
-                        <span className={styles.examBadge}>{exam.subtema}</span>
-                        <h3 className={styles.examRowTitle}>{exam.title}</h3>
+                        <h3 className={styles.examRowTitle}>{exam.titulo}</h3>
                         <span className={styles.examMeta}>
-                          <Clock size={12} /> {exam.date} · {exam.questions} preguntas
+                          <Clock size={12} /> {timeAgo(exam.fecha)}
                         </span>
                       </div>
-                      <div className={styles.examScore} data-pass={exam.score >= 70}>
-                        {exam.score}%
+                      <div className={styles.examScore} data-pass={exam.calificacion >= 6}>
+                        {exam.calificacion}/10
                       </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
               </section>
 
-              {/* Activity Feed */}
+              {/* Actividad reciente */}
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>Actividad reciente</h2>
                 <div className={styles.activityList}>
-                  {mockActivity.map((item, i) => (
-                    <div key={i} className={styles.activityRow}>
-                      <div className={styles.activityIcon} data-color={item.color}>
-                        <item.icon size={16} />
-                      </div>
-                      <div className={styles.activityText}>
-                        <span className={styles.activityLabel}>{item.label}</span>
-                        <span className={styles.activityTime}>{item.time}</span>
-                      </div>
-                    </div>
-                  ))}
+                  {loading ? (
+                    <p className={styles.loadingText}>Cargando...</p>
+                  ) : recientes.length === 0 ? (
+                    <EmptyState label="No hay actividad reciente." />
+                  ) : recientes.map(item => {
+                    const { Icon, color } = iconForTipo(item.tipo)
+                    const href = item.tipo === 'recurso'
+                      ? `/recursos/ver/${item.id}`
+                      : `/examenes/${item.id}`
+                    return (
+                      <Link key={item.id_vista} to={href} className={styles.activityRow}>
+                        <div className={styles.activityIcon} data-color={color}>
+                          <Icon size={16} />
+                        </div>
+                        <div className={styles.activityText}>
+                          <span className={styles.activityLabel}>{item.titulo}</span>
+                          <span className={styles.activityTime}>
+                            {item.descripcion} · {timeAgo(item.fecha_vista)}
+                          </span>
+                        </div>
+                        <ChevronRight size={14} className={styles.activityArrow} />
+                      </Link>
+                    )
+                  })}
                 </div>
               </section>
             </div>
@@ -178,40 +237,85 @@ export default function PerfilPage() {
             {/* RIGHT */}
             <div className={styles.rightCol}>
 
-              {/* Progress */}
+              {/* Recursos leídos */}
               <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Progreso por materia</h2>
+                <h2 className={styles.sectionTitle}>Recursos leídos</h2>
                 <div className={styles.progressList}>
-                  {mockProgress.map(item => (
-                    <div key={item.subject} className={styles.progressItem}>
+                  {loading ? (
+                    <p className={styles.loadingText}>Cargando...</p>
+                  ) : recursosLeidos.length === 0 ? (
+                    <EmptyState label="No has leído ningún recurso aún." />
+                  ) : recursosLeidos.map(r => (
+                    <Link
+                      key={r.id_recurso}
+                      to={`/recursos/ver/${r.id_recurso}`}
+                      className={styles.progressItem}
+                    >
                       <div className={styles.progressHeader}>
-                        <span className={styles.progressSubject}>{item.subject}</span>
-                        <span className={styles.progressPct}>{item.percent}%</span>
+                        <span className={styles.progressSubject}>{r.titulo}</span>
+                        <span className={styles.progressPct}>{r.porcentaje_leido}%</span>
                       </div>
                       <div className={styles.progressBarBg}>
                         <div
                           className={styles.progressBarFill}
-                          style={{ width: `${item.percent}%`, background: item.color }}
+                          style={{
+                            width: `${r.porcentaje_leido}%`,
+                            background: r.completado ? '#48BB78' : '#4A90D9',
+                          }}
                         />
                       </div>
-                    </div>
+                      {r.completado && (
+                        <span className={styles.completadoBadge}>✓ Completado</span>
+                      )}
+                    </Link>
                   ))}
                 </div>
               </section>
 
-              {/* Motivational card */}
+              {/* Favoritos */}
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>Recursos favoritos</h2>
+                <div className={styles.favList}>
+                  {loading ? (
+                    <p className={styles.loadingText}>Cargando...</p>
+                  ) : favoritos.length === 0 ? (
+                    <EmptyState label="No tienes recursos favoritos aún." />
+                  ) : favoritos.map(fav => (
+                    <Link
+                      key={fav.id_recurso}
+                      to={`/recursos/ver/${fav.id_recurso}`}
+                      className={styles.favRow}
+                    >
+                      <div className={styles.favIcon}>
+                        <Star size={15} />
+                      </div>
+                      <div className={styles.favText}>
+                        <span className={styles.favTitle}>{fav.titulo}</span>
+                        <span className={styles.favDesc}>{fav.descripcion}</span>
+                      </div>
+                      <ChevronRight size={14} className={styles.favArrow} />
+                    </Link>
+                  ))}
+                </div>
+              </section>
+
+              {/* Motivacional dinámico */}
               <div className={styles.motivCard}>
                 <Award size={28} className={styles.motivIcon} />
-                <h3 className={styles.motivTitle}>¡Vas muy bien!</h3>
+                <h3 className={styles.motivTitle}>
+                  {promedio >= 7 ? '¡Vas muy bien!' : '¡Sigue practicando!'}
+                </h3>
                 <p className={styles.motivSub}>
-                  Tu promedio está por encima del 80%. Sigue así para mantener tu racha.
+                  {promedio >= 7
+                    ? 'Tu promedio es bueno. Sigue así para mantener tu racha.'
+                    : 'Practica más exámenes para mejorar tu promedio.'}
                 </p>
                 <Link to="/examenes" className={styles.motivBtn}>
                   Practicar ahora <ChevronRight size={14} />
                 </Link>
               </div>
 
-              {/* Upgrade card */}
+              {/* Upgrade */}
               {!esPremium && (
                 <div className={styles.upgradeCard}>
                   <Zap size={22} className={styles.upgradeIcon} />

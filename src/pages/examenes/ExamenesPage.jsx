@@ -9,6 +9,13 @@ import { useFavorites } from '../../hooks/useFavorites'
 import { examenesService, subtemasService } from '../../services/api'
 import styles from './ExamenesPage.module.css'
 
+function normalizarTexto(texto) {
+  return texto
+    .normalize('NFD')                 // separa letras y acentos
+    .replace(/[\u0300-\u036f]/g, '')  // elimina los acentos
+    .toLowerCase()
+}
+
 const ETIQUETA_COLORS = [
   { bg: 'rgba(99,179,237,0.15)',  border: 'rgba(99,179,237,0.4)',  text: '#63b3ed' },
   { bg: 'rgba(212,175,55,0.15)',  border: 'rgba(212,175,55,0.4)',  text: '#d4af37' },
@@ -58,7 +65,7 @@ export default function ExamenesPage() {
   }, [searchParams])
 
   const examenesFiltrados = examenes.filter(ex => {
-    const matchBusqueda  = ex.titulo.toLowerCase().includes(busqueda.toLowerCase())
+    const matchBusqueda = normalizarTexto(ex.titulo).includes(normalizarTexto(busqueda))
     const matchFavoritos = filtroSub === FILTRO_FAVORITOS ? isFavoriteExamen(ex.id_examen) : true
     const matchSub       = (filtroSub && filtroSub !== FILTRO_FAVORITOS) ? ex.id_subtema === filtroSub : true
     return matchBusqueda && matchFavoritos && matchSub

@@ -111,7 +111,7 @@
   transition: border-color 0.2s;
 }
 .textarea:focus { border-color: var(--gold); }
-.textarea::placeholder { color: rgba(255,255,255,0.05); }
+.textarea::placeholder { color: rgba(255,255,255,0.25); }
 
 .authMsg {
   color: rgba(255, 255, 255, 0.997);
@@ -207,11 +207,28 @@
   background: rgba(229,62,62,0.04);
 }
 
+.noteContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.noteTitulo {
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  margin: 0 0 0.25rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .noteText {
   color: rgba(255,255,255,0.85);
   font-size: 0.85rem;
   line-height: 1.5;
   word-break: break-word;
+  margin: 0;
 }
 
 .noteError {
@@ -368,24 +385,51 @@
   color: #fc8181;
 }
 
+/* ── Título de la nota ── */
+.notaTituloWrap {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.notaTituloInput {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 0.55rem 3rem 0.55rem 0.75rem;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 0.83rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.notaTituloInput:focus { border-color: var(--gold); }
+.notaTituloInput::placeholder { color: rgba(255,255,255,0.25); }
+
+.charCount {
+  position: absolute;
+  right: 0.65rem;
+  bottom: 0.55rem;
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.28);
+  pointer-events: none;
+  line-height: 1;
+}
+.charCountMax {
+  color: #fc8181;
+}
+
 .noteTopRow {
   display: flex;
   align-items: flex-start;
   gap: 0.4rem;
   justify-content: space-between;
 }
- 
-/* El texto ocupa todo el espacio disponible */
-.noteTopRow .noteText {
-  flex: 1;
-  margin: 0;
-}
- 
+
 /* Nota marcada como favorita:
    línea dorada arriba + fondo levemente dorado */
 .noteItemFavorita {
   border-color: rgba(212, 175, 55, 0.35) !important;
   background: rgba(212, 175, 55, 0.04) !important;
-  /* La línea dorada arriba es el border-top */
   border-top: 2px solid rgba(212, 175, 55, 0.6) !important;
 }

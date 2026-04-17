@@ -20,6 +20,7 @@ import {
   UserCheck
 } from 'lucide-react';
 import { usuariosService } from "../../../services/api";
+import { authStorage } from '../../../services/authStorage';
 
 const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
   const navigate = useNavigate();
@@ -42,12 +43,9 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
 
   const fetchCurrentUser = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = await authStorage.getUser();
       if (!token) return;
-
-      // Decodificar JWT para obtener el userId
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const userId = payload.sub;
+      const userId = token.id_usuario;
 
       const response = await usuariosService.getById(userId)
 
@@ -98,7 +96,7 @@ const Sidebar = ({ activeMenu, setActiveMenu, onLogout }) => {
 
         const responseCorreo = await usuariosService.putUserEmail(currentUser.id_usuario, updateData)
 
-        if (!responseCorreo.ok) {
+        if (!responseCorreo) {
           const errorData = await responseCorreo.json();
           throw new Error(errorData.detail || 'Error al actualizar correo');
         }

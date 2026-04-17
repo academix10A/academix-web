@@ -64,6 +64,7 @@ export const loginService = {
 export const recursosService = {
   getAll:      () => apiFetch('/recurso/'),
   getById:     (id) => apiFetch(`/recurso/${id}`),
+  getFavoritos:     (id) => apiFetch(`/recurso/favoritos/${id}`),
   getByTitulo: (titulo) => apiFetch(`/recurso/titulo/${encodeURIComponent(titulo)}`),
   postRecurso:      (data) => apiFetch('/recurso/', {
     method: 'POST',
@@ -119,7 +120,7 @@ export const examenesService = {
     body: JSON.stringify(data),
   }),
   putExamen: (id, data) => apiFetch(`/examen/${id}`, {
-    method: 'POST',
+    method: 'PUT',
     body: JSON.stringify(data),
   }),
   deleteExamen: (id) => apiFetch(`/examen/${id}`, {
@@ -178,6 +179,7 @@ export const usuarioMembresiaService = {
 
 export const usuariosService = {
   getAll: () => apiFetch('/usuarios/'),
+  me: () => apiFetch('/usuarios/me'),
   getMe: () => apiFetch('/usuarios/refresh'),
   getById: (id) => apiFetch(`/usuarios/${id}/`),
   putUserEmail: (id, data) => apiFetch(`/usuarios/${id}/`, {
@@ -226,7 +228,9 @@ export const preguntaService = {
     method: 'PUT',
     body: JSON.stringify(data)
   }),
-  deletePregunta: (id) => apiFetch(`/pregunta/${id}`),
+  deletePregunta: (id) => apiFetch(`/pregunta/${id}`, {
+    method: 'DELETE',
+  }),
 }
 
 export const opcionService = {
@@ -239,6 +243,12 @@ export const opcionService = {
 
 export const rolService = {
   getAll: () => apiFetch('/rol/'),
+}
+
+export const homeService = {
+  getProgresoExamenes: () => apiFetch('/home/usuario/progreso-examenes'),
+  getRecientes: () => apiFetch('/home/usuario/recientes'),
+  getRecursosLeidos: () => apiFetch('/home/usuario/recursos-leidos'),
 }
 
 export const estadoService = {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import localforage from 'localforage'
 
 const NOTES_KEY = 'academix_notes'
-const API_URL   = 'http://localhost:8000/api/notas'
+const API_URL   = `${import.meta.env.VITE_API_URL}/notas/`
 
 export const SyncError = {
   NONE:         'none',
@@ -47,8 +47,10 @@ export function useNotes({ token, id_usuario } = {}) {
     localforage.setItem(storageKey, notes)
   }, [notes, storageKey])
 
-  const addNote = async ({ contenido, es_compartida, id_recurso }) => {
+  const addNote = async ({ titulo, contenido, es_compartida, id_recurso }) => {
     // Validaciones locales
+    if (!titulo?.trim())
+      return { note: null, syncError: 'El título no puede estar vacío.', syncErrorType: SyncError.UNKNOWN }
     if (!contenido?.trim())
       return { note: null, syncError: 'El contenido no puede estar vacío.', syncErrorType: SyncError.UNKNOWN }
     if (!id_recurso || id_recurso <= 0)
@@ -60,6 +62,7 @@ export function useNotes({ token, id_usuario } = {}) {
     const newNote = {
       id:            Date.now(),           // ID temporal local
       id_nota:       null,                 // ID real que vendrá del backend
+      titulo:        titulo.trim(),
       contenido:     contenido.trim(),
       es_compartida: Boolean(es_compartida),
       id_usuario,
@@ -93,6 +96,7 @@ export function useNotes({ token, id_usuario } = {}) {
             'Authorization': `Bearer ${token}`,   
           },
           body: JSON.stringify({
+            titulo:        newNote.titulo,
             contenido:     newNote.contenido,
             es_compartida: newNote.es_compartida,
             id_usuario,    
@@ -180,6 +184,7 @@ export function useNotes({ token, id_usuario } = {}) {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
+          titulo:        nota.titulo,
           contenido:     nota.contenido,
           es_compartida: nota.es_compartida,
           id_usuario,

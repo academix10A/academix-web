@@ -60,9 +60,11 @@ export default function AjustesPage() {
     e.preventDefault()
     setSavingPerfil(true)
     try {
-      await usuariosService.updateProfile(
-        { nombre, apellido_paterno: apellidoPaterno, apellido_materno: apellidoMaterno, email },
-        token
+      const usuario_data = await usuariosService.me()
+      const id_usuario = usuario_data.id_usuario
+      await usuariosService.putUser(
+        id_usuario,
+        { nombre, apellido_paterno: apellidoPaterno, apellido_materno: apellidoMaterno, email }
       )
       refreshUser?.()
       showToast('success', 'Perfil actualizado correctamente')
@@ -85,9 +87,12 @@ export default function AjustesPage() {
     }
     setSavingPass(true)
     try {
-      await usuariosService.changePassword(
-        { password_actual: passActual, password_nueva: passNueva },
-        token
+      const usuario_data = await usuariosService.me()
+      const id_usuario = usuario_data.id_usuario
+      await usuariosService.patchUserPassword(
+        id_usuario,
+        passActual,
+        passNueva
       )
       setPassActual(''); setPassNueva(''); setPassConfirm('')
       showToast('success', 'Contraseña cambiada correctamente')

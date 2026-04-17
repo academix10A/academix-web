@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, FileText, Users, Calendar } from 'lucide-react';
 import { examenesService, subtemasService } from "../../../services/api";
+import { useNavigate } from 'react-router-dom'
 
 const ExamenesPage = () => {
   const [examenes, setExamenes] = useState([]);
@@ -8,6 +9,7 @@ const ExamenesPage = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchExamenes();
@@ -152,7 +154,7 @@ const ExamenesPage = () => {
                 <div className="examen-actions">
                   <button 
                     className="btn-secondary"
-                    onClick={() => window.location.hash = `#editar-examen/${examen.id_examen}`}
+                    onClick={() => navigate(`/admin/editar-examen/${examen.id_examen}`)}
                   >
                     Editar
                   </button>

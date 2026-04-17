@@ -74,9 +74,9 @@ const MembresiasPage = () => {
     }
   };
 
-  const updateMembresia = async () => {
+  const updateMembresia = async (id) => {
     try {
-      const response = await membresiasService.putMembresia(formData)
+      const response = await membresiasService.putMembresia(id,formData)
 
       if (response) {
         await fetchMembresias();
@@ -142,7 +142,7 @@ const MembresiasPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (editingMembresia) {
-      updateMembresia();
+      updateMembresia(editingMembresia.id_membresia);
     } else {
       createMembresia();
     }
