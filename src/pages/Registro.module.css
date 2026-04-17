@@ -8,6 +8,7 @@
   padding: 2rem;
   position: relative;
   overflow: hidden;
+  padding-top: 68px;
 }
 .bgDecor { position: absolute; inset: 0; pointer-events: none; }
 .bgCircle1 {

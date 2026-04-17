@@ -24,8 +24,13 @@ jobs:
 
             cd ~/academix
 
-            echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env.frontend
+            echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env.production
+            echo "VITE_API_KEY=${{ secrets.VITE_API_KEY }}" >> .env.production
 
             docker pull ${{ secrets.DOCKER_USERNAME }}/academix-frontend:latest
 
-            docker-compose up -d --no-deps frontend
+            # SOLUCION AL BUG DE DOCKER-COMPOSE
+            docker-compose stop academix-frontend || true
+            docker-compose rm -f academix-frontend || true
+
+            docker-compose up -d --no-deps academix-frontend

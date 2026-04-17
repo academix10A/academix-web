@@ -34,7 +34,8 @@
 }
 .logo svg { color: var(--gold-light); }
 
-.logoImg { width: 32px; height: 32px; object-fit: contain; }
+.logoImg { width: 38px; height: 38px; object-fit: contain; 
+  border-radius: 25px; }
 
 .links {
   display: flex;

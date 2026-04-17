@@ -1,0 +1,198 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.06) 0%, transparent 50%),
+    var(--blue-dark);
+  padding: 5rem 1.5rem 4rem;
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/*  Score card  */
+.scoreCard {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.medalla { font-size: 3rem; line-height: 1; }
+
+.medallaLabel {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.examenTitulo {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 0.5rem;
+}
+
+.scoreCircle {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  padding: 1rem 2rem;
+  background: rgba(212,175,55,0.08);
+  border: 2px solid rgba(212,175,55,0.25);
+  border-radius: 20px;
+  margin: 0.5rem 0;
+}
+.scoreNum {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+}
+.scoreDen {
+  font-size: 1.25rem;
+  color: rgba(255,255,255,0.3);
+}
+
+/*  Stats row  */
+.statsRow {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem 2rem;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.stat {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.2rem;
+}
+.statNum {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 900;
+  line-height: 1;
+}
+.statLabel { font-size: 0.72rem; color: rgba(255,255,255,0.3); }
+.statDivider { width: 1px; height: 36px; background: rgba(255,255,255,0.07); }
+
+/*  Desglose  */
+.desgloseTitle {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.desglose {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.preguntaRow {
+  border-radius: 14px;
+  border: 1px solid;
+  overflow: hidden;
+}
+.correcta   { border-color: rgba(154,230,180,0.2); }
+.incorrecta { border-color: rgba(252,129,129,0.2); }
+
+.preguntaHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+.correcta .preguntaHeader   { background: rgba(154,230,180,0.06); }
+.incorrecta .preguntaHeader { background: rgba(252,129,129,0.06); }
+
+.preguntaNum {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+  padding-top: 0.15rem;
+}
+.preguntaContenido {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--white);
+  flex: 1;
+  line-height: 1.5;
+}
+
+.opciones {
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: rgba(0,0,0,0.15);
+}
+.opcion {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.4);
+  padding: 0.35rem 0;
+}
+.opcionCorrecta {
+  color: #9ae6b4;
+  font-weight: 600;
+}
+.opcionElegidaMal {
+  color: #fc8181;
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+.opcionDot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+
+/*  Actions  */
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btnPrimario {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.85rem 2rem;
+  background: var(--gold);
+  color: var(--blue-dark);
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.btnPrimario:hover { opacity: 0.88; transform: translateY(-2px); }
+
+.btnSecundario {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.85rem 2rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.7);
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: background 0.2s, transform 0.2s;
+}
+.btnSecundario:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }

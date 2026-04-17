@@ -1,63 +1,54 @@
-import { Check, Zap, Crown, BookOpen } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Check, Zap, Crown, BookOpen, Star } from 'lucide-react'
+import { membresiasService } from '../services/api'
 import styles from './Memberships.module.css'
 
-const plans = [
-  {
-    id: 'free',
-    icon: <BookOpen size={28} />,
-    name: 'Básico',
-    price: 'Gratis',
-    period: '',
-    desc: 'Acceso a la biblioteca y herramientas básicas de estudio.',
-    features: [
-      'Acceso a biblioteca virtual',
-      'Creación de notas personales',
-      'Exámenes de práctica',
-      'Búsqueda y filtrado de recursos',
-      'App móvil (Android)',
-    ],
-    cta: 'Empezar Gratis',
-    highlight: false,
-  },
-  {
-    id: 'premium',
-    icon: <Crown size={28} />,
-    name: 'Premium',
-    price: '$99',
-    period: '/mes',
-    desc: 'Todo lo del plan Básico más asistencia IA y contenido exclusivo.',
-    features: [
-      'Todo lo del plan Básico',
-      'Asistencia inteligente con IA',
-      'Descarga de recursos offline',
-      'Contenido exclusivo premium',
-      'Historial de consultas IA',
-      'Soporte prioritario',
-    ],
-    cta: 'Obtener Premium',
-    highlight: true,
-  },
-  {
-    id: 'institutional',
-    icon: <Zap size={28} />,
-    name: 'Institucional',
-    price: 'Cotizar',
-    period: '',
-    desc: 'Solución completa para escuelas y centros educativos.',
-    features: [
-      'Todo lo del plan Premium',
-      'Gestión multi-usuario',
-      'Panel administrativo',
-      'Reportes de progreso grupal',
-      'Integración con LMS',
-      'Soporte dedicado 24/7',
-    ],
-    cta: 'Contactar Ventas',
-    highlight: false,
-  },
-]
+function getMembresiaIcon(tipo, nombre) {
+  const t = tipo?.toLowerCase() ?? ''
+  const n = nombre?.toLowerCase() ?? ''
+  if (n.includes('gratuito') || t.includes('freemium')) return <BookOpen size={28} />
+  if (n.includes('semestral') || n.includes('anual'))    return <Zap size={28} />
+  if (n.includes('premium') || n.includes('mensual'))    return <Crown size={28} />
+  return <Star size={28} />
+}
+
+function esDestacado(membresia, index, total) {
+  const n = membresia.nombre?.toLowerCase() ?? ''
+  return n.includes('mensual') || (total >= 3 && index === 1)
+}
 
 export default function Memberships() {
+  const [membresias, setMembresias] = useState([])
+  const [loading, setLoading]       = useState(true)
+
+  useEffect(() => {
+    membresiasService.getAll(null)
+      .then(data => {
+        const lista = Array.isArray(data) ? data : data.items ?? []
+
+        const filtradas = lista.filter(m => m.costo > 0)
+
+        setMembresias(filtradas)
+      })
+      .catch(() => setMembresias([]))
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) return (
+    <section id="membresias" className={styles.section}>
+      <div className={styles.header}>
+        <span className={styles.eyebrow}>Membresías</span>
+        <h2 className={styles.title}>Elige tu Plan</h2>
+        <p className={styles.sub}>Accede al conocimiento al nivel que necesitas</p>
+      </div>
+      <div className={styles.grid}>
+        {[1,2,3].map(i => (
+          <div key={i} className={styles.card} style={{ opacity: 0.4, minHeight: 400 }} />
+        ))}
+      </div>
+    </section>
+  )
+
   return (
     <section id="membresias" className={styles.section}>
       <div className={styles.header}>
@@ -67,32 +58,46 @@ export default function Memberships() {
       </div>
 
       <div className={styles.grid}>
-        {plans.map(p => (
-          <div key={p.id} className={`${styles.card} ${p.highlight ? styles.highlight : ''}`}>
-            {p.highlight && <div className={styles.badge}>Más Popular</div>}
+        {membresias.map((m, i) => {
+          const destacado = esDestacado(m, i, membresias.length)
+          const precio    = m.costo === 0 ? 'Gratis' : `$${m.costo}`
+          const periodo   = m.tipo?.toLowerCase().includes('freemium') ? '' : `/${m.tipo}`
 
-            <div className={styles.iconWrap}>{p.icon}</div>
-            <h3 className={styles.planName}>{p.name}</h3>
-            <div className={styles.priceRow}>
-              <span className={styles.price}>{p.price}</span>
-              {p.period && <span className={styles.period}>{p.period}</span>}
+          return (
+            <div key={m.id_membresia} className={`${styles.card} ${destacado ? styles.highlight : ''}`}>
+              {destacado && <div className={styles.badge}>Más Popular</div>}
+
+              <div className={styles.iconWrap}>
+                {getMembresiaIcon(m.tipo, m.nombre)}
+              </div>
+
+              <h3 className={styles.planName}>{m.nombre}</h3>
+
+              <div className={styles.priceRow}>
+                <span className={styles.price}>{precio}</span>
+                {periodo && <span className={styles.period}>{periodo}</span>}
+              </div>
+
+              <p className={styles.desc}>{m.descripcion}</p>
+
+              {/* Beneficios de la BD si existen, si no muestra vacío */}
+              {m.beneficios && m.beneficios.length > 0 && (
+                <ul className={styles.features}>
+                  {m.beneficios.map(b => (
+                    <li key={b.id_beneficio} className={styles.feat}>
+                      <Check size={16} className={styles.check} />
+                      {b.nombre}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <a href="/login" className={`${styles.btn} ${destacado ? styles.btnGold : ''}`}>
+                {m.costo === 0 ? 'Empezar Gratis' : 'Obtener Plan'}
+              </a>
             </div>
-            <p className={styles.desc}>{p.desc}</p>
-
-            <ul className={styles.features}>
-              {p.features.map(f => (
-                <li key={f} className={styles.feat}>
-                  <Check size={16} className={styles.check} />
-                  {f}
-                </li>
-              ))}
-            </ul>
-
-            <a href="#login" className={`${styles.btn} ${p.highlight ? styles.btnGold : ''}`}>
-              {p.cta}
-            </a>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </section>
   )
