@@ -30,7 +30,7 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/academix-frontend:latest
 
             # SOLUCION AL BUG DE DOCKER-COMPOSE
-            docker-compose stop frontend || true
-            docker-compose rm -f frontend || true
+            docker-compose stop academix-frontend || true
+            docker-compose rm -f academix-frontend || true
 
-            docker-compose up -d --no-deps frontend
+            docker-compose up -d --no-deps academix-frontend
